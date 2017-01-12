@@ -1,5 +1,8 @@
 package io.whitegoldlabs.wiseguys.view;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -10,8 +13,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
@@ -32,11 +34,8 @@ public class GameScreen implements Screen
 	ComponentMapper<PositionComponent> pMap;
 	ComponentMapper<VelocityComponent> vMap;
 	ComponentMapper<SpriteComponent> sMap;
-	MovementSystem movementSystem;
-	RenderSystem renderSystem;
-	Entity player;
 	
-	World world;
+	Entity player;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -47,28 +46,33 @@ public class GameScreen implements Screen
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera.zoom -= 0.5f;
 		
 		spriteSheet = new Texture(Gdx.files.internal("sprites.png"));
+		Sprite playerSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
 		
 		engine = new Engine();
 		
 		pMap = ComponentMapper.getFor(PositionComponent.class);
 		vMap = ComponentMapper.getFor(VelocityComponent.class);
 		sMap = ComponentMapper.getFor(SpriteComponent.class);
-		
-		movementSystem = new MovementSystem();
-		renderSystem = new RenderSystem(game.batch, camera);
-		
-		engine.addSystem(movementSystem);
-		engine.addSystem(renderSystem);
+
+		engine.addSystem(new RenderSystem(game.batch, camera));
+		engine.addSystem(new MovementSystem());
 		
 		player = new Entity();
-		player.add(new PositionComponent(400, 300));
+		player.add(new SpriteComponent(playerSprite));
+		player.add(new PositionComponent(400, 16));
 		player.add(new VelocityComponent(0, 0));
-		player.add(new SpriteComponent(new Sprite(spriteSheet, 0, 0, 16, 16)));
-		engine.addEntity(player);
 		
-		world = new World(new Vector2(0, -10), true);
+		// Generate test world objects
+		Array<Entity> testWorldObjects = getTestWorldObjects();
+		
+		engine.addEntity(player);
+		for(Entity testWorldObject : testWorldObjects)
+		{
+			engine.addEntity(testWorldObject);
+		}
 	}
 
 	@Override
@@ -84,15 +88,18 @@ public class GameScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         // Update logic.
+        PositionComponent playerPosition = pMap.get(player);
         VelocityComponent playerVelocity = vMap.get(player);
+        
+        camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
         
         if(Gdx.input.isKeyPressed(Keys.LEFT))
 		{
-        	playerVelocity.x = -200;
+        	playerVelocity.x -= 50;
 		}
         else if(Gdx.input.isKeyPressed(Keys.RIGHT))
         {
-        	playerVelocity.x = 200;
+        	playerVelocity.x += 50;
         }
         else
         {
@@ -100,7 +107,6 @@ public class GameScreen implements Screen
         }
         
         engine.update(delta);
-        world.step(1/45f, 6, 2);
 	}
 
 	@Override
@@ -130,6 +136,34 @@ public class GameScreen implements Screen
 	@Override
 	public void dispose()
 	{
-
+		
+	}
+	
+	private Array<Entity> getTestWorldObjects()
+	{
+		Array<Entity> entities = new Array<>();
+		
+		String[] lines = Gdx.files.internal("testworld.txt").readString().split("\n");
+		Pattern regex = Pattern.compile("(\\D+)\\s(\\d+)\\s(\\d+)");
+		
+		for(String line : lines)
+		{
+			Matcher matcher = regex.matcher(line);
+			
+			if(matcher.find())
+			{
+				int x = Integer.parseInt(matcher.group(2));
+				int y = Integer.parseInt(matcher.group(3));
+				
+				Entity block = new Entity();
+				Sprite blockSprite = new Sprite(spriteSheet, 80, 0, 16, 16);
+				block.add(new SpriteComponent(blockSprite));
+				block.add(new PositionComponent(x, y));
+				
+				entities.add(block);
+			}
+		}
+		
+		return entities;
 	}
 }
