@@ -38,9 +38,6 @@ public class RenderSystem extends EntitySystem
 	
 	public void update(float deltaTime)
 	{
-		PositionComponent position;
-		SpriteComponent sprite;
-		
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		
@@ -48,12 +45,11 @@ public class RenderSystem extends EntitySystem
 		for(int i = 0; i < entities.size(); i++)
 		{
 			Entity entity = entities.get(i);
-			position = pMap.get(entity);
-			sprite = sMap.get(entity);
+			float x = pMap.get(entity).x;
+			float y = pMap.get(entity).y;
+			SpriteComponent sprite = sMap.get(entity);
 			
-			sprite.sprite.setScale(3);
-			sprite.sprite.setPosition(position.x, position.y);
-			
+			sprite.sprite.setPosition(x, y);
 			sprite.sprite.draw(batch);
 		}
 		batch.end();
