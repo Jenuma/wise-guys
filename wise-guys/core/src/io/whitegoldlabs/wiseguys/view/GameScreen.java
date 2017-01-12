@@ -16,9 +16,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
+import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
+import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
+import io.whitegoldlabs.wiseguys.system.GravitySystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
 
@@ -36,6 +39,12 @@ public class GameScreen implements Screen
 	ComponentMapper<SpriteComponent> sMap;
 	
 	Entity player;
+	
+	boolean leftPressed;
+	boolean rightPressed;
+	
+	final float PLAYER_SPAWN_X = 400;
+	final float PLAYER_SPAWN_Y = 16;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -59,13 +68,22 @@ public class GameScreen implements Screen
 
 		engine.addSystem(new RenderSystem(game.batch, camera));
 		engine.addSystem(new MovementSystem());
+		engine.addSystem(new GravitySystem());
 		
 		player = new Entity();
 		player.add(new SpriteComponent(playerSprite));
-		player.add(new PositionComponent(400, 16));
+		player.add(new PositionComponent(PLAYER_SPAWN_X, PLAYER_SPAWN_Y));
 		player.add(new VelocityComponent(0, 0));
+		player.add(new AccelerationComponent(0, 0));
+		player.add(new HitboxComponent
+		(
+			PLAYER_SPAWN_X,
+			PLAYER_SPAWN_Y,
+			playerSprite.getWidth(),
+			playerSprite.getHeight())
+		);
 		
-		// Generate test world objects
+		// Generate test world objects.
 		Array<Entity> testWorldObjects = getTestWorldObjects();
 		
 		engine.addEntity(player);
@@ -91,19 +109,24 @@ public class GameScreen implements Screen
         PositionComponent playerPosition = pMap.get(player);
         VelocityComponent playerVelocity = vMap.get(player);
         
+        System.out.println("Velocity: " + playerVelocity.y);
+        
         camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
         
-        if(Gdx.input.isKeyPressed(Keys.LEFT))
+        leftPressed = Gdx.input.isKeyPressed(Keys.LEFT);
+        rightPressed = Gdx.input.isKeyPressed(Keys.RIGHT);
+        
+        if(leftPressed == rightPressed)
+        {
+        	playerVelocity.x = 0;
+        }
+        else if(leftPressed)
 		{
         	playerVelocity.x -= 50;
 		}
-        else if(Gdx.input.isKeyPressed(Keys.RIGHT))
+        else if(rightPressed)
         {
         	playerVelocity.x += 50;
-        }
-        else
-        {
-        	playerVelocity.x = 0;
         }
         
         engine.update(delta);
@@ -159,6 +182,7 @@ public class GameScreen implements Screen
 				Sprite blockSprite = new Sprite(spriteSheet, 80, 0, 16, 16);
 				block.add(new SpriteComponent(blockSprite));
 				block.add(new PositionComponent(x, y));
+				block.add(new HitboxComponent(x, y, blockSprite.getWidth(), blockSprite.getHeight()));
 				
 				entities.add(block);
 			}

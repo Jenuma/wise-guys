@@ -7,26 +7,24 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 
-import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 
-public class MovementSystem extends EntitySystem
+public class GravitySystem extends EntitySystem
 {
 	private ImmutableArray<Entity> entities;
 	
-	private ComponentMapper<PositionComponent> pMap = ComponentMapper.getFor(PositionComponent.class);
 	private ComponentMapper<VelocityComponent> vMap = ComponentMapper.getFor(VelocityComponent.class);
-	private ComponentMapper<HitboxComponent> hMap = ComponentMapper.getFor(HitboxComponent.class);
+	
+	private final float G = -25;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public MovementSystem() {}
+	public GravitySystem() {}
 	
 	public void addedToEngine(Engine engine)
 	{
-		entities = engine.getEntitiesFor(Family.all(PositionComponent.class, VelocityComponent.class).get());
+		entities = engine.getEntitiesFor(Family.all(VelocityComponent.class).get());
 	}
 	
 	public void update(float deltaTime)
@@ -34,19 +32,9 @@ public class MovementSystem extends EntitySystem
 		for(int i = 0; i < entities.size(); i++)
 		{
 			Entity entity = entities.get(i);
-			PositionComponent position = pMap.get(entity);
 			VelocityComponent velocity = vMap.get(entity);
 			
-			position.x += velocity.x * deltaTime;
-			position.y += velocity.y * deltaTime;
-			
-			if(hMap.has(entity))
-			{
-				HitboxComponent hitbox = hMap.get(entity);
-				
-				hitbox.x = position.x;
-				hitbox.y = position.y;
-			}
+			velocity.y += G * deltaTime * 60;
 		}
 	}
 }

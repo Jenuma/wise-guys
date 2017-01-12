@@ -19,8 +19,8 @@ public class RenderSystem extends EntitySystem
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	
-	ComponentMapper<PositionComponent> pMap = ComponentMapper.getFor(PositionComponent.class);
-	ComponentMapper<SpriteComponent> sMap = ComponentMapper.getFor(SpriteComponent.class);
+	private ComponentMapper<PositionComponent> pMap = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<SpriteComponent> sMap = ComponentMapper.getFor(SpriteComponent.class);
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
