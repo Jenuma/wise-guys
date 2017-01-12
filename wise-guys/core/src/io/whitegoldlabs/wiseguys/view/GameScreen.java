@@ -10,12 +10,15 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
+import io.whitegoldlabs.wiseguys.system.RenderSystem;
 
 public class GameScreen implements Screen
 {
@@ -30,7 +33,10 @@ public class GameScreen implements Screen
 	ComponentMapper<VelocityComponent> vMap;
 	ComponentMapper<SpriteComponent> sMap;
 	MovementSystem movementSystem;
+	RenderSystem renderSystem;
 	Entity player;
+	
+	World world;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -51,13 +57,18 @@ public class GameScreen implements Screen
 		sMap = ComponentMapper.getFor(SpriteComponent.class);
 		
 		movementSystem = new MovementSystem();
+		renderSystem = new RenderSystem(game.batch, camera);
+		
 		engine.addSystem(movementSystem);
+		engine.addSystem(renderSystem);
 		
 		player = new Entity();
 		player.add(new PositionComponent(400, 300));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new SpriteComponent(new Sprite(spriteSheet, 0, 0, 16, 16)));
 		engine.addEntity(player);
+		
+		world = new World(new Vector2(0, -10), true);
 	}
 
 	@Override
@@ -72,28 +83,16 @@ public class GameScreen implements Screen
 		Gdx.gl.glClearColor(0.4f, 0.6f, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
-        camera.update();
-        game.batch.setProjectionMatrix(camera.combined);
-        
-        game.batch.begin();
-        
-        SpriteComponent playerSprite = sMap.get(player);
-        PositionComponent playerPosition = pMap.get(player);
-        playerSprite.sprite.setPosition(playerPosition.x, playerPosition.y);
-        playerSprite.sprite.draw(game.batch);
-        
-        game.batch.end();
-        
         // Update logic.
         VelocityComponent playerVelocity = vMap.get(player);
         
         if(Gdx.input.isKeyPressed(Keys.LEFT))
 		{
-        	playerVelocity.x = -5;
+        	playerVelocity.x = -200;
 		}
         else if(Gdx.input.isKeyPressed(Keys.RIGHT))
         {
-        	playerVelocity.x = 5;
+        	playerVelocity.x = 200;
         }
         else
         {
@@ -101,6 +100,7 @@ public class GameScreen implements Screen
         }
         
         engine.update(delta);
+        world.step(1/45f, 6, 2);
 	}
 
 	@Override

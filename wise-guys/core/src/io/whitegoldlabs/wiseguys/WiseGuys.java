@@ -7,7 +7,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import io.whitegoldlabs.wiseguys.view.MainMenu;
 
-public class WiseGuys extends Game {
+public class WiseGuys extends Game
+{
 	public SpriteBatch batch;
 	public BitmapFont font;
 	
