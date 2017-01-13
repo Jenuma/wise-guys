@@ -7,6 +7,9 @@ public class AccelerationComponent implements Component
 	public float x;
 	public float y;
 	
+	// ---------------------------------------------------------------------------------|
+	// Constructor                                                                      |
+	// ---------------------------------------------------------------------------------|
 	public AccelerationComponent(float x, float y)
 	{
 		this.x = x;

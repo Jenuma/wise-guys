@@ -1,6 +1,5 @@
 package io.whitegoldlabs.wiseguys.system;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
@@ -11,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
+import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class RenderSystem extends EntitySystem
 {
@@ -18,9 +18,6 @@ public class RenderSystem extends EntitySystem
 	
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
-	
-	private ComponentMapper<PositionComponent> pMap = ComponentMapper.getFor(PositionComponent.class);
-	private ComponentMapper<SpriteComponent> sMap = ComponentMapper.getFor(SpriteComponent.class);
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -33,25 +30,29 @@ public class RenderSystem extends EntitySystem
 	
 	public void addedToEngine(Engine engine)
 	{
-		entities = engine.getEntitiesFor(Family.all(PositionComponent.class, SpriteComponent.class).get());
+		entities = engine.getEntitiesFor(Family.all
+		(
+			PositionComponent.class,
+			SpriteComponent.class
+		).get());
 	}
 	
 	public void update(float deltaTime)
 	{
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
-		
 		batch.begin();
-		for(int i = 0; i < entities.size(); i++)
+		
+		for(Entity entity : entities)
 		{
-			Entity entity = entities.get(i);
-			float x = pMap.get(entity).x;
-			float y = pMap.get(entity).y;
-			SpriteComponent sprite = sMap.get(entity);
+			float x = Mappers.position.get(entity).x;
+			float y = Mappers.position.get(entity).y;
+			SpriteComponent sprite = Mappers.sprite.get(entity);
 			
 			sprite.sprite.setPosition(x, y);
 			sprite.sprite.draw(batch);
 		}
+		
 		batch.end();
 	}
 }

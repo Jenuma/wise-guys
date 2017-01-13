@@ -3,7 +3,6 @@ package io.whitegoldlabs.wiseguys.view;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
@@ -13,6 +12,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
@@ -20,24 +20,23 @@ import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
+import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.GravitySystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
+import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class GameScreen implements Screen
 {
 	final WiseGuys game;
 	
+	SpriteBatch hudBatch;
 	OrthographicCamera camera;
-	
 	Texture spriteSheet;
 	
 	Engine engine;
-	ComponentMapper<PositionComponent> pMap;
-	ComponentMapper<VelocityComponent> vMap;
-	ComponentMapper<SpriteComponent> sMap;
-	
 	Entity player;
 	
 	boolean leftPressed;
@@ -53,6 +52,7 @@ public class GameScreen implements Screen
 	{
 		this.game = game;
 		
+		hudBatch = new SpriteBatch();
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.zoom -= 0.5f;
@@ -61,17 +61,15 @@ public class GameScreen implements Screen
 		Sprite playerSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
 		
 		engine = new Engine();
-		
-		pMap = ComponentMapper.getFor(PositionComponent.class);
-		vMap = ComponentMapper.getFor(VelocityComponent.class);
-		sMap = ComponentMapper.getFor(SpriteComponent.class);
 
-		engine.addSystem(new RenderSystem(game.batch, camera));
 		engine.addSystem(new MovementSystem());
+		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new GravitySystem());
+		engine.addSystem(new RenderSystem(game.batch, camera));
 		
 		player = new Entity();
 		player.add(new SpriteComponent(playerSprite));
+		player.add(new StateComponent(StateComponent.State.ON_GROUND));
 		player.add(new PositionComponent(PLAYER_SPAWN_X, PLAYER_SPAWN_Y));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));
@@ -106,27 +104,40 @@ public class GameScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         // Update logic.
-        PositionComponent playerPosition = pMap.get(player);
-        VelocityComponent playerVelocity = vMap.get(player);
+        PositionComponent playerPosition = Mappers.position.get(player);
+        VelocityComponent playerVelocity = Mappers.velocity.get(player);
+        StateComponent playerState = Mappers.state.get(player);
         
-        System.out.println("Velocity: " + playerVelocity.y);
+        // HUD
+        hudBatch.begin();
+        game.font.draw(hudBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 0, 590);
+        game.font.draw(hudBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 0, 570);
+        hudBatch.end();
         
         camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
         
         leftPressed = Gdx.input.isKeyPressed(Keys.LEFT);
         rightPressed = Gdx.input.isKeyPressed(Keys.RIGHT);
         
+        // Move left or right.
         if(leftPressed == rightPressed)
         {
         	playerVelocity.x = 0;
         }
         else if(leftPressed)
 		{
-        	playerVelocity.x -= 50;
+        	playerVelocity.x = -100;
 		}
         else if(rightPressed)
         {
-        	playerVelocity.x += 50;
+        	playerVelocity.x = 100;
+        }
+        
+        // Jump
+        if(Gdx.input.isKeyJustPressed(Keys.Z) && playerState.currentState == StateComponent.State.ON_GROUND)
+        {
+        	playerState.currentState = StateComponent.State.IN_AIR;
+        	playerVelocity.y += 200;
         }
         
         engine.update(delta);

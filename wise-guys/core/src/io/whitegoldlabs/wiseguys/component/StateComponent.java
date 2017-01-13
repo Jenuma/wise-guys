@@ -1,17 +1,24 @@
 package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.math.Rectangle;
 
-public class HitboxComponent implements Component
+public class StateComponent implements Component
 {
-	public Rectangle hitbox;
+	public enum State
+	{
+		ON_GROUND,
+		RUNNING,
+		IN_AIR,
+		DEAD
+	}
+	
+	public State currentState;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public HitboxComponent(float x, float y, float width, float height)
+	public StateComponent(State state)
 	{
-		this.hitbox = new Rectangle(x, y, width, height);
+		this.currentState = state;
 	}
 }
