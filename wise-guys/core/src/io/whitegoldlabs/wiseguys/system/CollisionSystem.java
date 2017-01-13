@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
@@ -52,7 +53,6 @@ public class CollisionSystem extends EntitySystem
 		{
 			PositionComponent dynamicEntityPosition = Mappers.position.get(dynamicEntity);
 			VelocityComponent dynamicEntityVelocity = Mappers.velocity.get(dynamicEntity);
-			AccelerationComponent dynamicEntityAcceleration = Mappers.acceleration.get(dynamicEntity);
 			HitboxComponent dynamicEntityHitbox = Mappers.hitbox.get(dynamicEntity);
 			
 			for(Entity obstacleEntity : obstacleEntities)
@@ -61,6 +61,7 @@ public class CollisionSystem extends EntitySystem
 				
 				if(dynamicEntityHitbox.hitbox.overlaps(obstacleHitbox.hitbox))
 				{
+					Gdx.app.log("[CollisionSystem]", "Collision event occurred @ " + deltaTime);
 					Rectangle intersection = getIntersection(dynamicEntityHitbox.hitbox, obstacleHitbox.hitbox);
 					
 					boolean hitFromAbove = intersection.y > obstacleHitbox.hitbox.y;
@@ -68,39 +69,55 @@ public class CollisionSystem extends EntitySystem
 					boolean hitFromLeft = intersection.x > dynamicEntityHitbox.hitbox.x;
 					boolean hitFromRight = intersection.x > obstacleHitbox.hitbox.x;
 					
-					if(hitFromBelow)
-					{
-						dynamicEntityPosition.y = obstacleHitbox.hitbox.y - dynamicEntityHitbox.hitbox.height;
+					// Solve collision on x-axis.
+					if(intersection.width < intersection.height)
+					{	
+						float newX;
 						
-						dynamicEntityVelocity.y = 0;
-						dynamicEntityAcceleration.y = 0;
+						if(hitFromRight)
+						{
+							newX = obstacleHitbox.hitbox.x + obstacleHitbox.hitbox.width;
+							
+							dynamicEntityPosition.x = newX;
+							dynamicEntityHitbox.hitbox.x = newX;
+							
+							dynamicEntityVelocity.x = 0;
+						}
+						else if(hitFromLeft)
+						{
+							newX = obstacleHitbox.hitbox.x - obstacleHitbox.hitbox.width;
+							
+							dynamicEntityPosition.x = newX;
+							dynamicEntityHitbox.hitbox.x = newX;
+							
+							dynamicEntityVelocity.x = 0;
+						}
 					}
-					else if(hitFromAbove)
+					// Solve collision on y-axis.
+					else if(intersection.width > intersection.height)
 					{
-						Mappers.state.get(dynamicEntity).currentState = StateComponent.State.ON_GROUND;
+						float newY;
 						
-						dynamicEntityPosition.y = obstacleHitbox.hitbox.y + obstacleHitbox.hitbox.height;
-						
-						dynamicEntityVelocity.y = 0;
-						dynamicEntityAcceleration.y = 0;
-					}
-					else if(hitFromRight)
-					{
-						dynamicEntityPosition.x = obstacleHitbox.hitbox.x + obstacleHitbox.hitbox.width;
-						
-						dynamicEntityVelocity.x = 0;
-						dynamicEntityAcceleration.x = 0;
-						
-						System.out.println("HIT FROM RIGHT: BLOCK @ " + obstacleHitbox.hitbox.x + ", " + obstacleHitbox.hitbox.y + " PLAYER PUSHED RIGHT");
-					}
-					else if(hitFromLeft)
-					{
-						dynamicEntityPosition.x = obstacleHitbox.hitbox.x - obstacleHitbox.hitbox.width;
-						
-						dynamicEntityVelocity.x = 0;
-						dynamicEntityAcceleration.x = 0;
-						
-						System.out.println("HIT FROM LEFT: BLOCK @ " + obstacleHitbox.hitbox.x + ", " + obstacleHitbox.hitbox.y + " PLAYER PUSHED LEFT");
+						if(hitFromBelow)
+						{
+							newY = obstacleHitbox.hitbox.y - dynamicEntityHitbox.hitbox.height;
+							
+							dynamicEntityPosition.y = newY;
+							dynamicEntityHitbox.hitbox.y = newY;
+							
+							dynamicEntityVelocity.y = 0;
+						}
+						else if(hitFromAbove)
+						{
+							
+							newY = obstacleHitbox.hitbox.y + obstacleHitbox.hitbox.height;
+							
+							dynamicEntityPosition.y = newY;
+							dynamicEntityHitbox.hitbox.y = newY;
+							
+							Mappers.state.get(dynamicEntity).currentState = StateComponent.State.ON_GROUND;
+							dynamicEntityVelocity.y = 0;
+						}
 					}
 				}
 			}
@@ -117,6 +134,5 @@ public class CollisionSystem extends EntitySystem
 		intersection.height = Math.min(rect1.y + rect1.height, rect2.y + rect2.height) - intersection.y;
 		
 		return intersection;
-
 	}
 }

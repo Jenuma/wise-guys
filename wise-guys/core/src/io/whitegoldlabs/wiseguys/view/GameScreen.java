@@ -53,6 +53,7 @@ public class GameScreen implements Screen
 		this.game = game;
 		
 		hudBatch = new SpriteBatch();
+		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.zoom -= 0.5f;
@@ -110,8 +111,10 @@ public class GameScreen implements Screen
         
         // HUD
         hudBatch.begin();
-        game.font.draw(hudBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 0, 590);
-        game.font.draw(hudBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 0, 570);
+        game.font.draw(hudBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 590);
+        game.font.draw(hudBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 5, 570);
+        game.font.draw(hudBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 5, 550);
+        game.font.draw(hudBatch, "State: " + playerState.currentState, 5, 530);
         hudBatch.end();
         
         camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
