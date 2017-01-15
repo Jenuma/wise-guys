@@ -59,7 +59,7 @@ public class GravitySystem extends EntitySystem
 			// If the entity isn't falling, check to see if it should be.
 			else
 			{
-				Rectangle fallbox = Mappers.hitbox.get(dynamicEntity).hitbox;
+				Rectangle fallbox = new Rectangle(Mappers.hitbox.get(dynamicEntity).hitbox);
 				fallbox.y--;
 				
 				for(Entity obstacle : obstacleEntities)

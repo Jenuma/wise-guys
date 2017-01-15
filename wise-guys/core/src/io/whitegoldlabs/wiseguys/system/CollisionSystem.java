@@ -5,7 +5,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
@@ -48,63 +50,331 @@ public class CollisionSystem extends EntitySystem
 	
 	public void update(float deltaTime)
 	{
-		for(Entity dynamicEntity : dynamicEntities)
+		for(Entity entity : dynamicEntities)
 		{
-			PositionComponent dynamicEntityPosition = Mappers.position.get(dynamicEntity);
-			VelocityComponent dynamicEntityVelocity = Mappers.velocity.get(dynamicEntity);
-			AccelerationComponent dynamicEntityAcceleration = Mappers.acceleration.get(dynamicEntity);
-			HitboxComponent dynamicEntityHitbox = Mappers.hitbox.get(dynamicEntity);
-			
-			for(Entity obstacleEntity : obstacleEntities)
-			{
-				HitboxComponent obstacleHitbox = Mappers.hitbox.get(obstacleEntity);
+			while(isColliding(entity))
+			{	
+				float xDistanceToResolve = xDistanceToMoveToResolveCollisions(entity);
+				float yDistanceToResolve = yDistanceToMoveToResolveCollisions(entity);
+				Vector2 xAndYDistanceToResolve = xAndYDistanceToMoveToResolveCollisions(entity);
+				float xAndYTotalDistanceToResolve = Math.abs(xAndYDistanceToResolve.x) + Math.abs(xAndYDistanceToResolve.y);
 				
-				if(dynamicEntityHitbox.hitbox.overlaps(obstacleHitbox.hitbox))
+				Gdx.app.log("[CollisionSystem]", "Options: x by " + xDistanceToResolve + ", y by " + yDistanceToResolve + ", or x,y by " + xAndYDistanceToResolve.x + "," + xAndYDistanceToResolve.y);
+				
+				if(Math.abs(xDistanceToResolve) < Math.abs(yDistanceToResolve) && Math.abs(xDistanceToResolve) < xAndYTotalDistanceToResolve)
 				{
-					Rectangle intersection = getIntersection(dynamicEntityHitbox.hitbox, obstacleHitbox.hitbox);
+					Mappers.position.get(entity).x += xDistanceToResolve;
+					Mappers.hitbox.get(entity).hitbox.x += xDistanceToResolve;
+					Mappers.velocity.get(entity).x = 0;
 					
-					boolean hitFromAbove = intersection.y > obstacleHitbox.hitbox.y;
-					boolean hitFromBelow = intersection.y > dynamicEntityHitbox.hitbox.y;
-					boolean hitFromLeft = intersection.x > dynamicEntityHitbox.hitbox.x;
-					boolean hitFromRight = intersection.x > obstacleHitbox.hitbox.x;
+					Gdx.app.log("[CollisionSystem]", "Resolved by x: " + xDistanceToResolve);
+				}
+				else if(Math.abs(yDistanceToResolve) < Math.abs(xDistanceToResolve) && Math.abs(yDistanceToResolve) < xAndYTotalDistanceToResolve)
+				{
+					if(yDistanceToResolve > 0)
+					{
+						Mappers.state.get(entity).currentState = StateComponent.State.ON_GROUND;
+					}
 					
-					if(hitFromBelow)
+					Mappers.position.get(entity).y += yDistanceToResolve;
+					Mappers.hitbox.get(entity).hitbox.y += yDistanceToResolve;
+					Mappers.velocity.get(entity).y = 0;
+					
+					Gdx.app.log("[CollisionSystem]", "Resolved by y: " + yDistanceToResolve);
+				}
+				else
+				{
+					if(xAndYDistanceToResolve.y > 0)
 					{
-						dynamicEntityPosition.y = obstacleHitbox.hitbox.y - dynamicEntityHitbox.hitbox.height;
-						
-						dynamicEntityVelocity.y = 0;
-						dynamicEntityAcceleration.y = 0;
+						Mappers.state.get(entity).currentState = StateComponent.State.ON_GROUND;
 					}
-					else if(hitFromAbove)
-					{
-						Mappers.state.get(dynamicEntity).currentState = StateComponent.State.ON_GROUND;
-						
-						dynamicEntityPosition.y = obstacleHitbox.hitbox.y + obstacleHitbox.hitbox.height;
-						
-						dynamicEntityVelocity.y = 0;
-						dynamicEntityAcceleration.y = 0;
-					}
-					else if(hitFromRight)
-					{
-						dynamicEntityPosition.x = obstacleHitbox.hitbox.x + obstacleHitbox.hitbox.width;
-						
-						dynamicEntityVelocity.x = 0;
-						dynamicEntityAcceleration.x = 0;
-						
-						System.out.println("HIT FROM RIGHT: BLOCK @ " + obstacleHitbox.hitbox.x + ", " + obstacleHitbox.hitbox.y + " PLAYER PUSHED RIGHT");
-					}
-					else if(hitFromLeft)
-					{
-						dynamicEntityPosition.x = obstacleHitbox.hitbox.x - obstacleHitbox.hitbox.width;
-						
-						dynamicEntityVelocity.x = 0;
-						dynamicEntityAcceleration.x = 0;
-						
-						System.out.println("HIT FROM LEFT: BLOCK @ " + obstacleHitbox.hitbox.x + ", " + obstacleHitbox.hitbox.y + " PLAYER PUSHED LEFT");
-					}
+					
+					Mappers.position.get(entity).x += xAndYDistanceToResolve.x;
+					Mappers.position.get(entity).y += xAndYDistanceToResolve.y;
+					Mappers.hitbox.get(entity).hitbox.x += xAndYDistanceToResolve.x;
+					Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
+					Mappers.velocity.get(entity).x = 0;
+					Mappers.velocity.get(entity).y = 0;
+					
+					Gdx.app.log("[CollisionSystem]", "Resolved by x, y: " + xAndYDistanceToResolve.x + ", " + xAndYDistanceToResolve.y);
 				}
 			}
 		}
+	}
+	
+	private boolean isColliding(Entity entity)
+	{
+		for(Entity obstacle : obstacleEntities)
+		{
+			if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+			{
+				Gdx.app.log("[CollisionSystem]", "Collision started! Collided initially with " + Mappers.hitbox.get(obstacle).hitbox.x + ", " + Mappers.hitbox.get(obstacle).hitbox.y);
+				
+				Rectangle intersection = getIntersection(Mappers.hitbox.get(entity).hitbox, Mappers.hitbox.get(obstacle).hitbox);
+				Gdx.app.log("[CollisionSystem]", "Intersection rectangle:  " + intersection.x + ", " + intersection.y + ", " + intersection.width + ", " + intersection.height);
+				
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private float xDistanceToMoveToResolveCollisions(Entity entity)
+	{
+		Gdx.app.log("[CollisionSystem]", "Getting horizontal distance to resolve...");
+		float rightDistance = findDistanceToEmptySpaceAlongX(entity);
+		float leftDistance = findDistanceToEmptySpaceAlongNegativeX(entity);
+		
+		Gdx.app.log("[CollisionSystem]", "Right distance to resolve: " + rightDistance);
+		Gdx.app.log("[CollisionSystem]", "Left distance to resolve: " + leftDistance);
+		
+		if(Math.abs(leftDistance) < Math.abs(rightDistance))
+		{
+			return leftDistance;
+		}
+		return rightDistance;
+	}
+	
+	private float yDistanceToMoveToResolveCollisions(Entity entity)
+	{
+		Gdx.app.log("[CollisionSystem]", "Getting vertical distance to resolve...");
+		float upDistance = findDistanceToEmptySpaceAlongY(entity);;
+		float downDistance = findDistanceToEmptySpaceAlongNegativeY(entity);
+		
+		Gdx.app.log("[CollisionSystem]", "Up distance to resolve: " + upDistance);
+		Gdx.app.log("[CollisionSystem]", "Down distance to resolve: " + downDistance);
+		
+		if(Math.abs(upDistance) < Math.abs(downDistance))
+		{
+			return upDistance;
+		}
+		return downDistance;
+	}
+	
+	private Vector2 xAndYDistanceToMoveToResolveCollisions(Entity entity)
+	{
+		Gdx.app.log("[CollisionSystem]", "Getting diagonal distance to resolve...");
+		Vector2 upAndRightDistance = findDistanceToEmptySpaceAlongXAndY(entity);
+		Vector2 upAndLeftDistance = findDistanceToEmptySpaceAlongNegativeXAndY(entity);
+		Vector2 downAndRightDistance = findDistanceToEmptySpaceAlongXAndNegativeY(entity);
+		Vector2 downAndLeftDistance = findDistanceToEmptySpaceAlongNegativeXAndNegativeY(entity);
+		
+		Gdx.app.log("[CollisionSystem]", "Up-Right distance to resolve: " + upAndRightDistance.x + ", " + upAndRightDistance.y);
+		Gdx.app.log("[CollisionSystem]", "Up-Left distance to resolve: " + upAndLeftDistance.x + ", " + upAndLeftDistance.y);
+		Gdx.app.log("[CollisionSystem]", "Down-Right distance to resolve: " + downAndRightDistance.x + ", " + downAndRightDistance.y);
+		Gdx.app.log("[CollisionSystem]", "Down-Left distance to resolve: " + downAndLeftDistance.x + ", " + downAndLeftDistance.y);
+		
+		float upAndRightTotal = Math.abs(upAndRightDistance.x) + Math.abs(upAndRightDistance.y);
+		float upAndLeftTotal = Math.abs(upAndLeftDistance.x) + Math.abs(upAndLeftDistance.y);
+		float downAndRightTotal = Math.abs(downAndRightDistance.x) + Math.abs(downAndRightDistance.y);
+		float downAndLeftTotal = Math.abs(downAndLeftDistance.x) + Math.abs(downAndLeftDistance.y);
+		
+		if(upAndRightTotal < upAndLeftTotal && upAndRightTotal < downAndRightTotal && upAndRightTotal < downAndLeftTotal)
+		{
+			return upAndRightDistance;
+		}
+		else if(upAndLeftTotal < upAndRightTotal && upAndLeftTotal < downAndRightTotal && upAndLeftTotal < downAndLeftTotal)
+		{
+			return upAndLeftDistance;
+		}
+		else if(downAndRightTotal < upAndRightTotal && downAndRightTotal < upAndLeftTotal && downAndRightTotal < downAndLeftTotal)
+		{
+			return downAndRightDistance;
+		}
+		else
+		{
+			return downAndLeftDistance;
+		}
+	}
+	
+	private Vector2 findDistanceToEmptySpaceAlongXAndY(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing +x, +y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
+					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return new Vector2(testHitbox.x - Mappers.hitbox.get(entity).hitbox.x, testHitbox.y - Mappers.hitbox.get(entity).hitbox.y);
+	}
+	
+	private Vector2 findDistanceToEmptySpaceAlongXAndNegativeY(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing +x, -y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
+					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return new Vector2(testHitbox.x - Mappers.hitbox.get(entity).hitbox.x, testHitbox.y - Mappers.hitbox.get(entity).hitbox.y);
+	}
+	
+	private Vector2 findDistanceToEmptySpaceAlongNegativeXAndY(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing -x, +y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
+					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return new Vector2(testHitbox.x - Mappers.hitbox.get(entity).hitbox.x, testHitbox.y - Mappers.hitbox.get(entity).hitbox.y);
+	}
+	
+	private Vector2 findDistanceToEmptySpaceAlongNegativeXAndNegativeY(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing -x, -y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
+					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return new Vector2(testHitbox.x - Mappers.hitbox.get(entity).hitbox.x, testHitbox.y - Mappers.hitbox.get(entity).hitbox.y);
+	}
+	
+	private float findDistanceToEmptySpaceAlongX(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing +x resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return testHitbox.x - Mappers.hitbox.get(entity).hitbox.x;
+	}
+	
+	private float findDistanceToEmptySpaceAlongNegativeX(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing -x resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x - Mappers.hitbox.get(entity).hitbox.width;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return testHitbox.x - Mappers.hitbox.get(entity).hitbox.x;
+	}
+	
+	private float findDistanceToEmptySpaceAlongY(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing +y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return testHitbox.y - Mappers.hitbox.get(entity).hitbox.y;
+	}
+	
+	private float findDistanceToEmptySpaceAlongNegativeY(Entity entity)
+	{
+		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		boolean colliding = true;
+		
+		while(colliding)
+		{
+			colliding = false;
+			for(Entity obstacle : obstacleEntities)
+			{
+				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				{
+					Gdx.app.log("[CollisionSystem]", "Testing -y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
+					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
+					colliding = true;
+					break;
+				}
+			}
+		}
+		
+		return testHitbox.y - Mappers.hitbox.get(entity).hitbox.y;
 	}
 	
 	private Rectangle getIntersection(Rectangle rect1, Rectangle rect2)
@@ -117,6 +387,5 @@ public class CollisionSystem extends EntitySystem
 		intersection.height = Math.min(rect1.y + rect1.height, rect2.y + rect2.height) - intersection.y;
 		
 		return intersection;
-
 	}
 }

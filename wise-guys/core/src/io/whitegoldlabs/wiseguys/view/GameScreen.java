@@ -24,6 +24,7 @@ import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.GravitySystem;
+import io.whitegoldlabs.wiseguys.system.HitboxRenderSystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -37,10 +38,14 @@ public class GameScreen implements Screen
 	Texture spriteSheet;
 	
 	Engine engine;
+	HitboxRenderSystem hitboxRenderSystem;
+	
 	Entity player;
 	
 	boolean leftPressed;
 	boolean rightPressed;
+	
+	boolean debugMode;
 	
 	final float PLAYER_SPAWN_X = 400;
 	final float PLAYER_SPAWN_Y = 16;
@@ -59,13 +64,19 @@ public class GameScreen implements Screen
 		
 		spriteSheet = new Texture(Gdx.files.internal("sprites.png"));
 		Sprite playerSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
+		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
 		engine = new Engine();
 
+		
 		engine.addSystem(new MovementSystem());
-		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new GravitySystem());
+		engine.addSystem(new CollisionSystem());
+		
 		engine.addSystem(new RenderSystem(game.batch, camera));
+		
+		hitboxRenderSystem = new HitboxRenderSystem(game.batch, camera);
+		engine.addSystem(hitboxRenderSystem);
 		
 		player = new Entity();
 		player.add(new SpriteComponent(playerSprite));
@@ -78,7 +89,8 @@ public class GameScreen implements Screen
 			PLAYER_SPAWN_X,
 			PLAYER_SPAWN_Y,
 			playerSprite.getWidth(),
-			playerSprite.getHeight())
+			playerSprite.getHeight(),
+			playerHitboxSprite)
 		);
 		
 		// Generate test world objects.
@@ -89,6 +101,9 @@ public class GameScreen implements Screen
 		{
 			engine.addEntity(testWorldObject);
 		}
+		
+		debugMode = false;
+		hitboxRenderSystem.setProcessing(debugMode);
 	}
 
 	@Override
@@ -108,11 +123,21 @@ public class GameScreen implements Screen
         VelocityComponent playerVelocity = Mappers.velocity.get(player);
         StateComponent playerState = Mappers.state.get(player);
         
-        // HUD
-        hudBatch.begin();
-        game.font.draw(hudBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 0, 590);
-        game.font.draw(hudBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 0, 570);
-        hudBatch.end();
+        if(Gdx.input.isKeyJustPressed(Keys.F4))
+        {
+        	debugMode = !debugMode;
+        	hitboxRenderSystem.setProcessing(debugMode);
+        }
+        
+        if(debugMode)
+        {
+        	hudBatch.begin();
+            game.font.draw(hudBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 590);
+            game.font.draw(hudBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 5, 570);
+            game.font.draw(hudBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 5, 550);
+            game.font.draw(hudBatch, "Player State: " + Mappers.state.get(player).currentState, 5, 530);
+            hudBatch.end();
+        }
         
         camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
         
@@ -137,7 +162,7 @@ public class GameScreen implements Screen
         if(Gdx.input.isKeyJustPressed(Keys.Z) && playerState.currentState == StateComponent.State.ON_GROUND)
         {
         	playerState.currentState = StateComponent.State.IN_AIR;
-        	playerVelocity.y += 200;
+        	playerVelocity.y += 400;
         }
         
         engine.update(delta);
@@ -191,9 +216,17 @@ public class GameScreen implements Screen
 				
 				Entity block = new Entity();
 				Sprite blockSprite = new Sprite(spriteSheet, 80, 0, 16, 16);
+				Sprite blockHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
 				block.add(new SpriteComponent(blockSprite));
 				block.add(new PositionComponent(x, y));
-				block.add(new HitboxComponent(x, y, blockSprite.getWidth(), blockSprite.getHeight()));
+				block.add(new HitboxComponent
+				(
+					x,
+					y,
+					blockSprite.getWidth(),
+					blockSprite.getHeight(),
+					blockHitboxSprite)
+				);
 				
 				entities.add(block);
 			}
