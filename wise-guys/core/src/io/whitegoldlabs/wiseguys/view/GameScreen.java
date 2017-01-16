@@ -17,19 +17,23 @@ import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
+import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
+import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
-import io.whitegoldlabs.wiseguys.component.AirbornStateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
+import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.DebugRenderSystem;
 import io.whitegoldlabs.wiseguys.system.GravitySystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.PickupSystem;
+import io.whitegoldlabs.wiseguys.system.PlayerInputSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -46,14 +50,12 @@ public class GameScreen implements Screen
 	Texture spriteSheet;
 	
 	Engine engine;
-	DebugRenderSystem hitboxRenderSystem;
+	DebugRenderSystem debugRenderSystem;
 	
 	Entity player;
-	Sprite playerSprite;
-	Sprite playerJumpSprite;
 	PositionComponent playerPosition;
 	VelocityComponent playerVelocity;
-    AirbornStateComponent playerAirbornState;
+    AirborneStateComponent playerAirborneState;
     FacingDirectionStateComponent playerFacingState;
     InventoryComponent playerInventory;
 	
@@ -80,34 +82,41 @@ public class GameScreen implements Screen
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.zoom -= 0.8f;
+		camera.zoom -= 0.7f;
 		
 		spriteSheet = new Texture(Gdx.files.internal("sprites.png"));
 		
 		coinSprite = new Sprite(spriteSheet, 96, 0, 16, 16);
-		coinSprite.setPosition(600, 1022);
+		coinSprite.setPosition(400, 662);
 		coinSprite.setScale(2);
 		
-		playerSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
-		playerJumpSprite = new Sprite(spriteSheet, 64, 0, 16, 16);
+		Sprite playerStandingSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
+		Sprite playerJumpingSprite = new Sprite(spriteSheet, 64, 0, 16, 16);
+		Array<Sprite> playerWalkingSprites = new Array<>();
+		playerWalkingSprites.add(new Sprite(spriteSheet, 16, 0, 16, 16));
+		playerWalkingSprites.add(new Sprite(spriteSheet, 32, 0, 16, 16));
+		playerWalkingSprites.add(new Sprite(spriteSheet, 48, 0, 16, 16));
+		
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
 		engine = new Engine();
 		
 		player = new Entity();
-		player.add(new SpriteComponent(playerSprite));
-		player.add(new AirbornStateComponent(AirbornStateComponent.State.ON_GROUND));
+		player.add(new SpriteComponent(playerStandingSprite));
+		player.add(new AirborneStateComponent(AirborneStateComponent.State.ON_GROUND));
 		player.add(new FacingDirectionStateComponent(FacingDirectionStateComponent.State.FACING_RIGHT));
+		player.add(new MovingStateComponent(MovingStateComponent.State.NOT_MOVING));
 		player.add(new PositionComponent(PLAYER_SPAWN_X, PLAYER_SPAWN_Y));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));
 		player.add(new InventoryComponent(0, (byte)0, (byte)3));
+		player.add(new AnimationComponent(playerStandingSprite, playerJumpingSprite, playerWalkingSprites));
 		player.add(new HitboxComponent
 		(
 			PLAYER_SPAWN_X,
 			PLAYER_SPAWN_Y,
-			playerSprite.getWidth(),
-			playerSprite.getHeight(),
+			playerStandingSprite.getWidth(),
+			playerStandingSprite.getHeight(),
 			playerHitboxSprite
 		));
 		
@@ -116,9 +125,11 @@ public class GameScreen implements Screen
 		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new RenderSystem(game.batch, camera));
 		engine.addSystem(new PickupSystem(engine, player));
+		engine.addSystem(new PlayerInputSystem(player));
+		engine.addSystem(new AnimationSystem());
 		
-		hitboxRenderSystem = new DebugRenderSystem(game.batch, camera);
-		engine.addSystem(hitboxRenderSystem);
+		debugRenderSystem = new DebugRenderSystem(game.batch, debugBatch, camera, game.font, player);
+		engine.addSystem(debugRenderSystem);
 		
 		// Generate test world objects.
 		Array<Entity> testWorldObjects = getTestWorldObjects();
@@ -129,7 +140,7 @@ public class GameScreen implements Screen
 			engine.addEntity(testWorldObject);
 		}
 		
-		hitboxRenderSystem.setProcessing(debugMode);
+		debugRenderSystem.setProcessing(debugMode);
 	}
 
 	@Override
@@ -146,27 +157,29 @@ public class GameScreen implements Screen
         
         playerPosition = Mappers.position.get(player);
 		playerVelocity = Mappers.velocity.get(player);
-	    playerAirbornState = Mappers.airbornState.get(player);
+	    playerAirborneState = Mappers.airborneState.get(player);
 	    playerFacingState = Mappers.facingState.get(player);
 	    playerInventory = Mappers.inventory.get(player);
         
+	    // HUD
         hudBatch.begin();
 
-        game.bigFont.draw(hudBatch, "JULES", 5, 1070);
-        game.bigFont.draw(hudBatch, String.format("%06d", playerInventory.score), 5, 1040);
+        game.bigFont.draw(hudBatch, "JULES", 5, 710);
+        game.bigFont.draw(hudBatch, String.format("%06d", playerInventory.score), 5, 680);
         
         coinSprite.draw(hudBatch);
-        game.font.draw(hudBatch, "X", 625, 1035);
-        game.bigFont.draw(hudBatch, String.format("%02d", playerInventory.coins), 648, 1040);
+        game.font.draw(hudBatch, "X", 425, 675);
+        game.bigFont.draw(hudBatch, String.format("%02d", playerInventory.coins), 448, 680);
         
-        game.bigFont.draw(hudBatch, "WORLD", 1245, 1070);
-        game.bigFont.draw(hudBatch, "0-0", 1277, 1040);
+        game.bigFont.draw(hudBatch, "WORLD", 745, 710);
+        game.bigFont.draw(hudBatch, "0-0", 777, 680);
         
-        game.bigFont.draw(hudBatch, "TIME", 1788, 1070);
-        game.bigFont.draw(hudBatch, String.format("%03d", time), 1820, 1040);
+        game.bigFont.draw(hudBatch, "TIME", 1138, 710);
+        game.bigFont.draw(hudBatch, String.format("%03d", time), 1170, 680);
 
         hudBatch.end();
         
+        // Timer
         timer += delta;
         if(timer > 1)
         {
@@ -174,59 +187,14 @@ public class GameScreen implements Screen
         	timer = 0;
         }
         
-        // TODO: Make debug mode system and make it render after everything else
+        // Debug Mode
         if(Gdx.input.isKeyJustPressed(Keys.F4))
         {
         	debugMode = !debugMode;
-        	hitboxRenderSystem.setProcessing(debugMode);
-        }
-        
-        if(debugMode)
-        {
-        	debugBatch.begin();
-            game.font.draw(debugBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 80);
-            game.font.draw(debugBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 5, 60);
-            game.font.draw(debugBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 5, 40);
-            game.font.draw(debugBatch, "Player State: " + Mappers.airbornState.get(player).currentState, 5, 20);
-            debugBatch.end();
+        	debugRenderSystem.setProcessing(debugMode);
         }
         
         camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
-        
-        leftPressed = Gdx.input.isKeyPressed(Keys.LEFT);
-        rightPressed = Gdx.input.isKeyPressed(Keys.RIGHT);
-        
-        // Move left or right.
-        if(leftPressed == rightPressed)
-        {
-        	playerVelocity.x = 0;
-        }
-        else if(leftPressed)
-		{
-        	playerVelocity.x = -100;
-        	playerFacingState.currentState = FacingDirectionStateComponent.State.FACING_LEFT;
-		}
-        else if(rightPressed)
-        {
-        	playerVelocity.x = 100;
-        	playerFacingState.currentState = FacingDirectionStateComponent.State.FACING_RIGHT;
-        }
-        
-        // Jump
-        if(Gdx.input.isKeyJustPressed(Keys.Z) && playerAirbornState.currentState == AirbornStateComponent.State.ON_GROUND)
-        {
-        	playerAirbornState.currentState = AirbornStateComponent.State.JUMPING;
-        	playerVelocity.y += 400;
-        }
-        
-        if(playerAirbornState.currentState == AirbornStateComponent.State.JUMPING)
-        {
-        	Mappers.sprite.get(player).sprite = playerJumpSprite;
-        }
-        else
-        {
-        	Mappers.sprite.get(player).sprite = playerSprite;
-        }
         
         engine.update(delta);
 	}

@@ -5,14 +5,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
-import io.whitegoldlabs.wiseguys.component.AirbornStateComponent;
+import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent; 
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -30,7 +29,7 @@ public class CollisionSystem extends EntitySystem
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
-			AirbornStateComponent.class,
+			AirborneStateComponent.class,
 			HitboxComponent.class,
 			PositionComponent.class,
 			VelocityComponent.class,
@@ -50,7 +49,6 @@ public class CollisionSystem extends EntitySystem
 	
 	public void update(float deltaTime)
 	{
-
 		for(Entity entity : dynamicEntities)
 		{
 			while(isColliding(entity))
@@ -59,7 +57,6 @@ public class CollisionSystem extends EntitySystem
 				float yDistanceToResolve = yDistanceToMoveToResolveCollisions(entity);
 				Vector2 xAndYDistanceToResolve = xAndYDistanceToMoveToResolveCollisions(entity);
 				float xAndYTotalDistanceToResolve = Math.abs(xAndYDistanceToResolve.x) + Math.abs(xAndYDistanceToResolve.y);
-
 				
 				if(Math.abs(xDistanceToResolve) < Math.abs(yDistanceToResolve) && Math.abs(xDistanceToResolve) < xAndYTotalDistanceToResolve)
 				{
@@ -71,7 +68,7 @@ public class CollisionSystem extends EntitySystem
 				{
 					if(yDistanceToResolve > 0)
 					{
-						Mappers.airbornState.get(entity).currentState = AirbornStateComponent.State.ON_GROUND;
+						Mappers.airborneState.get(entity).currentState = AirborneStateComponent.State.ON_GROUND;
 					}
 					
 					Mappers.position.get(entity).y += yDistanceToResolve;
@@ -82,15 +79,13 @@ public class CollisionSystem extends EntitySystem
 				{
 					if(xAndYDistanceToResolve.y > 0)
 					{
-						Mappers.airbornState.get(entity).currentState = AirbornStateComponent.State.ON_GROUND;
+						Mappers.airborneState.get(entity).currentState = AirborneStateComponent.State.ON_GROUND;
 					}
 					
 					Mappers.position.get(entity).x += xAndYDistanceToResolve.x;
 					Mappers.position.get(entity).y += xAndYDistanceToResolve.y;
 					Mappers.hitbox.get(entity).hitbox.x += xAndYDistanceToResolve.x;
 					Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
-					Mappers.velocity.get(entity).x = 0;
-					Mappers.velocity.get(entity).y = 0;
 				}
 			}
 		}
@@ -334,7 +329,6 @@ public class CollisionSystem extends EntitySystem
 			{
 				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					Gdx.app.log("[CollisionSystem]", "Testing -y resolution against " + Mappers.position.get(obstacle).x + ", " + Mappers.position.get(obstacle).y);
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
 					colliding = true;
 					break;

@@ -5,12 +5,17 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.PositionComponent;
+import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class DebugRenderSystem extends EntitySystem
@@ -18,16 +23,22 @@ public class DebugRenderSystem extends EntitySystem
 	private ImmutableArray<Entity> hitboxEntities;
 	private ImmutableArray<Entity> collectboxEntities;
 	
-	private SpriteBatch batch;
+	private SpriteBatch hitboxBatch;
+	private SpriteBatch debugBatch;
 	private OrthographicCamera camera;
+	private BitmapFont font;
+	private Entity player;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public DebugRenderSystem(SpriteBatch batch, OrthographicCamera camera)
+	public DebugRenderSystem(SpriteBatch hitboxBatch, SpriteBatch debugBatch, OrthographicCamera camera, BitmapFont font, Entity player)
 	{
-		this.batch = batch;
+		this.hitboxBatch = hitboxBatch;
+		this.debugBatch = debugBatch;
 		this.camera = camera;
+		this.font = font;
+		this.player = player;
 	}
 	
 	public void addedToEngine(Engine engine)
@@ -45,16 +56,17 @@ public class DebugRenderSystem extends EntitySystem
 	
 	public void update(float deltaTime)
 	{
+		// Debug Hitboxes
 		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		batch.begin();
+		hitboxBatch.setProjectionMatrix(camera.combined);
+		hitboxBatch.begin();
 		
 		for(Entity entity : hitboxEntities)
 		{
 			HitboxComponent hitboxComponent = Mappers.hitbox.get(entity);
         	Sprite hitboxSprite = hitboxComponent.sprite;
         	hitboxSprite.setPosition(hitboxComponent.hitbox.x, hitboxComponent.hitbox.y);
-        	hitboxSprite.draw(batch);
+        	hitboxSprite.draw(hitboxBatch);
 		}
 		
 		for(Entity entity : collectboxEntities)
@@ -62,9 +74,24 @@ public class DebugRenderSystem extends EntitySystem
 			CollectboxComponent collectboxComponent = Mappers.collectbox.get(entity);
         	Sprite collectboxSprite = collectboxComponent.sprite;
         	collectboxSprite.setPosition(collectboxComponent.collectbox.x, collectboxComponent.collectbox.y);
-        	collectboxSprite.draw(batch);
+        	collectboxSprite.draw(hitboxBatch);
 		}
 		
-		batch.end();
+		hitboxBatch.end();
+		
+		PositionComponent playerPosition = Mappers.position.get(player);
+		VelocityComponent playerVelocity = Mappers.velocity.get(player);
+		AccelerationComponent playerAcceleration = Mappers.acceleration.get(player);
+		
+		// Debug Player Attributes
+		debugBatch.begin();
+        font.draw(debugBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 100);
+        font.draw(debugBatch, "Pos: " + playerPosition.x + ", " + playerPosition.y, 5, 80);
+        font.draw(debugBatch, "Vel: " + playerVelocity.x + ", " + playerVelocity.y, 5, 60);
+        font.draw(debugBatch, "Accel: " + playerAcceleration.x + ", " + playerAcceleration.y, 5, 40);
+        font.draw(debugBatch, "Player State: " + Mappers.airborneState.get(player).currentState
+    		+ ", " + Mappers.movingState.get(player).currentState
+    		+ ", " + Mappers.facingState.get(player).currentState, 5, 20);
+        debugBatch.end();
 	}
 }

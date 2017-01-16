@@ -2,7 +2,7 @@ package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
 
-public class AirbornStateComponent implements Component
+public class AirborneStateComponent implements Component
 {
 	public enum State
 	{
@@ -16,7 +16,7 @@ public class AirbornStateComponent implements Component
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public AirbornStateComponent(State state)
+	public AirborneStateComponent(State state)
 	{
 		this.currentState = state;
 	}
