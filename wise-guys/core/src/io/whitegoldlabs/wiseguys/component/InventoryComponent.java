@@ -1,20 +1,20 @@
 package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.math.Rectangle;
 
-public class HitboxComponent implements Component
+public class InventoryComponent implements Component
 {
-	public Rectangle hitbox;
-	public Sprite sprite;
+	public int score;
+	public byte coins;
+	public byte lives;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public HitboxComponent(float x, float y, float width, float height, Sprite sprite)
+	public InventoryComponent(int score, byte coins, byte lives)
 	{
-		this.hitbox = new Rectangle(x, y, width, height);
-		this.sprite = sprite;
+		this.score = score;
+		this.coins = coins;
+		this.lives = lives;
 	}
 }

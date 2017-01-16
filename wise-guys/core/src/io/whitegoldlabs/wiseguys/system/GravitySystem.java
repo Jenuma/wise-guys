@@ -8,10 +8,12 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
+import io.whitegoldlabs.wiseguys.component.AirbornStateComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
+
+import static io.whitegoldlabs.wiseguys.component.AirbornStateComponent.State;
 
 public class GravitySystem extends EntitySystem
 {
@@ -29,7 +31,7 @@ public class GravitySystem extends EntitySystem
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
-				StateComponent.class,
+				AirbornStateComponent.class,
 				VelocityComponent.class,
 				HitboxComponent.class
 		).get());
@@ -50,16 +52,17 @@ public class GravitySystem extends EntitySystem
 		for(Entity dynamicEntity : dynamicEntities)
 		{
 			VelocityComponent velocity = Mappers.velocity.get(dynamicEntity);
+			State airbornState = Mappers.airbornState.get(dynamicEntity).currentState;
 			
 			// If the entity is falling, apply gravity.
-			if(Mappers.state.get(dynamicEntity).currentState == StateComponent.State.IN_AIR)
+			if(airbornState == State.FALLING || airbornState == State.JUMPING)
 			{
 				velocity.y += G * deltaTime * 60;
 			}
 			// If the entity isn't falling, check to see if it should be.
 			else
 			{
-				Rectangle fallbox = Mappers.hitbox.get(dynamicEntity).hitbox;
+				Rectangle fallbox = new Rectangle(Mappers.hitbox.get(dynamicEntity).hitbox);
 				fallbox.y--;
 				
 				for(Entity obstacle : obstacleEntities)
@@ -71,7 +74,7 @@ public class GravitySystem extends EntitySystem
 					}
 				}
 				
-				Mappers.state.get(dynamicEntity).currentState = StateComponent.State.IN_AIR;
+				Mappers.airbornState.get(dynamicEntity).currentState = AirbornStateComponent.State.FALLING;
 			}
 		}
 	}
