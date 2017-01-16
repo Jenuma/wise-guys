@@ -85,13 +85,13 @@ public class DebugRenderSystem extends EntitySystem
 		
 		// Debug Player Attributes
 		debugBatch.begin();
-        font.draw(debugBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 100);
-        font.draw(debugBatch, "Pos: " + playerPosition.x + ", " + playerPosition.y, 5, 80);
-        font.draw(debugBatch, "Vel: " + playerVelocity.x + ", " + playerVelocity.y, 5, 60);
-        font.draw(debugBatch, "Accel: " + playerAcceleration.x + ", " + playerAcceleration.y, 5, 40);
+        font.draw(debugBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 650);
+        font.draw(debugBatch, "Pos: " + playerPosition.x + ", " + playerPosition.y, 5, 630);
+        font.draw(debugBatch, "Vel: " + playerVelocity.x + ", " + playerVelocity.y, 5, 610);
+        font.draw(debugBatch, "Accel: " + playerAcceleration.x + ", " + playerAcceleration.y, 5, 590);
         font.draw(debugBatch, "Player State: " + Mappers.airborneState.get(player).currentState
     		+ ", " + Mappers.movingState.get(player).currentState
-    		+ ", " + Mappers.facingState.get(player).currentState, 5, 20);
+    		+ ", " + Mappers.facingState.get(player).currentState, 5, 570);
         debugBatch.end();
 	}
 }

@@ -64,8 +64,8 @@ public class GameScreen implements Screen
 	
 	boolean debugMode = false;
 	
-	final float PLAYER_SPAWN_X = 400;
-	final float PLAYER_SPAWN_Y = 16;
+	final float PLAYER_SPAWN_X = 16;
+	final float PLAYER_SPAWN_Y = 32;
 	
 	short time = 400;
 	float timer = 0;
@@ -152,7 +152,7 @@ public class GameScreen implements Screen
 	@Override
 	public void render(float delta)
 	{
-		Gdx.gl.glClearColor(0.4f, 0.6f, 0, 1);
+		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         playerPosition = Mappers.position.get(player);
@@ -194,7 +194,14 @@ public class GameScreen implements Screen
         	debugRenderSystem.setProcessing(debugMode);
         }
         
-        camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
+        if(playerPosition.x <= 208)
+        {
+        	camera.position.set(208, 108, 0);
+        }
+        else
+        {
+        	camera.position.set(playerPosition.x, 108, 0);
+        }
         
         engine.update(delta);
 	}
@@ -233,7 +240,7 @@ public class GameScreen implements Screen
 	{
 		Array<Entity> entities = new Array<>();
 		
-		String[] lines = Gdx.files.internal("testworld.txt").readString().split("\n");
+		String[] lines = Gdx.files.internal("world1-1.txt").readString().split("\n");
 		Pattern regex = Pattern.compile("(\\D+)\\s(\\d+)\\s(\\d+)");
 		
 		for(String line : lines)
@@ -246,7 +253,61 @@ public class GameScreen implements Screen
 				int x = Integer.parseInt(matcher.group(2));
 				int y = Integer.parseInt(matcher.group(3));
 				
-				if(tileType.equals("BLOCK"))
+				if(tileType.equals("GROUND"))
+				{
+					Entity ground = new Entity();
+					Sprite groundSprite = new Sprite(spriteSheet, 16, 128, 16, 16);
+					Sprite groundHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					ground.add(new SpriteComponent(groundSprite));
+					ground.add(new PositionComponent(x, y));
+					ground.add(new HitboxComponent
+					(
+						x,
+						y,
+						groundSprite.getWidth(),
+						groundSprite.getHeight(),
+						groundHitboxSprite
+					));
+					
+					entities.add(ground);
+				}
+				else if(tileType.equals("BOX"))
+				{
+					Entity box = new Entity();
+					Sprite boxSprite = new Sprite(spriteSheet, 32, 128, 16, 16);
+					Sprite boxHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					box.add(new SpriteComponent(boxSprite));
+					box.add(new PositionComponent(x, y));
+					box.add(new HitboxComponent
+					(
+						x,
+						y,
+						boxSprite.getWidth(),
+						boxSprite.getHeight(),
+						boxHitboxSprite
+					));
+					
+					entities.add(box);
+				}
+				else if(tileType.equals("BRICKS"))
+				{
+					Entity bricks = new Entity();
+					Sprite bricksSprite = new Sprite(spriteSheet, 48, 128, 16, 16);
+					Sprite bricksHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					bricks.add(new SpriteComponent(bricksSprite));
+					bricks.add(new PositionComponent(x, y));
+					bricks.add(new HitboxComponent
+					(
+						x,
+						y,
+						bricksSprite.getWidth(),
+						bricksSprite.getHeight(),
+						bricksHitboxSprite
+					));
+					
+					entities.add(bricks);
+				}
+				else if(tileType.equals("BLOCK"))
 				{
 					Entity block = new Entity();
 					Sprite blockSprite = new Sprite(spriteSheet, 80, 0, 16, 16);
