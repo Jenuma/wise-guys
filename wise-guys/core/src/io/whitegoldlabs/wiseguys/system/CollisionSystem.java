@@ -13,7 +13,7 @@ import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
-import io.whitegoldlabs.wiseguys.component.VelocityComponent;
+import io.whitegoldlabs.wiseguys.component.VelocityComponent; 
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class CollisionSystem extends EntitySystem

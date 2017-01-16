@@ -12,7 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
-public class HitboxRenderSystem extends EntitySystem
+public class DebugRenderSystem extends EntitySystem
 {
 	private ImmutableArray<Entity> entities;
 	
@@ -22,7 +22,7 @@ public class HitboxRenderSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public HitboxRenderSystem(SpriteBatch batch, OrthographicCamera camera)
+	public DebugRenderSystem(SpriteBatch batch, OrthographicCamera camera)
 	{
 		this.batch = batch;
 		this.camera = camera;

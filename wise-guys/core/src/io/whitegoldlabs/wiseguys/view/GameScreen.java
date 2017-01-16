@@ -24,7 +24,7 @@ import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.GravitySystem;
-import io.whitegoldlabs.wiseguys.system.HitboxRenderSystem;
+import io.whitegoldlabs.wiseguys.system.DebugRenderSystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -32,23 +32,32 @@ import io.whitegoldlabs.wiseguys.util.Mappers;
 public class GameScreen implements Screen
 {
 	final WiseGuys game;
-	
+
 	SpriteBatch hudBatch;
+	SpriteBatch debugBatch;
+	
+	Sprite coinSprite;
+	
 	OrthographicCamera camera;
 	Texture spriteSheet;
 	
 	Engine engine;
-	HitboxRenderSystem hitboxRenderSystem;
+	DebugRenderSystem hitboxRenderSystem;
 	
 	Entity player;
 	
 	boolean leftPressed;
 	boolean rightPressed;
 	
-	boolean debugMode;
+	boolean debugMode = false;
 	
 	final float PLAYER_SPAWN_X = 400;
 	final float PLAYER_SPAWN_Y = 16;
+	
+	int score = 0;
+	byte coins = 0;
+	short time = 400;
+	float timer = 0;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -58,16 +67,22 @@ public class GameScreen implements Screen
 		this.game = game;
 		
 		hudBatch = new SpriteBatch();
+		debugBatch = new SpriteBatch();
+		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.zoom -= 0.5f;
+		camera.zoom -= 0.8f;
 		
 		spriteSheet = new Texture(Gdx.files.internal("sprites.png"));
+		
+		coinSprite = new Sprite(spriteSheet, 96, 0, 16, 16);
+		coinSprite.setPosition(600, 1022);
+		coinSprite.setScale(2);
+		
 		Sprite playerSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
 		engine = new Engine();
-
 		
 		engine.addSystem(new MovementSystem());
 		engine.addSystem(new GravitySystem());
@@ -75,7 +90,7 @@ public class GameScreen implements Screen
 		
 		engine.addSystem(new RenderSystem(game.batch, camera));
 		
-		hitboxRenderSystem = new HitboxRenderSystem(game.batch, camera);
+		hitboxRenderSystem = new DebugRenderSystem(game.batch, camera);
 		engine.addSystem(hitboxRenderSystem);
 		
 		player = new Entity();
@@ -90,6 +105,7 @@ public class GameScreen implements Screen
 			PLAYER_SPAWN_Y,
 			playerSprite.getWidth(),
 			playerSprite.getHeight(),
+			HitboxComponent.Type.HITBOX,
 			playerHitboxSprite)
 		);
 		
@@ -102,7 +118,6 @@ public class GameScreen implements Screen
 			engine.addEntity(testWorldObject);
 		}
 		
-		debugMode = false;
 		hitboxRenderSystem.setProcessing(debugMode);
 	}
 
@@ -118,6 +133,28 @@ public class GameScreen implements Screen
 		Gdx.gl.glClearColor(0.4f, 0.6f, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
+        hudBatch.begin();
+        game.bigFont.draw(hudBatch, "JULES", 5, 1070);
+        game.bigFont.draw(hudBatch, String.format("%06d", score), 5, 1040);
+        
+        coinSprite.draw(hudBatch);
+        game.font.draw(hudBatch, "X", 625, 1035);
+        game.bigFont.draw(hudBatch, String.format("%02d", coins), 648, 1040);
+        
+        game.bigFont.draw(hudBatch, "WORLD", 1245, 1070);
+        game.bigFont.draw(hudBatch, "0-0", 1277, 1040);
+        
+        game.bigFont.draw(hudBatch, "TIME", 1788, 1070);
+        game.bigFont.draw(hudBatch, String.format("%03d", time), 1820, 1040);
+        hudBatch.end();
+        
+        timer += delta;
+        if(timer > 1)
+        {
+        	time--;
+        	timer = 0;
+        }
+        
         // Update logic.
         PositionComponent playerPosition = Mappers.position.get(player);
         VelocityComponent playerVelocity = Mappers.velocity.get(player);
@@ -131,12 +168,12 @@ public class GameScreen implements Screen
         
         if(debugMode)
         {
-        	hudBatch.begin();
-            game.font.draw(hudBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 590);
-            game.font.draw(hudBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 5, 570);
-            game.font.draw(hudBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 5, 550);
-            game.font.draw(hudBatch, "Player State: " + Mappers.state.get(player).currentState, 5, 530);
-            hudBatch.end();
+        	debugBatch.begin();
+            game.font.draw(debugBatch, "FPS: " + Gdx.graphics.getFramesPerSecond(), 5, 80);
+            game.font.draw(debugBatch, "Pos: " + playerPosition.x + "," + playerPosition.y, 5, 60);
+            game.font.draw(debugBatch, "Vel: " + playerVelocity.x + "," + playerVelocity.y, 5, 40);
+            game.font.draw(debugBatch, "Player State: " + Mappers.state.get(player).currentState, 5, 20);
+            debugBatch.end();
         }
         
         camera.position.set(playerPosition.x, playerPosition.y + 50, 0);
@@ -211,24 +248,48 @@ public class GameScreen implements Screen
 			
 			if(matcher.find())
 			{
+				String tileType = matcher.group(1);
 				int x = Integer.parseInt(matcher.group(2));
 				int y = Integer.parseInt(matcher.group(3));
 				
-				Entity block = new Entity();
-				Sprite blockSprite = new Sprite(spriteSheet, 80, 0, 16, 16);
-				Sprite blockHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
-				block.add(new SpriteComponent(blockSprite));
-				block.add(new PositionComponent(x, y));
-				block.add(new HitboxComponent
-				(
-					x,
-					y,
-					blockSprite.getWidth(),
-					blockSprite.getHeight(),
-					blockHitboxSprite)
-				);
-				
-				entities.add(block);
+				if(tileType.equals("BLOCK"))
+				{
+					Entity block = new Entity();
+					Sprite blockSprite = new Sprite(spriteSheet, 80, 0, 16, 16);
+					Sprite blockHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					block.add(new SpriteComponent(blockSprite));
+					block.add(new PositionComponent(x, y));
+					block.add(new HitboxComponent
+					(
+						x,
+						y,
+						blockSprite.getWidth(),
+						blockSprite.getHeight(),
+						HitboxComponent.Type.HITBOX,
+						blockHitboxSprite
+					));
+					
+					entities.add(block);
+				}
+				else if(tileType.equals("COIN"))
+				{
+					Entity coin = new Entity();
+					Sprite coinSprite = new Sprite(spriteSheet, 112, 0, 16, 16);
+					Sprite coinCollectboxSprite = new Sprite(spriteSheet, 112, 144, 10, 16);
+					coin.add(new SpriteComponent(coinSprite));
+					coin.add(new PositionComponent(x, y));
+					coin.add(new HitboxComponent
+					(
+						x+3,
+						y,
+						coinSprite.getWidth(),
+						coinSprite.getHeight(),
+						HitboxComponent.Type.COLLECTBOX,
+						coinCollectboxSprite
+					));
+					
+					entities.add(coin);
+				}
 			}
 		}
 		
