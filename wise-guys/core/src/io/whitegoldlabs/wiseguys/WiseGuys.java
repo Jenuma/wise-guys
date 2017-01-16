@@ -5,7 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
-import io.whitegoldlabs.wiseguys.view.MainMenu;
+import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
 
 public class WiseGuys extends Game
 {
@@ -25,7 +25,7 @@ public class WiseGuys extends Game
 		bigFont.setColor(0.2f, 0.3f, 0, 1);
 		bigFont.getData().setScale(2);
 		
-		this.setScreen(new MainMenu(this));
+		this.setScreen(new MainMenuScreen(this));
 	}
 
 	@Override

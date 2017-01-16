@@ -9,12 +9,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class DebugRenderSystem extends EntitySystem
 {
-	private ImmutableArray<Entity> entities;
+	private ImmutableArray<Entity> hitboxEntities;
+	private ImmutableArray<Entity> collectboxEntities;
 	
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
@@ -30,9 +32,14 @@ public class DebugRenderSystem extends EntitySystem
 	
 	public void addedToEngine(Engine engine)
 	{
-		entities = engine.getEntitiesFor(Family.all
+		hitboxEntities = engine.getEntitiesFor(Family.all
 		(
 			HitboxComponent.class
+		).get());
+		
+		collectboxEntities = engine.getEntitiesFor(Family.all
+		(
+			CollectboxComponent.class
 		).get());
 	}
 	
@@ -42,12 +49,20 @@ public class DebugRenderSystem extends EntitySystem
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		
-		for(Entity entity : entities)
+		for(Entity entity : hitboxEntities)
 		{
 			HitboxComponent hitboxComponent = Mappers.hitbox.get(entity);
         	Sprite hitboxSprite = hitboxComponent.sprite;
         	hitboxSprite.setPosition(hitboxComponent.hitbox.x, hitboxComponent.hitbox.y);
         	hitboxSprite.draw(batch);
+		}
+		
+		for(Entity entity : collectboxEntities)
+		{
+			CollectboxComponent collectboxComponent = Mappers.collectbox.get(entity);
+        	Sprite collectboxSprite = collectboxComponent.sprite;
+        	collectboxSprite.setPosition(collectboxComponent.collectbox.x, collectboxComponent.collectbox.y);
+        	collectboxSprite.draw(batch);
 		}
 		
 		batch.end();

@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.constant.Constants;
 
-public class MainMenu implements Screen
+public class MainMenuScreen implements Screen
 {
 	final WiseGuys game;
 	OrthographicCamera camera;
@@ -16,7 +16,7 @@ public class MainMenu implements Screen
 	// ---------------------------------------------------------------------------------|
 	// Constructors                                                                     |
 	// ---------------------------------------------------------------------------------|
-	public MainMenu(final WiseGuys game)
+	public MainMenuScreen(final WiseGuys game)
 	{
 		this.game = game;
 		

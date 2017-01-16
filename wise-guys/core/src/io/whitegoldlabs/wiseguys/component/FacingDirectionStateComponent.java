@@ -2,14 +2,12 @@ package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
 
-public class StateComponent implements Component
+public class FacingDirectionStateComponent implements Component
 {
 	public enum State
 	{
-		ON_GROUND,
-		RUNNING,
-		IN_AIR,
-		DEAD
+		FACING_LEFT,
+		FACING_RIGHT
 	}
 	
 	public State currentState;
@@ -17,7 +15,7 @@ public class StateComponent implements Component
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public StateComponent(State state)
+	public FacingDirectionStateComponent(State state)
 	{
 		this.currentState = state;
 	}

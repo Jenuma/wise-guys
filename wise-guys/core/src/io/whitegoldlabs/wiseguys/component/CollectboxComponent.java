@@ -4,17 +4,24 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Rectangle;
 
-public class HitboxComponent implements Component
+public class CollectboxComponent implements Component
 {
-	public Rectangle hitbox;
+	public enum Type
+	{
+		COIN
+	}
+	
+	public Rectangle collectbox;
+	public Type type;
 	public Sprite sprite;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public HitboxComponent(float x, float y, float width, float height, Sprite sprite)
+	public CollectboxComponent(float x, float y, float width, float height, Type type, Sprite sprite)
 	{
-		this.hitbox = new Rectangle(x, y, width, height);
+		this.collectbox = new Rectangle(x, y, width, height);
+		this.type = type;
 		this.sprite = sprite;
 	}
 }
