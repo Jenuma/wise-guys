@@ -14,10 +14,8 @@ import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
-import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
-import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
@@ -53,8 +51,6 @@ public class GameScreen implements Screen
 	Entity player;
 	PositionComponent playerPosition;
 	VelocityComponent playerVelocity;
-    AirborneStateComponent playerAirborneState;
-    FacingDirectionStateComponent playerFacingState;
     InventoryComponent playerInventory;
 	
 	boolean debugMode = false;
@@ -85,33 +81,43 @@ public class GameScreen implements Screen
 		coinSprite.setPosition(400, 662);
 		coinSprite.setScale(2);
 		
-		Sprite playerStandingSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
-		Sprite playerJumpingSprite = new Sprite(spriteSheet, 64, 0, 16, 16);
-		Array<Sprite> playerWalkingSprites = new Array<>();
-		playerWalkingSprites.add(new Sprite(spriteSheet, 16, 0, 16, 16));
-		playerWalkingSprites.add(new Sprite(spriteSheet, 32, 0, 16, 16));
-		playerWalkingSprites.add(new Sprite(spriteSheet, 48, 0, 16, 16));
+		// Get player animation sprites.
+		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
+		Array<Sprite> playerStillSprites = new Array<>(); 
+		Array<Sprite> playerJumpingSprites = new Array<>();
+		Array<Sprite> playerMovingSprites = new Array<>();
+		Array<Sprite> playerSlowingSprites = new Array<>();
+		
+		playerStillSprites.add(playerStillSprite);
+		playerJumpingSprites.add(new Sprite(spriteSheet, 64, 0, 16, 16));
+		playerMovingSprites.add(new Sprite(spriteSheet, 16, 0, 16, 16));
+		playerMovingSprites.add(new Sprite(spriteSheet, 32, 0, 16, 16));
+		playerMovingSprites.add(new Sprite(spriteSheet, 48, 0, 16, 16));
+		playerSlowingSprites.add(playerStillSprite);
 		
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
 		engine = new Engine();
 		
 		player = new Entity();
-		player.add(new SpriteComponent(playerStandingSprite));
-		player.add(new AirborneStateComponent(AirborneStateComponent.State.ON_GROUND));
-		player.add(new FacingDirectionStateComponent(FacingDirectionStateComponent.State.FACING_RIGHT));
-		player.add(new MovingStateComponent(MovingStateComponent.State.NOT_MOVING));
+		player.add(new SpriteComponent(playerStillSprite));
+		player.add(new MovingStateComponent
+		(
+			MovingStateComponent.MotionState.STILL,
+			MovingStateComponent.DirectionState.RIGHT,
+			MovingStateComponent.AirborneState.GROUNDED
+		));
 		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));
 		player.add(new InventoryComponent(0, (byte)0, (byte)3));
-		player.add(new AnimationComponent(playerStandingSprite, playerJumpingSprite, playerWalkingSprites));
+		player.add(new AnimationComponent(playerStillSprites, playerJumpingSprites, playerMovingSprites, playerSlowingSprites, null));
 		player.add(new HitboxComponent
 		(
 			x,
 			y,
-			playerStandingSprite.getWidth(),
-			playerStandingSprite.getHeight(),
+			playerStillSprite.getWidth(),
+			playerStillSprite.getHeight(),
 			playerHitboxSprite
 		));
 		
@@ -153,8 +159,6 @@ public class GameScreen implements Screen
         
         playerPosition = Mappers.position.get(player);
 		playerVelocity = Mappers.velocity.get(player);
-	    playerAirborneState = Mappers.airborneState.get(player);
-	    playerFacingState = Mappers.facingState.get(player);
 	    playerInventory = Mappers.inventory.get(player);
         
 	    // HUD

@@ -47,7 +47,8 @@ public class MovementSystem extends EntitySystem
 			MovingStateComponent movingState = Mappers.movingState.get(entity);
 			
 			// Apply deceleration if slowing.
-			if(movingState.currentState == MovingStateComponent.State.SLOWING_LEFT)
+			if(movingState.motionState == MovingStateComponent.MotionState.SLOWING &&
+				movingState.directionState == MovingStateComponent.DirectionState.LEFT)
 			{
 				if(acceleration.x < 0)
 				{
@@ -58,10 +59,11 @@ public class MovementSystem extends EntitySystem
 				{
 					velocity.x = 0;
 					acceleration.x = 0;
-					movingState.currentState = MovingStateComponent.State.NOT_MOVING;
+					movingState.motionState = MovingStateComponent.MotionState.STILL;
 				}
 			}
-			else if(movingState.currentState == MovingStateComponent.State.SLOWING_RIGHT)
+			else if(movingState.motionState == MovingStateComponent.MotionState.SLOWING &&
+					movingState.directionState == MovingStateComponent.DirectionState.RIGHT)
 			{
 				if(acceleration.x > 0)
 				{
@@ -72,7 +74,7 @@ public class MovementSystem extends EntitySystem
 				{
 					velocity.x = 0;
 					acceleration.x = 0;
-					movingState.currentState = MovingStateComponent.State.NOT_MOVING;
+					movingState.motionState = MovingStateComponent.MotionState.STILL;
 				}
 			}
 			

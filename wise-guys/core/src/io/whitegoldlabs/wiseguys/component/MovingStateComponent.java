@@ -4,22 +4,39 @@ import com.badlogic.ashley.core.Component;
 
 public class MovingStateComponent implements Component
 {
-	public enum State
+	public enum MotionState
 	{
-		NOT_MOVING,
-		MOVING_RIGHT,
-		MOVING_LEFT,
-		SLOWING_RIGHT,
-		SLOWING_LEFT
+		STILL,
+		MOVING,
+		SLOWING,
+		SPRINTING
 	}
 	
-	public State currentState;
+	public enum DirectionState
+	{
+		RIGHT,
+		LEFT
+	}
+	
+	public enum AirborneState
+	{
+		GROUNDED,
+		JUMPING,
+		FALLING
+	}
+	
+	public MotionState motionState;
+	public DirectionState directionState;
+	public AirborneState airborneState;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public MovingStateComponent(State state)
+	public MovingStateComponent
+	(MotionState motionState, DirectionState directionState, AirborneState airborneState)
 	{
-		this.currentState = state;
+		this.motionState = motionState;
+		this.directionState = directionState;
+		this.airborneState = airborneState;
 	}
 }

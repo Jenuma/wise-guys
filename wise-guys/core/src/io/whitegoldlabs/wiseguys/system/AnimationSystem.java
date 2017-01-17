@@ -6,11 +6,10 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 
-import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
-import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
 import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
 import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.MovingStateComponent.AirborneState;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -31,9 +30,7 @@ public class AnimationSystem extends EntitySystem
 		(
 			SpriteComponent.class,
 			AnimationComponent.class,
-			FacingDirectionStateComponent.class,
-			MovingStateComponent.class,
-			AirborneStateComponent.class
+			MovingStateComponent.class
 		).get());
 		
 		idleEntities = engine.getEntitiesFor(Family.all
@@ -50,41 +47,147 @@ public class AnimationSystem extends EntitySystem
 		{
 			SpriteComponent currentSprite = Mappers.sprite.get(entity);
 			AnimationComponent animation = Mappers.animation.get(entity);
-			FacingDirectionStateComponent facingDirectionState = Mappers.facingState.get(entity);
 			MovingStateComponent movingState = Mappers.movingState.get(entity);
-			AirborneStateComponent airborneState = Mappers.airborneState.get(entity);
 			
-			if(airborneState.currentState == AirborneStateComponent.State.JUMPING)
+			if(movingState.airborneState == AirborneState.JUMPING)
 			{
-				currentSprite.sprite = animation.jumpingSprite;
-			}
-			else
-			{
-				if(movingState.currentState == MovingStateComponent.State.NOT_MOVING ||
-					movingState.currentState == MovingStateComponent.State.SLOWING_LEFT ||
-					movingState.currentState == MovingStateComponent.State.SLOWING_RIGHT)
+				if(animation.jumpingSprites != null)
 				{
-					currentSprite.sprite = animation.standingSprite;
-				}
-				else
-				{
-					animation.movingAnimationTime += deltaTime;
-					currentSprite.sprite = animation.walkingSprites.get(animation.walkingFrame);
-					
-					if(animation.movingAnimationTime > 0.03)
+					if(animation.jumpingSprites.size == 0)
 					{
-						animation.movingAnimationTime = 0;
-						animation.walkingFrame++;
+						currentSprite.sprite = animation.jumpingSprites.get(0);
+					}
+					else
+					{
+						animation.jumpingAnimationTime += deltaTime;
+						currentSprite.sprite = animation.jumpingSprites.get(animation.jumpingFrame);
 						
-						if(animation.walkingFrame > 2)
+						if(animation.jumpingAnimationTime > 0.01)
 						{
-							animation.walkingFrame = 0;
+							animation.jumpingAnimationTime = 0;
+							animation.jumpingFrame++;
+							
+							if(animation.jumpingFrame >= animation.jumpingSprites.size)
+							{
+								animation.jumpingFrame = 0;
+							}
 						}
 					}
 				}
 			}
+			else
+			{
+				switch(movingState.motionState)
+				{
+					case STILL:
+						if(animation.stillSprites != null)
+						{
+							if(animation.stillSprites.size == 0)
+							{
+								currentSprite.sprite = animation.stillSprites.get(0);
+							}
+							else
+							{
+								animation.stillAnimationTime += deltaTime;
+								currentSprite.sprite = animation.stillSprites.get(animation.stillFrame);
+								
+								if(animation.stillAnimationTime > 0.01)
+								{
+									animation.stillAnimationTime = 0;
+									animation.stillFrame++;
+									
+									if(animation.stillFrame >= animation.stillSprites.size)
+									{
+										animation.stillFrame = 0;
+									}
+								}
+							}
+						}
+						
+						break;
+					case MOVING:
+						if(animation.movingSprites != null)
+						{
+							if(animation.movingSprites.size == 0)
+							{
+								currentSprite.sprite = animation.movingSprites.get(0);
+							}
+							else
+							{
+								animation.movingAnimationTime += deltaTime;
+								currentSprite.sprite = animation.movingSprites.get(animation.movingFrame);
+								
+								if(animation.movingAnimationTime > 0.03)
+								{
+									animation.movingAnimationTime = 0;
+									animation.movingFrame++;
+									
+									if(animation.movingFrame >= animation.movingSprites.size)
+									{
+										animation.movingFrame = 0;
+									}
+								}
+							}
+						}
+						
+						break;
+					case SLOWING:
+						if(animation.slowingSprites != null)
+						{
+							if(animation.slowingSprites.size == 0)
+							{
+								currentSprite.sprite = animation.slowingSprites.get(0);
+							}
+							else
+							{
+								animation.slowingAnimationTime += deltaTime;
+								currentSprite.sprite = animation.slowingSprites.get(animation.slowingFrame);
+								
+								if(animation.slowingAnimationTime > 0.01)
+								{
+									animation.slowingAnimationTime = 0;
+									animation.slowingFrame++;
+									
+									if(animation.slowingFrame >= animation.slowingSprites.size)
+									{
+										animation.slowingFrame = 0;
+									}
+								}
+							}
+						}
+						
+						break;
+					case SPRINTING:
+						if(animation.sprintingSprites != null)
+						{
+							if(animation.sprintingSprites.size == 0)
+							{
+								currentSprite.sprite = animation.sprintingSprites.get(0);
+							}
+							else
+							{
+								animation.sprintingAnimationTime += deltaTime;
+								currentSprite.sprite = animation.sprintingSprites.get(animation.sprintingFrame);
+								
+								if(animation.sprintingAnimationTime > 0.01)
+								{
+									animation.sprintingAnimationTime = 0;
+									animation.sprintingFrame++;
+									
+									if(animation.sprintingFrame >= animation.sprintingSprites.size)
+									{
+										animation.sprintingFrame = 0;
+									}
+								}
+							}
+						}
+						
+						break;
+				}
+			}
 			
-			if(facingDirectionState.currentState == FacingDirectionStateComponent.State.FACING_RIGHT)
+			// Flip the sprite if not facing right.
+			if(movingState.directionState == MovingStateComponent.DirectionState.RIGHT)
 			{
 				currentSprite.sprite.setFlip(false, false);
 			}
@@ -94,6 +197,7 @@ public class AnimationSystem extends EntitySystem
 			}
 		}
 		
+		// Idle Animations
 		for(Entity entity : idleEntities)
 		{
 			IdleAnimationComponent idleAnimation = Mappers.idleAnimation.get(entity);
