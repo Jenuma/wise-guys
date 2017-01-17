@@ -66,7 +66,7 @@ public class PlayerInputSystem extends EntitySystem
         if(Gdx.input.isKeyJustPressed(Keys.Z) && playerAirborneState.currentState == AirborneStateComponent.State.ON_GROUND)
         {
         	playerAirborneState.currentState = AirborneStateComponent.State.JUMPING;
-        	playerVelocity.y += 400;
+        	playerVelocity.y += 430;
         }
 	}
 }

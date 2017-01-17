@@ -59,9 +59,6 @@ public class GameScreen implements Screen
     FacingDirectionStateComponent playerFacingState;
     InventoryComponent playerInventory;
 	
-	boolean leftPressed;
-	boolean rightPressed;
-	
 	boolean debugMode = false;
 	
 	final float PLAYER_SPAWN_X = 16;
@@ -82,7 +79,7 @@ public class GameScreen implements Screen
 		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.zoom -= 0.7f;
+		camera.zoom += 0.7f;
 		
 		spriteSheet = new Texture(Gdx.files.internal("sprites.png"));
 		
@@ -132,9 +129,10 @@ public class GameScreen implements Screen
 		engine.addSystem(debugRenderSystem);
 		
 		// Generate test world objects.
-		Array<Entity> testWorldObjects = getTestWorldObjects();
+		Array<Entity> testWorldObjects = getTestWorldObjectsCSV();
 		
 		engine.addEntity(player);
+		
 		for(Entity testWorldObject : testWorldObjects)
 		{
 			engine.addEntity(testWorldObject);
@@ -234,6 +232,99 @@ public class GameScreen implements Screen
 	public void dispose()
 	{
 		
+	}
+	
+	private Array<Entity> getTestWorldObjectsCSV()
+	{
+		Array<Entity> entities = new Array<>();
+		
+		String[] csvLines = Gdx.files.internal("world1-1.csv").readString().split("\n");
+		
+		for(int y = csvLines.length - 1; y >= 0; y--)
+		{
+			String[] cells = csvLines[y].split(",");
+			for(int x = 0; x < cells.length; x++)
+			{
+				// BLOCK
+				if(cells[x].equals("80"))
+				{
+					Entity block = new Entity();
+					Sprite blockSprite = new Sprite(spriteSheet, 0, 128, 16, 16);
+					Sprite blockHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					block.add(new SpriteComponent(blockSprite));
+					block.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					block.add(new HitboxComponent
+					(
+						x*16,
+						(csvLines.length-1-y)*16,
+						blockSprite.getWidth(),
+						blockSprite.getHeight(),
+						blockHitboxSprite
+					));
+					
+					entities.add(block);
+				}
+				// GROUND
+				else if(cells[x].equals("81"))
+				{
+					Entity ground = new Entity();
+					Sprite groundSprite = new Sprite(spriteSheet, 16, 128, 16, 16);
+					Sprite groundHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					ground.add(new SpriteComponent(groundSprite));
+					ground.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					ground.add(new HitboxComponent
+					(
+						x*16,
+						(csvLines.length-1-y)*16,
+						groundSprite.getWidth(),
+						groundSprite.getHeight(),
+						groundHitboxSprite
+					));
+					
+					entities.add(ground);
+				}
+				// BOX
+				else if(cells[x].equals("82"))
+				{
+					Entity box = new Entity();
+					Sprite boxSprite = new Sprite(spriteSheet, 32, 128, 16, 16);
+					Sprite boxHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					box.add(new SpriteComponent(boxSprite));
+					box.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					box.add(new HitboxComponent
+					(
+						x*16,
+						(csvLines.length-1-y)*16,
+						boxSprite.getWidth(),
+						boxSprite.getHeight(),
+						boxHitboxSprite
+					));
+					
+					entities.add(box);
+				}
+				// BRICKS
+				else if(cells[x].equals("83"))
+				{
+					Entity bricks = new Entity();
+					Sprite bricksSprite = new Sprite(spriteSheet, 48, 128, 16, 16);
+					Sprite bricksHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
+					bricks.add(new SpriteComponent(bricksSprite));
+					bricks.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					bricks.add(new HitboxComponent
+					(
+						x*16,
+						(csvLines.length-1-y)*16,
+						bricksSprite.getWidth(),
+						bricksSprite.getHeight(),
+						bricksHitboxSprite
+					));
+					
+					entities.add(bricks);
+				}
+			}
+		}
+		
+		return entities;
 	}
 	
 	private Array<Entity> getTestWorldObjects()

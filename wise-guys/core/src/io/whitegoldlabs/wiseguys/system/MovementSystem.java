@@ -46,7 +46,7 @@ public class MovementSystem extends EntitySystem
 			HitboxComponent hitbox = Mappers.hitbox.get(entity);
 			MovingStateComponent movingState = Mappers.movingState.get(entity);
 			
-			// Apply decceleration if slowing.
+			// Apply deceleration if slowing.
 			if(movingState.currentState == MovingStateComponent.State.SLOWING_LEFT)
 			{
 				if(acceleration.x < 0)
@@ -91,11 +91,11 @@ public class MovementSystem extends EntitySystem
 			
 			if(velocity.y > 0)
 			{
-				velocity.y = Math.min(velocity.y, 400);
+				velocity.y = Math.min(velocity.y, 430);
 			}
 			else
 			{
-				velocity.y = Math.max(velocity.y, -400);
+				velocity.y = Math.max(velocity.y, -430);
 			}
 			
 			position.x += velocity.x * deltaTime;
