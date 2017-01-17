@@ -9,28 +9,25 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
+import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
 import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class AnimationSystem extends EntitySystem
 {
-	private ImmutableArray<Entity> entities;
-	
-	private float animationTime;
+	private ImmutableArray<Entity> movingEntities;
+	private ImmutableArray<Entity> idleEntities;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public AnimationSystem()
-	{
-		animationTime = 0;
-	}
+	public AnimationSystem() {}
 	
 	@Override
 	public void addedToEngine(Engine engine)
 	{
-		entities = engine.getEntitiesFor(Family.all
+		movingEntities = engine.getEntitiesFor(Family.all
 		(
 			SpriteComponent.class,
 			AnimationComponent.class,
@@ -38,12 +35,18 @@ public class AnimationSystem extends EntitySystem
 			MovingStateComponent.class,
 			AirborneStateComponent.class
 		).get());
+		
+		idleEntities = engine.getEntitiesFor(Family.all
+		(
+			SpriteComponent.class,
+			IdleAnimationComponent.class
+		).get());
 	}
 	
 	@Override
 	public void update(float deltaTime)
 	{
-		for(Entity entity : entities)
+		for(Entity entity : movingEntities)
 		{
 			SpriteComponent currentSprite = Mappers.sprite.get(entity);
 			AnimationComponent animation = Mappers.animation.get(entity);
@@ -65,12 +68,12 @@ public class AnimationSystem extends EntitySystem
 				}
 				else
 				{
-					animationTime += deltaTime;
+					animation.movingAnimationTime += deltaTime;
 					currentSprite.sprite = animation.walkingSprites.get(animation.walkingFrame);
 					
-					if(animationTime > 0.03)
+					if(animation.movingAnimationTime > 0.03)
 					{
-						animationTime = 0;
+						animation.movingAnimationTime = 0;
 						animation.walkingFrame++;
 						
 						if(animation.walkingFrame > 2)
@@ -88,6 +91,36 @@ public class AnimationSystem extends EntitySystem
 			else
 			{
 				currentSprite.sprite.setFlip(true, false);
+			}
+		}
+		
+		for(Entity entity : idleEntities)
+		{
+			IdleAnimationComponent idleAnimation = Mappers.idleAnimation.get(entity);
+			SpriteComponent currentSprite = Mappers.sprite.get(entity);
+			float interval = 0;
+			
+			idleAnimation.idleAnimationTime += deltaTime;
+			currentSprite.sprite = idleAnimation.idleSprites.get(idleAnimation.idleFrame);
+			
+			if(idleAnimation.idleFrame == 0)
+			{
+				interval = 0.5f;
+			}
+			else
+			{
+				interval = 0.2f;
+			}
+			
+			if(idleAnimation.idleAnimationTime > interval)
+			{
+				idleAnimation.idleAnimationTime = 0;
+				idleAnimation.idleFrame++;
+				
+				if(idleAnimation.idleFrame > 3)
+				{
+					idleAnimation.idleFrame = 0;
+				}
 			}
 		}
 	}

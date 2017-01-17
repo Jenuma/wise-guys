@@ -6,15 +6,20 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 
+import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
+import io.whitegoldlabs.wiseguys.view.GameScreen;
 
 public class PickupSystem extends EntitySystem
 {
+	private WiseGuys game;
+	private GameScreen screen;
 	private Engine engine;
 	private Entity player;
 	private ImmutableArray<Entity> pickups;
@@ -24,8 +29,10 @@ public class PickupSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public PickupSystem(Engine engine, Entity player)
+	public PickupSystem(WiseGuys game, GameScreen screen, Engine engine, Entity player)
 	{
+		this.game = game;
+		this.screen = screen;
 		this.engine = engine;
 		this.player = player;
 		
@@ -60,6 +67,16 @@ public class PickupSystem extends EntitySystem
 						playerInventory.score += 200;
 						
 						engine.removeEntity(pickup);
+						break;
+					case TELEPORT_DOWN:
+						if(Gdx.input.isKeyPressed(Keys.DOWN))
+						{
+							game.setScreen(new GameScreen(game, "world1-1a.csv", 16, 32));
+							screen.dispose();
+						}
+						break;
+					case TELEPORT_RIGHT:
+						
 						break;
 				}
 			}

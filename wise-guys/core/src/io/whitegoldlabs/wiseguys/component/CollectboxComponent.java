@@ -8,7 +8,9 @@ public class CollectboxComponent implements Component
 {
 	public enum Type
 	{
-		COIN
+		COIN,
+		TELEPORT_DOWN,
+		TELEPORT_RIGHT
 	}
 	
 	public Rectangle collectbox;

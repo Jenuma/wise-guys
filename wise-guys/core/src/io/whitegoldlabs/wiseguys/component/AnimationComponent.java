@@ -11,6 +11,7 @@ public class AnimationComponent implements Component
 	public Array<Sprite> walkingSprites;
 	
 	public int walkingFrame;
+	public float movingAnimationTime;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -22,5 +23,6 @@ public class AnimationComponent implements Component
 		this.walkingSprites = walkingSprites;
 		
 		this.walkingFrame = 0;
+		movingAnimationTime = 0;
 	}
 }

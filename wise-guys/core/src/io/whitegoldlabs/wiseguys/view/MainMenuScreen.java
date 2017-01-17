@@ -50,7 +50,7 @@ public class MainMenuScreen implements Screen
 		// For now, clicking anywhere in the menu will bring you to the game screen.
 		if(Gdx.input.isTouched())
 		{
-			game.setScreen(new GameScreen(game));
+			game.setScreen(new GameScreen(game, "world1-1.csv", 16f, 32f));
 			dispose();
 		}
 	}

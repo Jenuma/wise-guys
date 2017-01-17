@@ -16,8 +16,10 @@ import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
+import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
@@ -57,8 +59,8 @@ public class GameScreen implements Screen
 	
 	boolean debugMode = false;
 	
-	final float PLAYER_SPAWN_X = 16;
-	final float PLAYER_SPAWN_Y = 32;
+	//final float PLAYER_SPAWN_X = 16;
+	//final float PLAYER_SPAWN_Y = 32;
 	
 	short time = 400;
 	float timer = 0;
@@ -66,7 +68,7 @@ public class GameScreen implements Screen
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public GameScreen(final WiseGuys game)
+	public GameScreen(final WiseGuys game, String world, float x, float y)
 	{
 		this.game = game;
 		
@@ -99,15 +101,15 @@ public class GameScreen implements Screen
 		player.add(new AirborneStateComponent(AirborneStateComponent.State.ON_GROUND));
 		player.add(new FacingDirectionStateComponent(FacingDirectionStateComponent.State.FACING_RIGHT));
 		player.add(new MovingStateComponent(MovingStateComponent.State.NOT_MOVING));
-		player.add(new PositionComponent(PLAYER_SPAWN_X, PLAYER_SPAWN_Y));
+		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));
 		player.add(new InventoryComponent(0, (byte)0, (byte)3));
 		player.add(new AnimationComponent(playerStandingSprite, playerJumpingSprite, playerWalkingSprites));
 		player.add(new HitboxComponent
 		(
-			PLAYER_SPAWN_X,
-			PLAYER_SPAWN_Y,
+			x,
+			y,
 			playerStandingSprite.getWidth(),
 			playerStandingSprite.getHeight(),
 			playerHitboxSprite
@@ -117,7 +119,7 @@ public class GameScreen implements Screen
 		engine.addSystem(new GravitySystem());
 		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new RenderSystem(game.batch, camera));
-		engine.addSystem(new PickupSystem(engine, player));
+		engine.addSystem(new PickupSystem(game, this, engine, player));
 		engine.addSystem(new PlayerInputSystem(player));
 		engine.addSystem(new AnimationSystem());
 		
@@ -125,7 +127,7 @@ public class GameScreen implements Screen
 		engine.addSystem(debugRenderSystem);
 		
 		// Generate test world objects.
-		Array<Entity> testWorldObjects = getTestWorldObjects();
+		Array<Entity> testWorldObjects = getTestWorldObjects(world);
 		
 		engine.addEntity(player);
 		
@@ -230,11 +232,11 @@ public class GameScreen implements Screen
 		
 	}
 	
-	private Array<Entity> getTestWorldObjects()
+	private Array<Entity> getTestWorldObjects(String filename)
 	{
 		Array<Entity> entities = new Array<>();
 		
-		String[] csvLines = Gdx.files.internal("world1-1.csv").readString().split("\n");
+		String[] csvLines = Gdx.files.internal(filename).readString().split("\n");
 		
 		for(int y = csvLines.length - 1; y >= 0; y--)
 		{
@@ -259,6 +261,26 @@ public class GameScreen implements Screen
 					));
 					
 					entities.add(goalTop);
+				}
+				// COIN
+				else if(cells[x].equals("7"))
+				{
+					Entity coin = new Entity();
+					Sprite coinSprite = new Sprite(spriteSheet, 112, 0, 16, 16);
+					Sprite coinCollectboxSprite = new Sprite(spriteSheet, 112, 144, 10, 16);
+					coin.add(new SpriteComponent(coinSprite));
+					coin.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					coin.add(new CollectboxComponent
+					(
+						(x*16)+3,
+						(csvLines.length-1-y)*16,
+						coinCollectboxSprite.getWidth(),
+						coinCollectboxSprite.getHeight(),
+						CollectboxComponent.Type.COIN,
+						coinCollectboxSprite
+					));
+
+					entities.add(coin);
 				}
 				// GOAL
 				else if(cells[x].equals("69"))
@@ -632,13 +654,21 @@ public class GameScreen implements Screen
 					entities.add(ground);
 				}
 				// BOX
-				else if(cells[x].equals("82"))
+				else if(cells[x].equals("50"))
 				{
 					Entity box = new Entity();
-					Sprite boxSprite = new Sprite(spriteSheet, 32, 128, 16, 16);
+					Sprite boxSprite = new Sprite(spriteSheet, 0, 80, 16, 16);
 					Sprite boxHitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
 					box.add(new SpriteComponent(boxSprite));
 					box.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					
+					Array<Sprite> boxIdleSprites = new Array<>();
+					boxIdleSprites.add(boxSprite);
+					boxIdleSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+					boxIdleSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
+					boxIdleSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+					box.add(new IdleAnimationComponent(boxIdleSprites));
+					
 					box.add(new HitboxComponent
 					(
 						x*16,
@@ -687,6 +717,24 @@ public class GameScreen implements Screen
 					));
 					
 					entities.add(bricks);
+				}
+				// TELEPORT DOWN
+				if(cells[x].equals("90"))
+				{
+					Entity teleportDown = new Entity();
+					Sprite teleportDownCollectboxSprite = new Sprite(spriteSheet, 96, 144, 16, 16);
+					teleportDown.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
+					teleportDown.add(new CollectboxComponent
+					(
+						x*16,
+						(csvLines.length-1-y)*16,
+						teleportDownCollectboxSprite.getWidth(),
+						1,
+						CollectboxComponent.Type.TELEPORT_DOWN,
+						teleportDownCollectboxSprite
+					));
+					
+					entities.add(teleportDown);
 				}
 			}
 		}

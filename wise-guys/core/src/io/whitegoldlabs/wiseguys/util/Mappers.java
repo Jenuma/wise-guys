@@ -8,6 +8,7 @@ import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
@@ -22,6 +23,7 @@ public class Mappers
 	public static final ComponentMapper<CollectboxComponent> collectbox = ComponentMapper.getFor(CollectboxComponent.class);
 	public static final ComponentMapper<FacingDirectionStateComponent> facingState = ComponentMapper.getFor(FacingDirectionStateComponent.class);
 	public static final ComponentMapper<HitboxComponent> hitbox = ComponentMapper.getFor(HitboxComponent.class);
+	public static final ComponentMapper<IdleAnimationComponent> idleAnimation = ComponentMapper.getFor(IdleAnimationComponent.class);
 	public static final ComponentMapper<InventoryComponent> inventory = ComponentMapper.getFor(InventoryComponent.class);
 	public static final ComponentMapper<MovingStateComponent> movingState = ComponentMapper.getFor(MovingStateComponent.class);
 	public static final ComponentMapper<PositionComponent> position = ComponentMapper.getFor(PositionComponent.class);
