@@ -46,6 +46,10 @@ public class StateComponent implements Component
 	// ---------------------------------------------------------------------------------|
 	public StateComponent()
 	{
+		motionState = MotionState.STILL;
+		directionState = DirectionState.NOT_APPLICABLE;
+		airborneState = AirborneState.NOT_APPLICABLE;
+		
 		time = 0;
 	}
 }
