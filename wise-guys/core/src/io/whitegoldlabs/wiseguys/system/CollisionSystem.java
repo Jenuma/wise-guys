@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -29,7 +29,7 @@ public class CollisionSystem extends EntitySystem
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
-			MovingStateComponent.class,
+			StateComponent.class,
 			HitboxComponent.class,
 			PositionComponent.class,
 			VelocityComponent.class,
@@ -68,7 +68,7 @@ public class CollisionSystem extends EntitySystem
 				{
 					if(yDistanceToResolve > 0)
 					{
-						Mappers.movingState.get(entity).airborneState = MovingStateComponent.AirborneState.GROUNDED;
+						Mappers.movingState.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
 					}
 					
 					Mappers.position.get(entity).y += yDistanceToResolve;
@@ -79,7 +79,7 @@ public class CollisionSystem extends EntitySystem
 				{
 					if(xAndYDistanceToResolve.y > 0)
 					{
-						Mappers.movingState.get(entity).airborneState = MovingStateComponent.AirborneState.GROUNDED;
+						Mappers.movingState.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
 					}
 					
 					Mappers.position.get(entity).x += xAndYDistanceToResolve.x;

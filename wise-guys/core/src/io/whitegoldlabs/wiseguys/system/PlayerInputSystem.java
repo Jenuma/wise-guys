@@ -6,7 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -26,7 +26,7 @@ public class PlayerInputSystem extends EntitySystem
 	{
 		VelocityComponent playerVelocity = Mappers.velocity.get(player);
 		AccelerationComponent playerAcceleration = Mappers.acceleration.get(player);
-		MovingStateComponent playerMovingState = Mappers.movingState.get(player);
+		StateComponent playerState = Mappers.movingState.get(player);
 		
 		boolean leftPressed = Gdx.input.isKeyPressed(Keys.LEFT);
         boolean rightPressed = Gdx.input.isKeyPressed(Keys.RIGHT);
@@ -34,30 +34,30 @@ public class PlayerInputSystem extends EntitySystem
         // Stop moving.
         if(leftPressed == rightPressed)
         {
-        	if(playerMovingState.motionState == MovingStateComponent.MotionState.MOVING)
+        	if(playerState.motionState == StateComponent.MotionState.MOVING)
         	{
-        		playerMovingState.motionState = MovingStateComponent.MotionState.SLOWING;
+        		playerState.motionState = StateComponent.MotionState.SLOWING;
         	}
         }
         // Move left.
         else if(leftPressed)
 		{
-        	playerMovingState.directionState = MovingStateComponent.DirectionState.LEFT;
+        	playerState.directionState = StateComponent.DirectionState.LEFT;
         	playerAcceleration.x = -15;
-        	playerMovingState.motionState = MovingStateComponent.MotionState.MOVING;
+        	playerState.motionState = StateComponent.MotionState.MOVING;
 		}
         //Move right.
         else if(rightPressed)
         {
-        	playerMovingState.directionState = MovingStateComponent.DirectionState.RIGHT;
+        	playerState.directionState = StateComponent.DirectionState.RIGHT;
         	playerAcceleration.x = 15;
-        	playerMovingState.motionState = MovingStateComponent.MotionState.MOVING;
+        	playerState.motionState = StateComponent.MotionState.MOVING;
         }
         
         // Jump
-        if(Gdx.input.isKeyJustPressed(Keys.Z) && playerMovingState.airborneState == MovingStateComponent.AirborneState.GROUNDED)
+        if(Gdx.input.isKeyJustPressed(Keys.Z) && playerState.airborneState == StateComponent.AirborneState.GROUNDED)
         {
-        	playerMovingState.airborneState = MovingStateComponent.AirborneState.JUMPING;
+        	playerState.airborneState = StateComponent.AirborneState.JUMPING;
         	playerVelocity.y += 430;
         }
 	}

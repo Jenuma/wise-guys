@@ -2,7 +2,7 @@ package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
 
-public class MovingStateComponent implements Component
+public class StateComponent implements Component
 {
 	public enum MotionState
 	{
@@ -15,28 +15,29 @@ public class MovingStateComponent implements Component
 	public enum DirectionState
 	{
 		RIGHT,
-		LEFT
+		LEFT,
+		NOT_APPLICABLE
 	}
 	
 	public enum AirborneState
 	{
 		GROUNDED,
 		JUMPING,
-		FALLING
+		FALLING,
+		NOT_APPLICABLE
 	}
 	
 	public MotionState motionState;
 	public DirectionState directionState;
 	public AirborneState airborneState;
 	
+	public float time;
+	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public MovingStateComponent
-	(MotionState motionState, DirectionState directionState, AirborneState airborneState)
+	public StateComponent()
 	{
-		this.motionState = motionState;
-		this.directionState = directionState;
-		this.airborneState = airborneState;
+		time = 0;
 	}
 }

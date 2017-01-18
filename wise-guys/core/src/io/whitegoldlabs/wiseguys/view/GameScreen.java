@@ -8,6 +8,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
@@ -17,11 +18,10 @@ import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -55,9 +55,6 @@ public class GameScreen implements Screen
 	
 	boolean debugMode = false;
 	
-	//final float PLAYER_SPAWN_X = 16;
-	//final float PLAYER_SPAWN_Y = 32;
-	
 	short time = 400;
 	float timer = 0;
 	
@@ -81,7 +78,7 @@ public class GameScreen implements Screen
 		coinSprite.setPosition(400, 662);
 		coinSprite.setScale(2);
 		
-		// Get player animation sprites.
+		// Initialize Player
 		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
 		Array<Sprite> playerStillSprites = new Array<>(); 
 		Array<Sprite> playerJumpingSprites = new Array<>();
@@ -97,21 +94,19 @@ public class GameScreen implements Screen
 		
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
-		engine = new Engine();
-		
 		player = new Entity();
 		player.add(new SpriteComponent(playerStillSprite));
-		player.add(new MovingStateComponent
-		(
-			MovingStateComponent.MotionState.STILL,
-			MovingStateComponent.DirectionState.RIGHT,
-			MovingStateComponent.AirborneState.GROUNDED
-		));
+		
+		StateComponent state = new StateComponent();
+		state.motionState = StateComponent.MotionState.STILL;
+		state.directionState = StateComponent.DirectionState.RIGHT;
+		state.airborneState = StateComponent.AirborneState.GROUNDED;
+		player.add(state);
+		
 		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));
 		player.add(new InventoryComponent(0, (byte)0, (byte)3));
-		player.add(new AnimationComponent(playerStillSprites, playerJumpingSprites, playerMovingSprites, playerSlowingSprites, null));
 		player.add(new HitboxComponent
 		(
 			x,
@@ -121,12 +116,22 @@ public class GameScreen implements Screen
 			playerHitboxSprite
 		));
 		
+		AnimationComponent ac = new AnimationComponent();
+		ac.animations.put("STILL", new Animation<Sprite>(1f/32f, playerStillSprites, Animation.PlayMode.NORMAL));
+		ac.animations.put("MOVING", new Animation<Sprite>(1f/32f, playerMovingSprites, Animation.PlayMode.LOOP));
+		ac.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
+		ac.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
+		player.add(ac);
+		
+		// Initialize Engine
+		engine = new Engine();
 		engine.addSystem(new MovementSystem());
 		engine.addSystem(new GravitySystem());
 		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new RenderSystem(game.batch, camera));
 		engine.addSystem(new PickupSystem(game, this, engine, player));
 		engine.addSystem(new PlayerInputSystem(player));
+		
 		engine.addSystem(new AnimationSystem());
 		
 		debugRenderSystem = new DebugRenderSystem(game.batch, debugBatch, camera, game.font, player);
@@ -236,11 +241,12 @@ public class GameScreen implements Screen
 		
 	}
 	
+	
 	private Array<Entity> getTestWorldObjects(String filename)
 	{
 		Array<Entity> entities = new Array<>();
 		
-		String[] csvLines = Gdx.files.internal(filename).readString().split("\n");
+		String[] csvLines = Gdx.files.internal(filename).readString().split("\r\n");
 		
 		for(int y = csvLines.length - 1; y >= 0; y--)
 		{
@@ -666,12 +672,20 @@ public class GameScreen implements Screen
 					box.add(new SpriteComponent(boxSprite));
 					box.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
 					
-					Array<Sprite> boxIdleSprites = new Array<>();
-					boxIdleSprites.add(boxSprite);
-					boxIdleSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
-					boxIdleSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
-					boxIdleSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
-					box.add(new IdleAnimationComponent(boxIdleSprites));
+					StateComponent state = new StateComponent();
+					state.motionState = StateComponent.MotionState.STILL;
+					state.directionState = StateComponent.DirectionState.NOT_APPLICABLE;
+					state.airborneState = StateComponent.AirborneState.NOT_APPLICABLE;
+					box.add(state);
+					
+					Array<Sprite> boxStillSprites = new Array<>();
+					boxStillSprites.add(boxSprite);
+					boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+					boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
+					
+					AnimationComponent ac = new AnimationComponent();
+					ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
+					box.add(ac);
 					
 					box.add(new HitboxComponent
 					(

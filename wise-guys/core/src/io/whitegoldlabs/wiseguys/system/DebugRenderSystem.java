@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -83,7 +83,7 @@ public class DebugRenderSystem extends EntitySystem
 		PositionComponent playerPosition = Mappers.position.get(player);
 		VelocityComponent playerVelocity = Mappers.velocity.get(player);
 		AccelerationComponent playerAcceleration = Mappers.acceleration.get(player);
-		MovingStateComponent playerMovingState = Mappers.movingState.get(player);
+		StateComponent playerMovingState = Mappers.movingState.get(player);
 		
 		// Debug Player Attributes
 		debugBatch.begin();

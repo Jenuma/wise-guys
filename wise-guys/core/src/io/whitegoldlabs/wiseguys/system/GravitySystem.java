@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -29,7 +29,7 @@ public class GravitySystem extends EntitySystem
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
-				MovingStateComponent.class,
+				StateComponent.class,
 				VelocityComponent.class,
 				HitboxComponent.class
 		).get());
@@ -51,11 +51,11 @@ public class GravitySystem extends EntitySystem
 		{
 			VelocityComponent velocity = Mappers.velocity.get(dynamicEntity);
 			AccelerationComponent acceleration = Mappers.acceleration.get(dynamicEntity);
-			MovingStateComponent movingState = Mappers.movingState.get(dynamicEntity);
+			StateComponent state = Mappers.movingState.get(dynamicEntity);
 			
 			// If the entity is falling, apply gravity.
-			if(movingState.airborneState == MovingStateComponent.AirborneState.FALLING ||
-				movingState.airborneState == MovingStateComponent.AirborneState.JUMPING)
+			if(state.airborneState == StateComponent.AirborneState.FALLING ||
+				state.airborneState == StateComponent.AirborneState.JUMPING)
 			{
 				//velocity.y += G * deltaTime * 60;
 				acceleration.y = G * deltaTime * 60;
@@ -78,7 +78,7 @@ public class GravitySystem extends EntitySystem
 					}
 				}
 				
-				movingState.airborneState = MovingStateComponent.AirborneState.FALLING;
+				state.airborneState = StateComponent.AirborneState.FALLING;
 			}
 		}
 	}
