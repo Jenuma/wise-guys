@@ -34,7 +34,7 @@ public class AnimationSystem extends EntitySystem
 	{
 		for(Entity entity : entities)
 		{
-			AnimationComponent animation = Mappers.animation2.get(entity);
+			AnimationComponent animation = Mappers.animation.get(entity);
 			SpriteComponent currentSprite = Mappers.sprite.get(entity);
 			StateComponent state = Mappers.movingState.get(entity);
 		
@@ -52,7 +52,7 @@ public class AnimationSystem extends EntitySystem
 			{
 				currentSprite.sprite.setFlip(true, false);
 			}
-			else
+			else if(state.directionState == StateComponent.DirectionState.RIGHT)
 			{
 				currentSprite.sprite.setFlip(false, false);
 			}

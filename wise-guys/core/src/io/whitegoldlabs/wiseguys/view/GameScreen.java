@@ -16,12 +16,13 @@ import com.badlogic.gdx.utils.Array;
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
-import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.PickupComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -95,6 +96,7 @@ public class GameScreen implements Screen
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
 		player = new Entity();
+		player.add(new TypeComponent(TypeComponent.Type.PLAYER));
 		player.add(new SpriteComponent(playerStillSprite));
 		
 		StateComponent state = new StateComponent();
@@ -269,7 +271,7 @@ public class GameScreen implements Screen
 						goalTopSprite.getHeight(),
 						goalTopHitboxSprite
 					));
-					
+					goalTop.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(goalTop);
 				}
 				// COIN
@@ -280,16 +282,16 @@ public class GameScreen implements Screen
 					Sprite coinCollectboxSprite = new Sprite(spriteSheet, 112, 144, 10, 16);
 					coin.add(new SpriteComponent(coinSprite));
 					coin.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
-					coin.add(new CollectboxComponent
+					coin.add(new HitboxComponent
 					(
 						(x*16)+3,
 						(csvLines.length-1-y)*16,
 						coinCollectboxSprite.getWidth(),
 						coinCollectboxSprite.getHeight(),
-						CollectboxComponent.Type.COIN,
 						coinCollectboxSprite
 					));
-
+					coin.add(new TypeComponent(TypeComponent.Type.PICKUP));
+					coin.add(new PickupComponent(PickupComponent.Pickup.COIN));
 					entities.add(coin);
 				}
 				// GOAL
@@ -299,7 +301,7 @@ public class GameScreen implements Screen
 					Sprite goalSprite = new Sprite(spriteSheet, 144, 96, 16, 16);
 					goal.add(new SpriteComponent(goalSprite));
 					goal.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
-					
+					goal.add(new TypeComponent(TypeComponent.Type.EVENT));
 					entities.add(goal);
 				}
 				// OPEN BATTLEMENTS
@@ -318,7 +320,7 @@ public class GameScreen implements Screen
 						openBattlementsSprite.getHeight(),
 						openBattlementsHitboxSprite
 					));
-					
+					openBattlements.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(openBattlements);
 				}
 				// CASTLE WINDOW
@@ -337,7 +339,7 @@ public class GameScreen implements Screen
 						castleWindowSprite.getHeight(),
 						castleWindowHitboxSprite
 					));
-					
+					castleWindow.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(castleWindow);
 				}
 				// CASTLE BRICKS
@@ -356,7 +358,7 @@ public class GameScreen implements Screen
 						castleBricksSprite.getHeight(),
 						castleBricksHitboxSprite
 					));
-					
+					castleBricks.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(castleBricks);
 				}
 				// CASTLE WINDOW 2
@@ -375,7 +377,7 @@ public class GameScreen implements Screen
 						castleWindow2Sprite.getHeight(),
 						castleWindow2HitboxSprite
 					));
-					
+					castleWindow2.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(castleWindow2);
 				}
 				// ClOSED BATTLEMENTS
@@ -394,7 +396,7 @@ public class GameScreen implements Screen
 						closedBattlementsSprite.getHeight(),
 						closedBattlementsHitboxSprite
 					));
-					
+					closedBattlements.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(closedBattlements);
 				}
 				// CASTLE DOOR TOP
@@ -413,7 +415,7 @@ public class GameScreen implements Screen
 						castleDoorTopSprite.getHeight(),
 						castleDoorTopHitboxSprite
 					));
-					
+					castleDoorTop.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(castleDoorTop);
 				}
 				// CASTLE DOOR
@@ -432,7 +434,7 @@ public class GameScreen implements Screen
 						castleDoorSprite.getHeight(),
 						castleDoorHitboxSprite
 					));
-					
+					castleDoor.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(castleDoor);
 				}
 				// UP PIPE 1
@@ -451,7 +453,7 @@ public class GameScreen implements Screen
 						UpPipe1Sprite.getHeight(),
 						UpPipe1HitboxSprite
 					));
-					
+					upPipe1.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(upPipe1);
 				}
 				// UP PIPE 2
@@ -470,7 +472,7 @@ public class GameScreen implements Screen
 						UpPipe2Sprite.getHeight(),
 						UpPipe2HitboxSprite
 					));
-					
+					upPipe2.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(upPipe2);
 				}
 				// UP PIPE 3
@@ -489,7 +491,7 @@ public class GameScreen implements Screen
 						UpPipe3Sprite.getHeight(),
 						UpPipe3HitboxSprite
 					));
-					
+					upPipe3.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(upPipe3);
 				}
 				// UP PIPE 4
@@ -508,7 +510,7 @@ public class GameScreen implements Screen
 						UpPipe4Sprite.getHeight(),
 						UpPipe4HitboxSprite
 					));
-					
+					upPipe4.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(upPipe4);
 				}
 				// LEFT PIPE 1
@@ -527,7 +529,7 @@ public class GameScreen implements Screen
 						leftPipe1Sprite.getHeight(),
 						leftPipe1HitboxSprite
 					));
-					
+					leftPipe1.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(leftPipe1);
 				}
 				// LEFT PIPE 2
@@ -546,7 +548,7 @@ public class GameScreen implements Screen
 						leftPipe2Sprite.getHeight(),
 						leftPipe2HitboxSprite
 					));
-					
+					leftPipe2.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(leftPipe2);
 				}
 				// LEFT PIPE 3
@@ -565,7 +567,7 @@ public class GameScreen implements Screen
 						leftPipe3Sprite.getHeight(),
 						leftPipe3HitboxSprite
 					));
-					
+					leftPipe3.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(leftPipe3);
 				}
 				// LEFT PIPE 4
@@ -584,7 +586,7 @@ public class GameScreen implements Screen
 						leftPipe4Sprite.getHeight(),
 						leftPipe4HitboxSprite
 					));
-					
+					leftPipe4.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(leftPipe4);
 				}
 				// LEFT PIPE 5
@@ -603,7 +605,7 @@ public class GameScreen implements Screen
 						leftPipe5Sprite.getHeight(),
 						leftPipe5HitboxSprite
 					));
-					
+					leftPipe5.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(leftPipe5);
 				}
 				// LEFT PIPE 6
@@ -622,7 +624,7 @@ public class GameScreen implements Screen
 						leftPipe6Sprite.getHeight(),
 						leftPipe6HitboxSprite
 					));
-					
+					leftPipe6.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(leftPipe6);
 				}
 				// BLOCK
@@ -641,7 +643,7 @@ public class GameScreen implements Screen
 						blockSprite.getHeight(),
 						blockHitboxSprite
 					));
-					
+					block.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(block);
 				}
 				// GROUND
@@ -660,7 +662,7 @@ public class GameScreen implements Screen
 						groundSprite.getHeight(),
 						groundHitboxSprite
 					));
-					
+					ground.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(ground);
 				}
 				// BOX
@@ -695,7 +697,7 @@ public class GameScreen implements Screen
 						boxSprite.getHeight(),
 						boxHitboxSprite
 					));
-					
+					box.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(box);
 				}
 				// BRICKS TOP
@@ -714,7 +716,7 @@ public class GameScreen implements Screen
 						bricksTopSprite.getHeight(),
 						bricksTopHitboxSprite
 					));
-					
+					bricksTop.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(bricksTop);
 				}
 				// BRICKS
@@ -733,25 +735,25 @@ public class GameScreen implements Screen
 						bricksSprite.getHeight(),
 						bricksHitboxSprite
 					));
-					
+					bricks.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entities.add(bricks);
 				}
 				// TELEPORT DOWN
 				if(cells[x].equals("90"))
 				{
 					Entity teleportDown = new Entity();
-					Sprite teleportDownCollectboxSprite = new Sprite(spriteSheet, 96, 144, 16, 16);
+					Sprite teleportDownHitboxSprite = new Sprite(spriteSheet, 96, 144, 16, 16);
 					teleportDown.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
-					teleportDown.add(new CollectboxComponent
+					teleportDown.add(new HitboxComponent
 					(
 						x*16,
 						(csvLines.length-1-y)*16,
-						teleportDownCollectboxSprite.getWidth(),
+						teleportDownHitboxSprite.getWidth(),
 						1,
-						CollectboxComponent.Type.TELEPORT_DOWN,
-						teleportDownCollectboxSprite
+						teleportDownHitboxSprite
 					));
-					
+					teleportDown.add(new PickupComponent(PickupComponent.Pickup.TELEPORT_DOWN));
+					teleportDown.add(new TypeComponent(TypeComponent.Type.EVENT));
 					entities.add(teleportDown);
 				}
 			}

@@ -11,7 +11,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
+import io.whitegoldlabs.wiseguys.component.PickupComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.view.GameScreen;
@@ -44,7 +44,7 @@ public class PickupSystem extends EntitySystem
 	{
 		pickups = engine.getEntitiesFor(Family.all
 		(
-			CollectboxComponent.class
+			PickupComponent.class
 		).get());
 	}
 	
@@ -52,34 +52,79 @@ public class PickupSystem extends EntitySystem
 	public void update(float deltaTime)
 	{
 		Rectangle playerHitbox = Mappers.hitbox.get(player).hitbox;
-		InventoryComponent playerInventory = Mappers.inventory.get(player);
 		
 		for(Entity pickup : pickups)
 		{
-			if(playerHitbox.overlaps(Mappers.collectbox.get(pickup).collectbox))
+			if(playerHitbox.overlaps(Mappers.hitbox.get(pickup).hitbox))
 			{
-				switch(Mappers.collectbox.get(pickup).type)
+				switch(Mappers.pickup.get(pickup).pickup)
 				{
 					case COIN:
-						sfxCoin.play();
-						
-						playerInventory.coins++;
-						playerInventory.score += 200;
-						
-						engine.removeEntity(pickup);
+						coinEffect();
 						break;
+						
+					case CONNOLI:
+						connoliEffect();
+						break;
+						
+					case FINGERLESS_GLOVE:
+						fingerlessGloveEffect();
+						break;
+						
+					case ONION:
+						onionEffect();
+						break;
+						
+					case ONE_UP:
+						oneUpEffect();
+						break;
+						
 					case TELEPORT_DOWN:
-						if(Gdx.input.isKeyPressed(Keys.DOWN))
-						{
-							game.setScreen(new GameScreen(game, "world1-1a.csv", 16, 32));
-							screen.dispose();
-						}
-						break;
-					case TELEPORT_RIGHT:
-						
+						teleportDownEffect();
 						break;
 				}
+				
+				engine.removeEntity(pickup);
 			}
+		}
+	}
+	
+	private void coinEffect()
+	{
+		InventoryComponent playerInventory = Mappers.inventory.get(player);
+		
+		sfxCoin.play();
+		
+		playerInventory.coins++;
+		playerInventory.score += 200;
+	}
+	
+	private void connoliEffect()
+	{
+		
+	}
+	
+	private void fingerlessGloveEffect()
+	{
+		
+	}
+	
+	private void onionEffect()
+	{
+		
+	}
+	
+	private void oneUpEffect()
+	{
+		
+	}
+	
+	private void teleportDownEffect()
+	{
+		if(Gdx.input.isKeyPressed(Keys.DOWN))
+		{
+			game.setScreen(new GameScreen(game, "world1-1a.csv", 16, 32));
+			screen.dispose();
 		}
 	}
 }

@@ -27,6 +27,14 @@ public class StateComponent implements Component
 		NOT_APPLICABLE
 	}
 	
+	public enum PlayerState
+	{
+		NORMAL,
+		SUPER,
+		HACKER,
+		BEHIND_7_PROXIES
+	}
+	
 	public MotionState motionState;
 	public DirectionState directionState;
 	public AirborneState airborneState;

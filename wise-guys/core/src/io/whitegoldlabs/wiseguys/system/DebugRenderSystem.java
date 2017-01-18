@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
-import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
@@ -22,7 +21,6 @@ import io.whitegoldlabs.wiseguys.util.Mappers;
 public class DebugRenderSystem extends EntitySystem
 {
 	private ImmutableArray<Entity> hitboxEntities;
-	private ImmutableArray<Entity> collectboxEntities;
 	
 	private SpriteBatch hitboxBatch;
 	private SpriteBatch debugBatch;
@@ -48,11 +46,6 @@ public class DebugRenderSystem extends EntitySystem
 		(
 			HitboxComponent.class
 		).get());
-		
-		collectboxEntities = engine.getEntitiesFor(Family.all
-		(
-			CollectboxComponent.class
-		).get());
 	}
 	
 	public void update(float deltaTime)
@@ -68,14 +61,6 @@ public class DebugRenderSystem extends EntitySystem
         	Sprite hitboxSprite = hitboxComponent.sprite;
         	hitboxSprite.setPosition(hitboxComponent.hitbox.x, hitboxComponent.hitbox.y);
         	hitboxSprite.draw(hitboxBatch);
-		}
-		
-		for(Entity entity : collectboxEntities)
-		{
-			CollectboxComponent collectboxComponent = Mappers.collectbox.get(entity);
-        	Sprite collectboxSprite = collectboxComponent.sprite;
-        	collectboxSprite.setPosition(collectboxComponent.collectbox.x, collectboxComponent.collectbox.y);
-        	collectboxSprite.draw(hitboxBatch);
 		}
 		
 		hitboxBatch.end();
