@@ -26,7 +26,7 @@ public class PlayerInputSystem extends EntitySystem
 	{
 		VelocityComponent playerVelocity = Mappers.velocity.get(player);
 		AccelerationComponent playerAcceleration = Mappers.acceleration.get(player);
-		StateComponent playerState = Mappers.movingState.get(player);
+		StateComponent playerState = Mappers.state.get(player);
 		
 		boolean leftPressed = Gdx.input.isKeyPressed(Keys.LEFT);
         boolean rightPressed = Gdx.input.isKeyPressed(Keys.RIGHT);

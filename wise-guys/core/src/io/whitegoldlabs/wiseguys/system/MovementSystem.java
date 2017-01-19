@@ -44,7 +44,7 @@ public class MovementSystem extends EntitySystem
 			VelocityComponent velocity = Mappers.velocity.get(entity);
 			AccelerationComponent acceleration = Mappers.acceleration.get(entity);
 			HitboxComponent hitbox = Mappers.hitbox.get(entity);
-			StateComponent state = Mappers.movingState.get(entity);
+			StateComponent state = Mappers.state.get(entity);
 			
 			// Apply deceleration if slowing.
 			if(state.motionState == StateComponent.MotionState.SLOWING &&

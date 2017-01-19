@@ -23,7 +23,6 @@ import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
-import io.whitegoldlabs.wiseguys.model.World;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.DebugRenderSystem;
@@ -31,17 +30,15 @@ import io.whitegoldlabs.wiseguys.system.GravitySystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.PickupSystem;
 import io.whitegoldlabs.wiseguys.system.PlayerInputSystem;
+import io.whitegoldlabs.wiseguys.system.ReaperSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
+import io.whitegoldlabs.wiseguys.util.Worlds;
 
 public class GameScreen implements Screen
 {
 	final WiseGuys game;
-	
-	World world;
-	int subworld;
-	Array<Entity> updatedEntities;
 	
 	SpriteBatch hudBatch;	
 	Texture spriteSheet;
@@ -65,37 +62,25 @@ public class GameScreen implements Screen
 	// ---------------------------------------------------------------------------------|
 	// Constructors                                                                     |
 	// ---------------------------------------------------------------------------------|
-	public GameScreen(final WiseGuys game, String worldFile, float x, float y)
+	
+	// Constructor for first time world loading:
+	public GameScreen(final WiseGuys game, String worldName, float x, float y)
 	{
 		this.game = game;
 		
 		initHud();
 		initCamera();
 		initPlayer(x, y);
-		initEngine(worldFile);
+		initEngine(worldName);
 	}
 	
-	public GameScreen(final WiseGuys game, Entity player, String worldFile, float x, float y)
+	// Constructor for loading new worlds with existing player:
+	public GameScreen(final WiseGuys game, OrthographicCamera camera, Entity player, Engine engine, String worldName, float x, float y)
 	{
 		this.game = game;
 		
 		initHud();
-		initCamera();
-		
-		this.player = player;
-
-		Mappers.position.get(player).x = x;
-		Mappers.position.get(player).y = y;
-		
-		initEngine(worldFile);
-	}
-	
-	public GameScreen(final WiseGuys game, Entity player, Engine engine, World world, int subworld, float x, float y)
-	{
-		this.game = game;
-		
-		initHud();
-		initCamera();
+		this.camera = camera;
 		
 		this.player = player;
 		
@@ -105,10 +90,7 @@ public class GameScreen implements Screen
 		this.engine = engine;
 		engine.removeAllEntities();
 		
-		this.world = world;
-		this.subworld = subworld;
-		
-		for(Entity entity : world.getWorldEntities().get(subworld))
+		for(Entity entity : Worlds.getWorld(worldName))
 		{
 			engine.addEntity(entity);
 		}
@@ -121,6 +103,7 @@ public class GameScreen implements Screen
 	{
 
 	}
+	
 	
 
 	@Override
@@ -175,31 +158,19 @@ public class GameScreen implements Screen
         	camera.position.set(playerPosition.x, 108, 0);
         }
         
-        if(Gdx.input.isKeyJustPressed(Keys.NUM_2))
+        if(Gdx.input.isKeyJustPressed(Keys.NUM_0))
         {
         	engine.removeEntity(player);
-        	game.setScreen(new GameScreen(game, player, engine, world, 0, 16, 32));
+        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1", 16, 32));
         }
         
-        if(Gdx.input.isKeyJustPressed(Keys.NUM_3))
+        if(Gdx.input.isKeyJustPressed(Keys.NUM_1))
         {
         	engine.removeEntity(player);
-        	game.setScreen(new GameScreen(game, player, engine, world, 1, 16, 32));
+        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1a", 16, 32));
         }
         
         engine.update(delta);
-
-        updatedEntities = new Array<Entity>();
-        for(Entity entity : engine.getEntities())
-        {
-        	if(entity != player)
-        	{
-        		updatedEntities.add(entity);
-        	}
-        }
-        
-        world.getWorldEntities().set(subworld, updatedEntities);
-        //updatedEntities.clear();
 	}
 
 	@Override
@@ -273,7 +244,6 @@ public class GameScreen implements Screen
 		player.add(new SpriteComponent(playerStillSprite));
 		
 		StateComponent state = new StateComponent();
-		state.motionState = StateComponent.MotionState.STILL;
 		state.directionState = StateComponent.DirectionState.RIGHT;
 		state.airborneState = StateComponent.AirborneState.GROUNDED;
 		player.add(state);
@@ -302,6 +272,7 @@ public class GameScreen implements Screen
 	private void initEngine(String worldName)
 	{
 		engine = new Engine();
+		engine.addSystem(new ReaperSystem(engine));
 		engine.addSystem(new MovementSystem());
 		engine.addSystem(new GravitySystem());
 		engine.addSystem(new CollisionSystem());
@@ -315,9 +286,7 @@ public class GameScreen implements Screen
 		debugRenderSystem = new DebugRenderSystem(game.batch, debugBatch, camera, game.font, player);
 		engine.addSystem(debugRenderSystem);
 		
-		world = new World(worldName);
-		
-		for(Entity worldObject : world.getWorldEntities().get(0))
+		for(Entity worldObject : Worlds.getWorld(worldName))
 		{
 			engine.addEntity(worldObject);
 		}

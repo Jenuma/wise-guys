@@ -94,7 +94,7 @@ public class CollisionSystem extends EntitySystem
 		{
 			if(yDistanceToResolve > 0)
 			{
-				Mappers.movingState.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
+				Mappers.state.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
 			}
 			
 			Mappers.position.get(entity).y += yDistanceToResolve;
@@ -105,7 +105,7 @@ public class CollisionSystem extends EntitySystem
 		{
 			if(xAndYDistanceToResolve.y > 0)
 			{
-				Mappers.movingState.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
+				Mappers.state.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
 			}
 			
 			Mappers.position.get(entity).x += xAndYDistanceToResolve.x;

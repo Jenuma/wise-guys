@@ -4,6 +4,12 @@ import com.badlogic.ashley.core.Component;
 
 public class StateComponent implements Component
 {
+	public enum EnabledState
+	{
+		ENABLED,
+		DISABLED
+	}
+	
 	public enum MotionState
 	{
 		STILL,
@@ -35,6 +41,7 @@ public class StateComponent implements Component
 		BEHIND_7_PROXIES
 	}
 	
+	public EnabledState enabledState;
 	public MotionState motionState;
 	public DirectionState directionState;
 	public AirborneState airborneState;
@@ -46,6 +53,7 @@ public class StateComponent implements Component
 	// ---------------------------------------------------------------------------------|
 	public StateComponent()
 	{
+		enabledState = EnabledState.ENABLED;
 		motionState = MotionState.STILL;
 		directionState = DirectionState.NOT_APPLICABLE;
 		airborneState = AirborneState.NOT_APPLICABLE;

@@ -51,7 +51,7 @@ public class GravitySystem extends EntitySystem
 		{
 			VelocityComponent velocity = Mappers.velocity.get(dynamicEntity);
 			AccelerationComponent acceleration = Mappers.acceleration.get(dynamicEntity);
-			StateComponent state = Mappers.movingState.get(dynamicEntity);
+			StateComponent state = Mappers.state.get(dynamicEntity);
 			
 			// If the entity is falling, apply gravity.
 			if(state.airborneState == StateComponent.AirborneState.FALLING ||

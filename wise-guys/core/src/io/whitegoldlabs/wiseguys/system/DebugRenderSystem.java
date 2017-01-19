@@ -68,7 +68,7 @@ public class DebugRenderSystem extends EntitySystem
 		PositionComponent playerPosition = Mappers.position.get(player);
 		VelocityComponent playerVelocity = Mappers.velocity.get(player);
 		AccelerationComponent playerAcceleration = Mappers.acceleration.get(player);
-		StateComponent playerMovingState = Mappers.movingState.get(player);
+		StateComponent playerMovingState = Mappers.state.get(player);
 		
 		// Debug Player Attributes
 		debugBatch.begin();

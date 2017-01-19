@@ -20,7 +20,7 @@ public class Mappers
 	public static final ComponentMapper<PickupComponent> pickup = ComponentMapper.getFor(PickupComponent.class);
 	public static final ComponentMapper<HitboxComponent> hitbox = ComponentMapper.getFor(HitboxComponent.class);
 	public static final ComponentMapper<InventoryComponent> inventory = ComponentMapper.getFor(InventoryComponent.class);
-	public static final ComponentMapper<StateComponent> movingState = ComponentMapper.getFor(StateComponent.class);
+	public static final ComponentMapper<StateComponent> state = ComponentMapper.getFor(StateComponent.class);
 	public static final ComponentMapper<PositionComponent> position = ComponentMapper.getFor(PositionComponent.class);
 	public static final ComponentMapper<SpriteComponent> sprite = ComponentMapper.getFor(SpriteComponent.class);
 	public static final ComponentMapper<TypeComponent> type = ComponentMapper.getFor(TypeComponent.class);

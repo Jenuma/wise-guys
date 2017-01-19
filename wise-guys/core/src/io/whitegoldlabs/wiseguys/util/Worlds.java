@@ -1,10 +1,11 @@
-package io.whitegoldlabs.wiseguys.model;
+package io.whitegoldlabs.wiseguys.util;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
@@ -13,35 +14,22 @@ import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
-import io.whitegoldlabs.wiseguys.util.Assets;
 
-public class World
+public class Worlds
 {
-	private Array<Array<Entity>> worldEntities;
+	private static ArrayMap<String, Array<Entity>> worldEntities = new ArrayMap<String, Array<Entity>>();
 	
-	// ---------------------------------------------------------------------------------|
-	// Constructor                                                                      |
-	// ---------------------------------------------------------------------------------|
-	public World(String fileName)
+	public static Array<Entity> getWorld(String worldName)
 	{
-		this.worldEntities = new Array<Array<Entity>>();
-		this.worldEntities.add(loadWorldEntitiesFromFile(fileName));
-		
-		// Get sub-worlds
-		int i = 1;
-		while(Gdx.files.internal(fileName + "sub" + i + ".csv").exists())
+		if(!worldEntities.containsKey(worldName))
 		{
-			this.worldEntities.add(loadWorldEntitiesFromFile(fileName + "sub" + i));
-			i++;
+			worldEntities.put(worldName, loadWorldEntitiesFromFile(worldName));
 		}
+		
+		return worldEntities.get(worldName);
 	}
 	
-	public Array<Array<Entity>> getWorldEntities()
-	{
-		return this.worldEntities;
-	}
-	
-	private Array<Entity> loadWorldEntitiesFromFile(String fileName)
+	private static Array<Entity> loadWorldEntitiesFromFile(String fileName)
 	{
 		Array<Entity> entities = new Array<>();
 		
@@ -191,8 +179,6 @@ public class World
 					// BOX
 					else if(cells[x].equals("50"))
 					{
-						entity.add(new StateComponent());
-						
 						Array<Sprite> boxStillSprites = new Array<>();
 						boxStillSprites.add(new Sprite(Assets.spriteSheet, 0, 80, 16, 16));
 						boxStillSprites.add(new Sprite(Assets.spriteSheet, 16, 80, 16, 16));
@@ -243,6 +229,7 @@ public class World
 					}
 					
 					entity.add(new TypeComponent(type));
+					entity.add(new StateComponent());
 					entities.add(entity);
 				}
 			}

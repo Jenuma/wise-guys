@@ -36,7 +36,7 @@ public class AnimationSystem extends EntitySystem
 		{
 			AnimationComponent animation = Mappers.animation.get(entity);
 			SpriteComponent currentSprite = Mappers.sprite.get(entity);
-			StateComponent state = Mappers.movingState.get(entity);
+			StateComponent state = Mappers.state.get(entity);
 		
 			if(animation.animations.containsKey(state.airborneState.toString()))
 			{

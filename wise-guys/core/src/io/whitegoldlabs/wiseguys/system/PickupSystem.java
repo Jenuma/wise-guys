@@ -11,10 +11,13 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.PickupComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.PickupComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.view.GameScreen;
+
+import static io.whitegoldlabs.wiseguys.component.StateComponent.EnabledState;
 
 public class PickupSystem extends EntitySystem
 {
@@ -44,7 +47,8 @@ public class PickupSystem extends EntitySystem
 	{
 		pickups = engine.getEntitiesFor(Family.all
 		(
-			PickupComponent.class
+			PickupComponent.class,
+			StateComponent.class
 		).get());
 	}
 	
@@ -84,7 +88,7 @@ public class PickupSystem extends EntitySystem
 						break;
 				}
 				
-				engine.removeEntity(pickup);
+				Mappers.state.get(pickup).enabledState = EnabledState.DISABLED;
 			}
 		}
 	}
