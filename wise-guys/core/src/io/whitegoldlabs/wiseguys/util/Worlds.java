@@ -11,6 +11,7 @@ import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PickupComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
+import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
@@ -19,17 +20,17 @@ public class Worlds
 {
 	private static ArrayMap<String, Array<Entity>> worldEntities = new ArrayMap<String, Array<Entity>>();
 	
-	public static Array<Entity> getWorld(String worldName)
+	public static Array<Entity> getWorld(Entity player, String worldName)
 	{
 		if(!worldEntities.containsKey(worldName))
 		{
-			worldEntities.put(worldName, loadWorldEntitiesFromFile(worldName));
+			worldEntities.put(worldName, loadWorldEntitiesFromFile(player, worldName));
 		}
 		
 		return worldEntities.get(worldName);
 	}
 	
-	private static Array<Entity> loadWorldEntitiesFromFile(String fileName)
+	private static Array<Entity> loadWorldEntitiesFromFile(Entity player, String fileName)
 	{
 		Array<Entity> entities = new Array<>();
 		
@@ -74,6 +75,12 @@ public class Worlds
 						hitboxSprite = new Sprite(Assets.spriteSheet, 112, 144, 10, 16);
 						type = TypeComponent.Type.PICKUP;
 						entity.add(new PickupComponent(PickupComponent.Pickup.COIN));
+						
+						Object[] args = new Object[2];
+						args[0] = Mappers.inventory.get(player);
+						args[1] = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
+						
+						entity.add(new ScriptComponent("hello.lua", args));
 					}
 					// GOAL
 					else if(cells[x].equals("69"))

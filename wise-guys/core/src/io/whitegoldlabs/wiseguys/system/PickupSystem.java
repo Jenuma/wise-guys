@@ -5,23 +5,20 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Rectangle;
 
-import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.PickupComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent.EnabledState;
 import io.whitegoldlabs.wiseguys.util.Mappers;
-
-import static io.whitegoldlabs.wiseguys.component.StateComponent.EnabledState;
+import io.whitegoldlabs.wiseguys.util.ScriptManager;
 
 public class PickupSystem extends EntitySystem
 {
 	private Entity player;
 	private ImmutableArray<Entity> pickups;
 	
-	private Sound sfxCoin;
+	ScriptManager script;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -30,7 +27,7 @@ public class PickupSystem extends EntitySystem
 	{
 		this.player = player;
 		
-		sfxCoin = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
+		script = new ScriptManager("hello.lua"); // Load scripts with world in game screen constructor?
 	}
 	
 	@Override
@@ -52,61 +49,9 @@ public class PickupSystem extends EntitySystem
 		{
 			if(playerHitbox.overlaps(Mappers.hitbox.get(pickup).hitbox))
 			{
-				switch(Mappers.pickup.get(pickup).pickup)
-				{
-					case COIN:
-						coinEffect();
-						break;
-						
-					case CONNOLI:
-						connoliEffect();
-						break;
-						
-					case FINGERLESS_GLOVE:
-						fingerlessGloveEffect();
-						break;
-						
-					case ONION:
-						onionEffect();
-						break;
-						
-					case ONE_UP:
-						oneUpEffect();
-						break;
-				}
-				
+				script.execute(Mappers.script.get(pickup).arguments);
 				Mappers.state.get(pickup).enabledState = EnabledState.DISABLED;
 			}
 		}
-	}
-	
-	private void coinEffect()
-	{
-		InventoryComponent playerInventory = Mappers.inventory.get(player);
-		
-		sfxCoin.play();
-		
-		playerInventory.coins++;
-		playerInventory.score += 200;
-	}
-	
-	private void connoliEffect()
-	{
-		
-	}
-	
-	private void fingerlessGloveEffect()
-	{
-		
-	}
-	
-	private void onionEffect()
-	{
-		
-	}
-	
-	private void oneUpEffect()
-	{
-		
 	}
 }

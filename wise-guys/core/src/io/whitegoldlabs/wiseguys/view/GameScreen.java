@@ -90,7 +90,7 @@ public class GameScreen implements Screen
 		this.engine = engine;
 		engine.removeAllEntities();
 		
-		for(Entity entity : Worlds.getWorld(worldName))
+		for(Entity entity : Worlds.getWorld(player, worldName))
 		{
 			engine.addEntity(entity);
 		}
@@ -287,7 +287,7 @@ public class GameScreen implements Screen
 		debugRenderSystem = new DebugRenderSystem(game.batch, debugBatch, camera, game.font, player);
 		engine.addSystem(debugRenderSystem);
 		
-		for(Entity worldObject : Worlds.getWorld(worldName))
+		for(Entity worldObject : Worlds.getWorld(player, worldName))
 		{
 			engine.addEntity(worldObject);
 		}
