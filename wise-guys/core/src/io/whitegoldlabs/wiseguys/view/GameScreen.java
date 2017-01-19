@@ -158,16 +158,17 @@ public class GameScreen implements Screen
         	camera.position.set(playerPosition.x, 108, 0);
         }
         
-        if(Gdx.input.isKeyJustPressed(Keys.NUM_0))
-        {
-        	engine.removeEntity(player);
-        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1", 16, 32));
-        }
-        
+        // Simulate moving between game screens.
         if(Gdx.input.isKeyJustPressed(Keys.NUM_1))
         {
         	engine.removeEntity(player);
-        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1a", 16, 32));
+        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1a", 3*16, 14*16));
+        }
+        
+        if(Gdx.input.isKeyJustPressed(Keys.NUM_2))
+        {
+        	engine.removeEntity(player);
+        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1", 163*16, 4*16));
         }
         
         engine.update(delta);
@@ -277,7 +278,7 @@ public class GameScreen implements Screen
 		engine.addSystem(new GravitySystem());
 		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new RenderSystem(game.batch, camera));
-		engine.addSystem(new PickupSystem(game, this, engine, player));
+		engine.addSystem(new PickupSystem(player));
 		engine.addSystem(new PlayerInputSystem(player));
 		
 		engine.addSystem(new AnimationSystem());

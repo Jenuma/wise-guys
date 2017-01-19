@@ -10,8 +10,7 @@ public class PickupComponent implements Component
 		CONNOLI,
 		FINGERLESS_GLOVE,
 		ONION,
-		ONE_UP,
-		TELEPORT_DOWN,
+		ONE_UP
 	}
 	
 	public Pickup pickup;
