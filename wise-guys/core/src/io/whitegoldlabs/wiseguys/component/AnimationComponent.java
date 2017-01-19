@@ -1,28 +1,19 @@
 package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 public class AnimationComponent implements Component
 {
-	public Sprite standingSprite;
-	public Sprite jumpingSprite;
-	public Array<Sprite> walkingSprites;
-	
-	public int walkingFrame;
-	public float movingAnimationTime;
+	public ArrayMap<String, Animation<Sprite>> animations;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public AnimationComponent(Sprite standingSprite, Sprite jumpingSprite, Array<Sprite> walkingSprites)
+	public AnimationComponent()
 	{
-		this.standingSprite = standingSprite;
-		this.jumpingSprite = jumpingSprite;
-		this.walkingSprites = walkingSprites;
-		
-		this.walkingFrame = 0;
-		movingAnimationTime = 0;
+		animations = new ArrayMap<String, Animation<Sprite>>();
 	}
 }

@@ -6,18 +6,14 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 
-import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
-import io.whitegoldlabs.wiseguys.component.FacingDirectionStateComponent;
-import io.whitegoldlabs.wiseguys.component.IdleAnimationComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class AnimationSystem extends EntitySystem
 {
-	private ImmutableArray<Entity> movingEntities;
-	private ImmutableArray<Entity> idleEntities;
+	private ImmutableArray<Entity> entities;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -27,101 +23,41 @@ public class AnimationSystem extends EntitySystem
 	@Override
 	public void addedToEngine(Engine engine)
 	{
-		movingEntities = engine.getEntitiesFor(Family.all
+		entities = engine.getEntitiesFor(Family.all
 		(
-			SpriteComponent.class,
-			AnimationComponent.class,
-			FacingDirectionStateComponent.class,
-			MovingStateComponent.class,
-			AirborneStateComponent.class
-		).get());
-		
-		idleEntities = engine.getEntitiesFor(Family.all
-		(
-			SpriteComponent.class,
-			IdleAnimationComponent.class
+			AnimationComponent.class
 		).get());
 	}
 	
 	@Override
 	public void update(float deltaTime)
 	{
-		for(Entity entity : movingEntities)
+		for(Entity entity : entities)
 		{
-			SpriteComponent currentSprite = Mappers.sprite.get(entity);
 			AnimationComponent animation = Mappers.animation.get(entity);
-			FacingDirectionStateComponent facingDirectionState = Mappers.facingState.get(entity);
-			MovingStateComponent movingState = Mappers.movingState.get(entity);
-			AirborneStateComponent airborneState = Mappers.airborneState.get(entity);
-			
-			if(airborneState.currentState == AirborneStateComponent.State.JUMPING)
+			SpriteComponent currentSprite = Mappers.sprite.get(entity);
+			StateComponent state = Mappers.state.get(entity);
+		
+			if(animation.animations.containsKey(state.airborneState.toString()))
 			{
-				currentSprite.sprite = animation.jumpingSprite;
+				currentSprite.sprite = animation.animations.get(state.airborneState.toString()).getKeyFrame(state.time, true);
 			}
-			else
+			else if(animation.animations.containsKey(state.motionState.toString()))
 			{
-				if(movingState.currentState == MovingStateComponent.State.NOT_MOVING ||
-					movingState.currentState == MovingStateComponent.State.SLOWING_LEFT ||
-					movingState.currentState == MovingStateComponent.State.SLOWING_RIGHT)
-				{
-					currentSprite.sprite = animation.standingSprite;
-				}
-				else
-				{
-					animation.movingAnimationTime += deltaTime;
-					currentSprite.sprite = animation.walkingSprites.get(animation.walkingFrame);
-					
-					if(animation.movingAnimationTime > 0.03)
-					{
-						animation.movingAnimationTime = 0;
-						animation.walkingFrame++;
-						
-						if(animation.walkingFrame > 2)
-						{
-							animation.walkingFrame = 0;
-						}
-					}
-				}
+				currentSprite.sprite = animation.animations.get(state.motionState.toString()).getKeyFrame(state.time, true);
 			}
 			
-			if(facingDirectionState.currentState == FacingDirectionStateComponent.State.FACING_RIGHT)
-			{
-				currentSprite.sprite.setFlip(false, false);
-			}
-			else
+			// Flip if facing left.
+			if(state.directionState == StateComponent.DirectionState.LEFT)
 			{
 				currentSprite.sprite.setFlip(true, false);
 			}
-		}
-		
-		for(Entity entity : idleEntities)
-		{
-			IdleAnimationComponent idleAnimation = Mappers.idleAnimation.get(entity);
-			SpriteComponent currentSprite = Mappers.sprite.get(entity);
-			float interval = 0;
-			
-			idleAnimation.idleAnimationTime += deltaTime;
-			currentSprite.sprite = idleAnimation.idleSprites.get(idleAnimation.idleFrame);
-			
-			if(idleAnimation.idleFrame == 0)
+			else if(state.directionState == StateComponent.DirectionState.RIGHT)
 			{
-				interval = 0.5f;
-			}
-			else
-			{
-				interval = 0.2f;
+				currentSprite.sprite.setFlip(false, false);
 			}
 			
-			if(idleAnimation.idleAnimationTime > interval)
-			{
-				idleAnimation.idleAnimationTime = 0;
-				idleAnimation.idleFrame++;
-				
-				if(idleAnimation.idleFrame > 3)
-				{
-					idleAnimation.idleFrame = 0;
-				}
-			}
+			state.time += deltaTime;
 		}
 	}
 }

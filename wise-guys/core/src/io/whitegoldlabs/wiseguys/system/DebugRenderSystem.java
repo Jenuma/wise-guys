@@ -12,8 +12,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
-import io.whitegoldlabs.wiseguys.component.CollectboxComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -21,7 +21,6 @@ import io.whitegoldlabs.wiseguys.util.Mappers;
 public class DebugRenderSystem extends EntitySystem
 {
 	private ImmutableArray<Entity> hitboxEntities;
-	private ImmutableArray<Entity> collectboxEntities;
 	
 	private SpriteBatch hitboxBatch;
 	private SpriteBatch debugBatch;
@@ -47,11 +46,6 @@ public class DebugRenderSystem extends EntitySystem
 		(
 			HitboxComponent.class
 		).get());
-		
-		collectboxEntities = engine.getEntitiesFor(Family.all
-		(
-			CollectboxComponent.class
-		).get());
 	}
 	
 	public void update(float deltaTime)
@@ -69,19 +63,12 @@ public class DebugRenderSystem extends EntitySystem
         	hitboxSprite.draw(hitboxBatch);
 		}
 		
-		for(Entity entity : collectboxEntities)
-		{
-			CollectboxComponent collectboxComponent = Mappers.collectbox.get(entity);
-        	Sprite collectboxSprite = collectboxComponent.sprite;
-        	collectboxSprite.setPosition(collectboxComponent.collectbox.x, collectboxComponent.collectbox.y);
-        	collectboxSprite.draw(hitboxBatch);
-		}
-		
 		hitboxBatch.end();
 		
 		PositionComponent playerPosition = Mappers.position.get(player);
 		VelocityComponent playerVelocity = Mappers.velocity.get(player);
 		AccelerationComponent playerAcceleration = Mappers.acceleration.get(player);
+		StateComponent playerMovingState = Mappers.state.get(player);
 		
 		// Debug Player Attributes
 		debugBatch.begin();
@@ -89,9 +76,9 @@ public class DebugRenderSystem extends EntitySystem
         font.draw(debugBatch, "Pos: " + playerPosition.x + ", " + playerPosition.y, 5, 630);
         font.draw(debugBatch, "Vel: " + playerVelocity.x + ", " + playerVelocity.y, 5, 610);
         font.draw(debugBatch, "Accel: " + playerAcceleration.x + ", " + playerAcceleration.y, 5, 590);
-        font.draw(debugBatch, "Player State: " + Mappers.airborneState.get(player).currentState
-    		+ ", " + Mappers.movingState.get(player).currentState
-    		+ ", " + Mappers.facingState.get(player).currentState, 5, 570);
+        font.draw(debugBatch, "Player State: " + playerMovingState.airborneState
+    		+ ", " + playerMovingState.motionState
+    		+ ", " + playerMovingState.directionState, 5, 570);
         debugBatch.end();
 	}
 }

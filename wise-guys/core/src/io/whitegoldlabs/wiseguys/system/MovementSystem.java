@@ -8,7 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.MovingStateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -30,7 +30,7 @@ public class MovementSystem extends EntitySystem
 			PositionComponent.class,
 			VelocityComponent.class,
 			AccelerationComponent.class,
-			MovingStateComponent.class,
+			StateComponent.class,
 			HitboxComponent.class
 		).get());
 	}
@@ -44,10 +44,11 @@ public class MovementSystem extends EntitySystem
 			VelocityComponent velocity = Mappers.velocity.get(entity);
 			AccelerationComponent acceleration = Mappers.acceleration.get(entity);
 			HitboxComponent hitbox = Mappers.hitbox.get(entity);
-			MovingStateComponent movingState = Mappers.movingState.get(entity);
+			StateComponent state = Mappers.state.get(entity);
 			
 			// Apply deceleration if slowing.
-			if(movingState.currentState == MovingStateComponent.State.SLOWING_LEFT)
+			if(state.motionState == StateComponent.MotionState.SLOWING &&
+				state.directionState == StateComponent.DirectionState.LEFT)
 			{
 				if(acceleration.x < 0)
 				{
@@ -58,10 +59,11 @@ public class MovementSystem extends EntitySystem
 				{
 					velocity.x = 0;
 					acceleration.x = 0;
-					movingState.currentState = MovingStateComponent.State.NOT_MOVING;
+					state.motionState = StateComponent.MotionState.STILL;
 				}
 			}
-			else if(movingState.currentState == MovingStateComponent.State.SLOWING_RIGHT)
+			else if(state.motionState == StateComponent.MotionState.SLOWING &&
+					state.directionState == StateComponent.DirectionState.RIGHT)
 			{
 				if(acceleration.x > 0)
 				{
@@ -72,7 +74,7 @@ public class MovementSystem extends EntitySystem
 				{
 					velocity.x = 0;
 					acceleration.x = 0;
-					movingState.currentState = MovingStateComponent.State.NOT_MOVING;
+					state.motionState = StateComponent.MotionState.STILL;
 				}
 			}
 			

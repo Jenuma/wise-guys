@@ -2,22 +2,24 @@ package io.whitegoldlabs.wiseguys.component;
 
 import com.badlogic.ashley.core.Component;
 
-public class AirborneStateComponent implements Component
+public class PickupComponent implements Component
 {
-	public enum State
+	public enum Pickup
 	{
-		ON_GROUND,
-		FALLING,
-		JUMPING
+		COIN,
+		CONNOLI,
+		FINGERLESS_GLOVE,
+		ONION,
+		ONE_UP
 	}
 	
-	public State currentState;
+	public Pickup pickup;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public AirborneStateComponent(State state)
+	public PickupComponent(Pickup pickup)
 	{
-		this.currentState = state;
+		this.pickup = pickup;
 	}
 }

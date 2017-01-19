@@ -10,98 +10,109 @@ import com.badlogic.gdx.math.Vector2;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.PositionComponent;
-import io.whitegoldlabs.wiseguys.component.AirborneStateComponent;
-import io.whitegoldlabs.wiseguys.component.VelocityComponent; 
+import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TypeComponent;
+import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class CollisionSystem extends EntitySystem
 {
 	private ImmutableArray<Entity> dynamicEntities;
-	private ImmutableArray<Entity> obstacleEntities;
+	private ImmutableArray<Entity> otherEntities;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public CollisionSystem() {}
+	public CollisionSystem()
+	{
+		
+	}
 	
+	@Override
 	public void addedToEngine(Engine engine)
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
-			AirborneStateComponent.class,
 			HitboxComponent.class,
-			PositionComponent.class,
 			VelocityComponent.class,
 			AccelerationComponent.class
 		).get());
 		
-		obstacleEntities = engine.getEntitiesFor(Family.all
+		otherEntities = engine.getEntitiesFor(Family.all
 		(
 			HitboxComponent.class
-		)
-		.exclude
-		(
-			VelocityComponent.class,
-			AccelerationComponent.class
 		).get());
 	}
 	
+	// ---------------------------------------------------------------------------------|
+	// Update                                                                           |
+	// ---------------------------------------------------------------------------------|
+	@Override
 	public void update(float deltaTime)
 	{
-		for(Entity entity : dynamicEntities)
+		// Handle collisions between moving entities and obstacles.
+		for(int i = 0; i < dynamicEntities.size(); i++)
 		{
-			while(isColliding(entity))
-			{	
-				float xDistanceToResolve = xDistanceToMoveToResolveCollisions(entity);
-				float yDistanceToResolve = yDistanceToMoveToResolveCollisions(entity);
-				Vector2 xAndYDistanceToResolve = xAndYDistanceToMoveToResolveCollisions(entity);
-				float xAndYTotalDistanceToResolve = Math.abs(xAndYDistanceToResolve.x) + Math.abs(xAndYDistanceToResolve.y);
-				
-				if(Math.abs(xDistanceToResolve) < Math.abs(yDistanceToResolve) && Math.abs(xDistanceToResolve) < xAndYTotalDistanceToResolve)
-				{
-					Mappers.position.get(entity).x += xDistanceToResolve;
-					Mappers.hitbox.get(entity).hitbox.x += xDistanceToResolve;
-					Mappers.velocity.get(entity).x = 0;
-				}
-				else if(Math.abs(yDistanceToResolve) < Math.abs(xDistanceToResolve) && Math.abs(yDistanceToResolve) < xAndYTotalDistanceToResolve)
-				{
-					if(yDistanceToResolve > 0)
-					{
-						Mappers.airborneState.get(entity).currentState = AirborneStateComponent.State.ON_GROUND;
-					}
-					
-					Mappers.position.get(entity).y += yDistanceToResolve;
-					Mappers.hitbox.get(entity).hitbox.y += yDistanceToResolve;
-					Mappers.velocity.get(entity).y = 0;
-				}
-				else
-				{
-					if(xAndYDistanceToResolve.y > 0)
-					{
-						Mappers.airborneState.get(entity).currentState = AirborneStateComponent.State.ON_GROUND;
-					}
-					
-					Mappers.position.get(entity).x += xAndYDistanceToResolve.x;
-					Mappers.position.get(entity).y += xAndYDistanceToResolve.y;
-					Mappers.hitbox.get(entity).hitbox.x += xAndYDistanceToResolve.x;
-					Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
-				}
+			while(isCollidingWithObstacle(dynamicEntities.get(i)))
+			{
+				resolveCollision(dynamicEntities.get(i));
 			}
 		}
 	}
 	
-	private boolean isColliding(Entity entity)
-	{
-		for(Entity obstacle : obstacleEntities)
+	private boolean isCollidingWithObstacle(Entity entity)
+	{	
+		for(int i = 0; i < otherEntities.size(); i++)
 		{
-			if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+			Entity otherEntity = otherEntities.get(i);
+			if(entity != otherEntity && Mappers.type.get(otherEntity).type == TypeComponent.Type.OBSTACLE)
 			{
-				return true;
+				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox))
+				{
+					return true;
+				}
 			}
 		}
 		
 		return false;
+	}
+	
+	private void resolveCollision(Entity entity)
+	{
+		float xDistanceToResolve = xDistanceToMoveToResolveCollisions(entity);
+		float yDistanceToResolve = yDistanceToMoveToResolveCollisions(entity);
+		Vector2 xAndYDistanceToResolve = xAndYDistanceToMoveToResolveCollisions(entity);
+		float xAndYTotalDistanceToResolve = Math.abs(xAndYDistanceToResolve.x) + Math.abs(xAndYDistanceToResolve.y);
+		
+		if(Math.abs(xDistanceToResolve) < Math.abs(yDistanceToResolve) && Math.abs(xDistanceToResolve) < xAndYTotalDistanceToResolve)
+		{
+			Mappers.position.get(entity).x += xDistanceToResolve;
+			Mappers.hitbox.get(entity).hitbox.x += xDistanceToResolve;
+			Mappers.velocity.get(entity).x = 0;
+		}
+		else if(Math.abs(yDistanceToResolve) < Math.abs(xDistanceToResolve) && Math.abs(yDistanceToResolve) < xAndYTotalDistanceToResolve)
+		{
+			if(yDistanceToResolve > 0)
+			{
+				Mappers.state.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
+			}
+			
+			Mappers.position.get(entity).y += yDistanceToResolve;
+			Mappers.hitbox.get(entity).hitbox.y += yDistanceToResolve;
+			Mappers.velocity.get(entity).y = 0;
+		}
+		else
+		{
+			if(xAndYDistanceToResolve.y > 0)
+			{
+				Mappers.state.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
+			}
+			
+			Mappers.position.get(entity).x += xAndYDistanceToResolve.x;
+			Mappers.position.get(entity).y += xAndYDistanceToResolve.y;
+			Mappers.hitbox.get(entity).hitbox.x += xAndYDistanceToResolve.x;
+			Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
+		}
 	}
 	
 	private float xDistanceToMoveToResolveCollisions(Entity entity)
@@ -166,9 +177,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
@@ -189,9 +200,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
@@ -212,9 +223,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
@@ -236,9 +247,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
@@ -259,9 +270,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
 					colliding = true;
@@ -281,9 +292,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x - Mappers.hitbox.get(entity).hitbox.width;
 					colliding = true;
@@ -303,9 +314,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
 					colliding = true;
@@ -325,9 +336,9 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : obstacleEntities)
+			for(Entity obstacle : otherEntities)
 			{
-				if(testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
+				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
 					colliding = true;
