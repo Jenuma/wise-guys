@@ -80,7 +80,7 @@ public class Worlds
 						args[0] = Mappers.inventory.get(player);
 						args[1] = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
 						
-						entity.add(new ScriptComponent("hello.lua", args));
+						entity.add(new ScriptComponent("coin.lua", args));
 					}
 					// GOAL
 					else if(cells[x].equals("69"))

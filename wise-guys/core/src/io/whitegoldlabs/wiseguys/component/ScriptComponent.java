@@ -7,17 +7,27 @@ import com.badlogic.ashley.core.Component;
 
 public class ScriptComponent implements Component
 {
+	// ---------------------------------------------------------------------------------|
+	// Fields                                                                           |
+	// ---------------------------------------------------------------------------------|
 	public String scriptName;
-	public LuaValue[] arguments;
+	public String moduleName;
+	public LuaValue[] args;
 	
-	public ScriptComponent(String scriptName, Object[] arguments)
+	// ---------------------------------------------------------------------------------|
+	// Constructor                                                                      |
+	// ---------------------------------------------------------------------------------|
+	public ScriptComponent(String scriptName, Object[] args)
 	{
 		this.scriptName = scriptName;
-		this.arguments = new LuaValue[arguments.length];
+		this.moduleName = scriptName.substring(0, 1).toUpperCase() +
+			scriptName.substring(1, scriptName.indexOf('.'));
 		
-		for(int i = 0; i < arguments.length; i++)
+		this.args = new LuaValue[args.length];
+		
+		for(int i = 0; i < args.length; i++)
 		{
-			this.arguments[i] = CoerceJavaToLua.coerce(arguments[i]);
+			this.args[i] = CoerceJavaToLua.coerce(args[i]);
 		}
 	}
 }

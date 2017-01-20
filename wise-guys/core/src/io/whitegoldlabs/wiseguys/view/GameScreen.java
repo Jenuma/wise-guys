@@ -2,6 +2,8 @@ package io.whitegoldlabs.wiseguys.view;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
@@ -19,6 +21,7 @@ import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
+import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
@@ -28,12 +31,12 @@ import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.DebugRenderSystem;
 import io.whitegoldlabs.wiseguys.system.GravitySystem;
 import io.whitegoldlabs.wiseguys.system.MovementSystem;
-import io.whitegoldlabs.wiseguys.system.PickupSystem;
 import io.whitegoldlabs.wiseguys.system.PlayerInputSystem;
 import io.whitegoldlabs.wiseguys.system.ReaperSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
+import io.whitegoldlabs.wiseguys.util.ScriptManager;
 import io.whitegoldlabs.wiseguys.util.Worlds;
 
 public class GameScreen implements Screen
@@ -54,6 +57,8 @@ public class GameScreen implements Screen
 	VelocityComponent playerVelocity;
     InventoryComponent playerInventory;
 	
+    ScriptManager scriptManager;
+    
 	boolean debugMode = false;
 	
 	short time = 400;
@@ -89,11 +94,15 @@ public class GameScreen implements Screen
 		
 		this.engine = engine;
 		engine.removeAllEntities();
+		engine.removeSystem(engine.getSystem(CollisionSystem.class));
 		
 		for(Entity entity : Worlds.getWorld(player, worldName))
 		{
 			engine.addEntity(entity);
 		}
+		
+		loadScripts();
+		engine.addSystem(new CollisionSystem(player, scriptManager));
 		
 		engine.addEntity(player);
 	}
@@ -104,8 +113,6 @@ public class GameScreen implements Screen
 
 	}
 	
-	
-
 	@Override
 	public void render(float delta)
 	{
@@ -204,7 +211,6 @@ public class GameScreen implements Screen
 		
 	}
 	
-	
 	private void initHud()
 	{
 		hudBatch = new SpriteBatch();
@@ -276,9 +282,7 @@ public class GameScreen implements Screen
 		engine.addSystem(new ReaperSystem(engine));
 		engine.addSystem(new MovementSystem());
 		engine.addSystem(new GravitySystem());
-		engine.addSystem(new CollisionSystem());
 		engine.addSystem(new RenderSystem(game.batch, camera));
-		engine.addSystem(new PickupSystem(player));
 		engine.addSystem(new PlayerInputSystem(player));
 		
 		engine.addSystem(new AnimationSystem());
@@ -291,9 +295,26 @@ public class GameScreen implements Screen
 		{
 			engine.addEntity(worldObject);
 		}
+		loadScripts();
+		engine.addSystem(new CollisionSystem(player, scriptManager));
 		
 		engine.addEntity(player);
 		
 		debugRenderSystem.setProcessing(debugMode);
+	}
+	
+	private void loadScripts()
+	{
+		scriptManager = new ScriptManager();
+		
+		ImmutableArray<Entity> scriptedEntities = engine.getEntitiesFor(Family.all
+		(
+			ScriptComponent.class
+		).get());
+		
+		for(Entity scriptedEntity : scriptedEntities)
+		{
+			scriptManager.loadScript(Mappers.script.get(scriptedEntity).scriptName);
+		}
 	}
 }

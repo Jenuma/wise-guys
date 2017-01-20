@@ -10,27 +10,40 @@ import com.badlogic.gdx.math.Vector2;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent.EnabledState;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
+import io.whitegoldlabs.wiseguys.util.ScriptManager;
 
 public class CollisionSystem extends EntitySystem
 {
+	private ImmutableArray<Entity> scriptedEntities;
 	private ImmutableArray<Entity> dynamicEntities;
 	private ImmutableArray<Entity> otherEntities;
+	
+	private Entity player;
+	private ScriptManager scriptManager;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public CollisionSystem()
+	public CollisionSystem(Entity player, ScriptManager scriptManager)
 	{
-		
+		this.player = player;
+		this.scriptManager = scriptManager;
 	}
 	
 	@Override
 	public void addedToEngine(Engine engine)
 	{
+		scriptedEntities = engine.getEntitiesFor(Family.all
+		(
+			ScriptComponent.class
+		).get());
+		
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
 			HitboxComponent.class,
@@ -38,10 +51,10 @@ public class CollisionSystem extends EntitySystem
 			AccelerationComponent.class
 		).get());
 		
-		otherEntities = engine.getEntitiesFor(Family.all
-		(
-			HitboxComponent.class
-		).get());
+		otherEntities = engine.getEntitiesFor(Family
+				.all(HitboxComponent.class)
+				.exclude(ScriptComponent.class)
+		.get());
 	}
 	
 	// ---------------------------------------------------------------------------------|
@@ -50,6 +63,18 @@ public class CollisionSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
+		ScriptComponent script;
+		for(Entity scriptedEntity : scriptedEntities)
+		{
+			if(Mappers.hitbox.get(player).hitbox.overlaps(Mappers.hitbox.get(scriptedEntity).hitbox))
+			{
+				script = Mappers.script.get(scriptedEntity);
+				
+				scriptManager.execute(script.moduleName, script.args);
+				Mappers.state.get(scriptedEntity).enabledState = EnabledState.DISABLED;
+			}
+		}
+		
 		// Handle collisions between moving entities and obstacles.
 		for(int i = 0; i < dynamicEntities.size(); i++)
 		{
@@ -60,6 +85,9 @@ public class CollisionSystem extends EntitySystem
 		}
 	}
 	
+	// ---------------------------------------------------------------------------------|
+	// Private Methods                                                                  |
+	// ---------------------------------------------------------------------------------|
 	private boolean isCollidingWithObstacle(Entity entity)
 	{	
 		for(int i = 0; i < otherEntities.size(); i++)

@@ -4,17 +4,39 @@ import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import com.badlogic.gdx.utils.Array;
+
 public class ScriptManager
 {
-	private Globals globals = JsePlatform.standardGlobals();
+	// ---------------------------------------------------------------------------------|
+	// Fields                                                                           |
+	// ---------------------------------------------------------------------------------|
+	private Globals globals;
+	private Array<String> loadedScripts;
 	
-	public ScriptManager(String scriptName)
+	// ---------------------------------------------------------------------------------|
+	// Constructor                                                                      |
+	// ---------------------------------------------------------------------------------|
+	public ScriptManager()
 	{
-		globals.loadfile(scriptName).call();
+		this.globals = JsePlatform.standardGlobals();
+		this.loadedScripts = new Array<>();
 	}
 	
-	public void execute(LuaValue[] arguments)
+	// ---------------------------------------------------------------------------------|
+	// Public Methods                                                                   |
+	// ---------------------------------------------------------------------------------|
+	public void loadScript(String scriptName)
 	{
-		globals.get("execute").invoke(arguments);
+		if(!loadedScripts.contains(scriptName, false))
+		{
+			globals.loadfile(scriptName).call();
+			loadedScripts.add(scriptName);
+		}
+	}
+	
+	public void execute(String moduleName, LuaValue[] args)
+	{
+		globals.get(moduleName).get("execute").invoke(args);
 	}
 }

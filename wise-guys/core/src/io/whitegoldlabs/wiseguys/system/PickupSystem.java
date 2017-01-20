@@ -27,7 +27,7 @@ public class PickupSystem extends EntitySystem
 	{
 		this.player = player;
 		
-		script = new ScriptManager("hello.lua"); // Load scripts with world in game screen constructor?
+		//script = new ScriptManager("hello.lua"); // Load scripts with world in game screen constructor?
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class PickupSystem extends EntitySystem
 		{
 			if(playerHitbox.overlaps(Mappers.hitbox.get(pickup).hitbox))
 			{
-				script.execute(Mappers.script.get(pickup).arguments);
+				//script.execute(Mappers.script.get(pickup).arguments);
 				Mappers.state.get(pickup).enabledState = EnabledState.DISABLED;
 			}
 		}
