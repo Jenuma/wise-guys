@@ -12,8 +12,6 @@ import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
-import io.whitegoldlabs.wiseguys.component.StateComponent.EnabledState;
-import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.util.ScriptManager;
@@ -63,15 +61,14 @@ public class CollisionSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
+		// Handle collisions between the player and scripted entities.
 		ScriptComponent script;
 		for(Entity scriptedEntity : scriptedEntities)
 		{
 			if(Mappers.hitbox.get(player).hitbox.overlaps(Mappers.hitbox.get(scriptedEntity).hitbox))
 			{
 				script = Mappers.script.get(scriptedEntity);
-				
 				scriptManager.execute(script.moduleName, script.args);
-				Mappers.state.get(scriptedEntity).enabledState = EnabledState.DISABLED;
 			}
 		}
 		
@@ -93,7 +90,7 @@ public class CollisionSystem extends EntitySystem
 		for(int i = 0; i < otherEntities.size(); i++)
 		{
 			Entity otherEntity = otherEntities.get(i);
-			if(entity != otherEntity && Mappers.type.get(otherEntity).type == TypeComponent.Type.OBSTACLE)
+			if(entity != otherEntity)
 			{
 				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox))
 				{

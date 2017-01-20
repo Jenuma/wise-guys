@@ -10,6 +10,7 @@ import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
 public class WiseGuys extends Game
 {
 	public SpriteBatch batch;
+	
 	public BitmapFont font;
 	public BitmapFont bigFont;
 	

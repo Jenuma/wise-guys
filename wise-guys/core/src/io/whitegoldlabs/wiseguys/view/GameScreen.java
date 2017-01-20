@@ -24,7 +24,6 @@ import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
-import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -88,15 +87,15 @@ public class GameScreen implements Screen
 		this.camera = camera;
 		
 		this.player = player;
-		
 		Mappers.position.get(player).x = x;
 		Mappers.position.get(player).y = y;
 		
 		this.engine = engine;
+		
 		engine.removeAllEntities();
 		engine.removeSystem(engine.getSystem(CollisionSystem.class));
 		
-		for(Entity entity : Worlds.getWorld(player, worldName))
+		for(Entity entity : Worlds.getWorld(game, camera, player, engine, worldName))
 		{
 			engine.addEntity(entity);
 		}
@@ -105,6 +104,9 @@ public class GameScreen implements Screen
 		engine.addSystem(new CollisionSystem(player, scriptManager));
 		
 		engine.addEntity(player);
+		
+		debugRenderSystem = engine.getSystem(DebugRenderSystem.class);
+		debugRenderSystem.setProcessing(debugMode);
 	}
 	
 	@Override
@@ -168,13 +170,11 @@ public class GameScreen implements Screen
         // Simulate moving between game screens.
         if(Gdx.input.isKeyJustPressed(Keys.NUM_1))
         {
-        	engine.removeEntity(player);
         	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1a", 3*16, 14*16));
         }
         
         if(Gdx.input.isKeyJustPressed(Keys.NUM_2))
         {
-        	engine.removeEntity(player);
         	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1", 163*16, 4*16));
         }
         
@@ -211,6 +211,9 @@ public class GameScreen implements Screen
 		
 	}
 	
+	// ---------------------------------------------------------------------------------|
+	// Private Methods                                                                  |
+	// ---------------------------------------------------------------------------------|
 	private void initHud()
 	{
 		hudBatch = new SpriteBatch();
@@ -247,7 +250,6 @@ public class GameScreen implements Screen
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
 		player = new Entity();
-		player.add(new TypeComponent(TypeComponent.Type.PLAYER));
 		player.add(new SpriteComponent(playerStillSprite));
 		
 		StateComponent state = new StateComponent();
@@ -279,24 +281,23 @@ public class GameScreen implements Screen
 	private void initEngine(String worldName)
 	{
 		engine = new Engine();
+		for(Entity worldObject : Worlds.getWorld(game, camera, player, engine, worldName))
+		{
+			engine.addEntity(worldObject);
+		}
+		loadScripts();
+		
 		engine.addSystem(new ReaperSystem(engine));
 		engine.addSystem(new MovementSystem());
 		engine.addSystem(new GravitySystem());
+		engine.addSystem(new CollisionSystem(player, scriptManager));
 		engine.addSystem(new RenderSystem(game.batch, camera));
 		engine.addSystem(new PlayerInputSystem(player));
-		
 		engine.addSystem(new AnimationSystem());
 		
 		SpriteBatch debugBatch = new SpriteBatch();
 		debugRenderSystem = new DebugRenderSystem(game.batch, debugBatch, camera, game.font, player);
 		engine.addSystem(debugRenderSystem);
-		
-		for(Entity worldObject : Worlds.getWorld(player, worldName))
-		{
-			engine.addEntity(worldObject);
-		}
-		loadScripts();
-		engine.addSystem(new CollisionSystem(player, scriptManager));
 		
 		engine.addEntity(player);
 		
