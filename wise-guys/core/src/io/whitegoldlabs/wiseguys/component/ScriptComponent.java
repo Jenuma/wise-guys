@@ -13,12 +13,15 @@ public class ScriptComponent implements Component
 	public String scriptName;
 	public String moduleName;
 	public LuaValue[] args;
+	public boolean collidable;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public ScriptComponent(String scriptName, Object[] args)
+	public ScriptComponent(boolean collidable, String scriptName, Object[] args)
 	{
+		this.collidable = collidable;
+		
 		this.scriptName = scriptName;
 		this.moduleName = scriptName.substring(0, 1).toUpperCase() +
 			scriptName.substring(1, scriptName.indexOf('.'));

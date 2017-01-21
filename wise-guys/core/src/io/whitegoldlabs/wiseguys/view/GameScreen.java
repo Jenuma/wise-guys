@@ -1,6 +1,5 @@
 package io.whitegoldlabs.wiseguys.view;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -33,9 +32,9 @@ import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.PlayerInputSystem;
 import io.whitegoldlabs.wiseguys.system.ReaperSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
+import io.whitegoldlabs.wiseguys.system.ScriptSystem;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
-import io.whitegoldlabs.wiseguys.util.ScriptManager;
 import io.whitegoldlabs.wiseguys.util.Worlds;
 
 public class GameScreen implements Screen
@@ -48,16 +47,12 @@ public class GameScreen implements Screen
 	
 	OrthographicCamera camera;
 	
-	Engine engine;
 	DebugRenderSystem debugRenderSystem;
 	
-	Entity player;
 	PositionComponent playerPosition;
 	VelocityComponent playerVelocity;
     InventoryComponent playerInventory;
 	
-    ScriptManager scriptManager;
-    
 	boolean debugMode = false;
 	
 	short time = 400;
@@ -79,33 +74,28 @@ public class GameScreen implements Screen
 	}
 	
 	// Constructor for loading new worlds with existing player:
-	public GameScreen(final WiseGuys game, OrthographicCamera camera, Entity player, Engine engine, String worldName, float x, float y)
+	public GameScreen(final WiseGuys game, OrthographicCamera camera, String worldName, float x, float y)
 	{
 		this.game = game;
 		
 		initHud();
 		this.camera = camera;
 		
-		this.player = player;
-		Mappers.position.get(player).x = x;
-		Mappers.position.get(player).y = y;
+		Mappers.position.get(game.player).x = x;
+		Mappers.position.get(game.player).y = y;
 		
-		this.engine = engine;
+		game.engine.removeAllEntities();
 		
-		engine.removeAllEntities();
-		engine.removeSystem(engine.getSystem(CollisionSystem.class));
-		
-		for(Entity entity : Worlds.getWorld(game, camera, player, engine, worldName))
+		for(Entity entity : Worlds.getWorld(game, camera, worldName))
 		{
-			engine.addEntity(entity);
+			game.engine.addEntity(entity);
 		}
 		
 		loadScripts();
-		engine.addSystem(new CollisionSystem(player, scriptManager));
 		
-		engine.addEntity(player);
+		game.engine.addEntity(game.player);
 		
-		debugRenderSystem = engine.getSystem(DebugRenderSystem.class);
+		debugRenderSystem = game.engine.getSystem(DebugRenderSystem.class);
 		debugRenderSystem.setProcessing(debugMode);
 	}
 	
@@ -118,12 +108,14 @@ public class GameScreen implements Screen
 	@Override
 	public void render(float delta)
 	{
+		game.scriptManager.executeScriptIfReady();
+		
 		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
-        playerPosition = Mappers.position.get(player);
-		playerVelocity = Mappers.velocity.get(player);
-	    playerInventory = Mappers.inventory.get(player);
+        playerPosition = Mappers.position.get(game.player);
+		playerVelocity = Mappers.velocity.get(game.player);
+	    playerInventory = Mappers.inventory.get(game.player);
         
 	    // HUD
         hudBatch.begin();
@@ -170,15 +162,15 @@ public class GameScreen implements Screen
         // Simulate moving between game screens.
         if(Gdx.input.isKeyJustPressed(Keys.NUM_1))
         {
-        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1a", 3*16, 14*16));
+        	game.setScreen(new GameScreen(game, camera, "world1-1a", 3*16, 14*16));
         }
         
         if(Gdx.input.isKeyJustPressed(Keys.NUM_2))
         {
-        	game.setScreen(new GameScreen(game, camera, player, engine, "world1-1", 163*16, 4*16));
+        	game.setScreen(new GameScreen(game, camera, "world1-1", 163*16, 4*16));
         }
         
-        engine.update(delta);
+        game.engine.update(delta);
 	}
 
 	@Override
@@ -249,19 +241,18 @@ public class GameScreen implements Screen
 		
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
-		player = new Entity();
-		player.add(new SpriteComponent(playerStillSprite));
+		game.player.add(new SpriteComponent(playerStillSprite));
 		
 		StateComponent state = new StateComponent();
 		state.directionState = StateComponent.DirectionState.RIGHT;
 		state.airborneState = StateComponent.AirborneState.GROUNDED;
-		player.add(state);
+		game.player.add(state);
 		
-		player.add(new PositionComponent(x, y));
-		player.add(new VelocityComponent(0, 0));
-		player.add(new AccelerationComponent(0, 0));
-		player.add(new InventoryComponent(0, (byte)0, (byte)3));
-		player.add(new HitboxComponent
+		game.player.add(new PositionComponent(x, y));
+		game.player.add(new VelocityComponent(0, 0));
+		game.player.add(new AccelerationComponent(0, 0));
+		game.player.add(new InventoryComponent(0, (byte)0, (byte)3));
+		game.player.add(new HitboxComponent
 		(
 			x,
 			y,
@@ -275,47 +266,46 @@ public class GameScreen implements Screen
 		animation.animations.put("MOVING", new Animation<Sprite>(1f/32f, playerMovingSprites, Animation.PlayMode.LOOP));
 		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
 		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
-		player.add(animation);
+		game.player.add(animation);
 	}
 	
 	private void initEngine(String worldName)
 	{
-		engine = new Engine();
-		for(Entity worldObject : Worlds.getWorld(game, camera, player, engine, worldName))
+		for(Entity worldObject : Worlds.getWorld(game, camera, worldName))
 		{
-			engine.addEntity(worldObject);
+			game.engine.addEntity(worldObject);
 		}
+		
 		loadScripts();
 		
-		engine.addSystem(new ReaperSystem(engine));
-		engine.addSystem(new MovementSystem());
-		engine.addSystem(new GravitySystem());
-		engine.addSystem(new CollisionSystem(player, scriptManager));
-		engine.addSystem(new RenderSystem(game.batch, camera));
-		engine.addSystem(new PlayerInputSystem(player));
-		engine.addSystem(new AnimationSystem());
+		game.engine.addSystem(new ReaperSystem(game.engine));
+		game.engine.addSystem(new MovementSystem());
+		game.engine.addSystem(new GravitySystem());
+		game.engine.addSystem(new CollisionSystem(game.player));
+		game.engine.addSystem(new ScriptSystem(game.player, game.scriptManager));
+		game.engine.addSystem(new RenderSystem(game.batch, camera));
+		game.engine.addSystem(new PlayerInputSystem(game.player));
+		game.engine.addSystem(new AnimationSystem());
 		
 		SpriteBatch debugBatch = new SpriteBatch();
-		debugRenderSystem = new DebugRenderSystem(game.batch, debugBatch, camera, game.font, player);
-		engine.addSystem(debugRenderSystem);
+		debugRenderSystem = new DebugRenderSystem(game, debugBatch, camera);
+		game.engine.addSystem(debugRenderSystem);
 		
-		engine.addEntity(player);
+		game.engine.addEntity(game.player);
 		
 		debugRenderSystem.setProcessing(debugMode);
 	}
 	
 	private void loadScripts()
 	{
-		scriptManager = new ScriptManager();
-		
-		ImmutableArray<Entity> scriptedEntities = engine.getEntitiesFor(Family.all
+		ImmutableArray<Entity> scriptedEntities = game.engine.getEntitiesFor(Family.all
 		(
 			ScriptComponent.class
 		).get());
 		
 		for(Entity scriptedEntity : scriptedEntities)
 		{
-			scriptManager.loadScript(Mappers.script.get(scriptedEntity).scriptName);
+			game.scriptManager.loadScript(Mappers.script.get(scriptedEntity).scriptName);
 		}
 	}
 }

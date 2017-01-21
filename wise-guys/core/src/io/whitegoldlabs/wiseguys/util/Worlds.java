@@ -1,6 +1,5 @@
 package io.whitegoldlabs.wiseguys.util;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -27,11 +26,11 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	// getWorld                                                                         |
 	// ---------------------------------------------------------------------------------|
-	public static Array<Entity> getWorld(WiseGuys game, OrthographicCamera camera, Entity player, Engine engine, String worldName)
+	public static Array<Entity> getWorld(WiseGuys game, OrthographicCamera camera, String worldName)
 	{
 		if(!worldEntities.containsKey(worldName))
 		{
-			worldEntities.put(worldName, loadWorldEntitiesFromFile(game, camera, player, engine, worldName));
+			worldEntities.put(worldName, loadWorldEntitiesFromFile(game, camera, worldName));
 		}
 		
 		return worldEntities.get(worldName);
@@ -40,7 +39,7 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	// loadWorldEntitiesFromFile                                                        |
 	// ---------------------------------------------------------------------------------|
-	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, OrthographicCamera camera, Entity player, Engine engine, String fileName)
+	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, OrthographicCamera camera, String fileName)
 	{
 		Array<Entity> entities = new Array<>();
 		Entity entity;
@@ -92,12 +91,12 @@ public class Worlds
 						));
 						
 						Object[] args = new Object[4];
-						args[0] = Mappers.inventory.get(player);
+						args[0] = Mappers.inventory.get(game.player);
 						args[1] = state;
 						args[2] = StateComponent.EnabledState.DISABLED;
 						args[3] = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
 						
-						entity.add(new ScriptComponent("coin.lua", args));
+						entity.add(new ScriptComponent(false, "coin.lua", args));
 					}
 					// BOX
 					else if(cells[x].equals("50"))
@@ -126,13 +125,11 @@ public class Worlds
 							hitboxSprite
 						));
 						
-						Object[] args = new Object[4];
+						Object[] args = new Object[2];
 						args[0] = game;
 						args[1] = camera;
-						args[2] = player;
-						args[3] = engine;
 						
-						entity.add(new ScriptComponent("teleport.lua", args));
+						entity.add(new ScriptComponent(false, "teleport.lua", args));
 					}
 					else
 					{
@@ -161,6 +158,7 @@ public class Worlds
 					}
 					
 					entities.add(entity);
+					hitboxSprite = null;
 				}
 			}
 		}
