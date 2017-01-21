@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector2;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
-import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -23,10 +22,7 @@ public class CollisionSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public CollisionSystem()
-	{
-		
-	}
+	public CollisionSystem(Entity player) {}
 	
 	@Override
 	public void addedToEngine(Engine engine)
@@ -38,10 +34,9 @@ public class CollisionSystem extends EntitySystem
 			AccelerationComponent.class
 		).get());
 		
-		otherEntities = engine.getEntitiesFor(Family.all
-		(
-			HitboxComponent.class
-		).get());
+		otherEntities = engine.getEntitiesFor(Family
+				.all(HitboxComponent.class)
+		.get());
 	}
 	
 	// ---------------------------------------------------------------------------------|
@@ -60,14 +55,24 @@ public class CollisionSystem extends EntitySystem
 		}
 	}
 	
+	// ---------------------------------------------------------------------------------|
+	// Private Methods                                                                  |
+	// ---------------------------------------------------------------------------------|
 	private boolean isCollidingWithObstacle(Entity entity)
 	{	
+		boolean collidable = true;
+		
 		for(int i = 0; i < otherEntities.size(); i++)
 		{
 			Entity otherEntity = otherEntities.get(i);
-			if(entity != otherEntity && Mappers.type.get(otherEntity).type == TypeComponent.Type.OBSTACLE)
+			if(entity != otherEntity)
 			{
-				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox))
+				if(Mappers.script.has(otherEntity))
+				{
+					collidable = Mappers.script.get(otherEntity).collidable;
+				}
+				
+				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox) && collidable)
 				{
 					return true;
 				}
