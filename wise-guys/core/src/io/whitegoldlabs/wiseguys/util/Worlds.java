@@ -1,7 +1,21 @@
 package io.whitegoldlabs.wiseguys.util;
 
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -39,7 +53,7 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	// loadWorldEntitiesFromFile                                                        |
 	// ---------------------------------------------------------------------------------|
-	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, OrthographicCamera camera, String fileName)
+	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, OrthographicCamera camera, String worldName)
 	{
 		Array<Entity> entities = new Array<>();
 		Entity entity;
@@ -51,7 +65,7 @@ public class Worlds
 		int spriteX = -1;
 		int spriteY = -1;
 		
-		String[] csvLines = Gdx.files.internal(fileName + ".csv").readString().split("\r\n");
+		String[] csvLines = Gdx.files.internal(worldName + ".csv").readString().split("\r\n");
 		
 		for(int y = csvLines.length - 1; y >= 0; y--)
 		{
@@ -90,17 +104,27 @@ public class Worlds
 							hitboxSprite
 						));
 						
-						Object[] args = new Object[4];
-						args[0] = Mappers.inventory.get(game.player);
-						args[1] = state;
-						args[2] = StateComponent.EnabledState.DISABLED;
-						args[3] = Gdx.audio.newSound(Gdx.files.internal("coin.wav"));
+						Array<Object> args = new Array<>();
+						args.add(Mappers.inventory.get(game.player));
+						args.add(state);
+						args.add(StateComponent.EnabledState.DISABLED);
+						args.add(Gdx.audio.newSound(Gdx.files.internal("coin.wav")));
 						
 						entity.add(new ScriptComponent(false, "coin.lua", args));
 					}
 					// BOX
 					else if(cells[x].equals("50"))
 					{
+						hitboxSprite = new Sprite(Assets.spriteSheet, 128, 144, 16, 16);
+						entity.add(new HitboxComponent
+						(
+							x*16,
+							(csvLines.length-1-y)*16,
+							hitboxSprite.getWidth(),
+							hitboxSprite.getHeight(),
+							hitboxSprite
+						));
+						
 						Array<Sprite> boxStillSprites = new Array<>();
 						boxStillSprites.add(new Sprite(Assets.spriteSheet, 0, 80, 16, 16));
 						boxStillSprites.add(new Sprite(Assets.spriteSheet, 16, 80, 16, 16));
@@ -109,27 +133,6 @@ public class Worlds
 						AnimationComponent ac = new AnimationComponent();
 						ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
 						entity.add(ac);
-					}
-					// TELEPORT
-					else if(cells[x].equals("90"))
-					{
-						hasSprite = false;
-						
-						hitboxSprite = new Sprite(Assets.spriteSheet, 96, 144, 16, 16);
-						entity.add(new HitboxComponent
-						(
-							x*16,
-							(csvLines.length-1-y)*16,
-							hitboxSprite.getWidth(),
-							1,
-							hitboxSprite
-						));
-						
-						Object[] args = new Object[2];
-						args[0] = game;
-						args[1] = camera;
-						
-						entity.add(new ScriptComponent(false, "teleport.lua", args));
 					}
 					else
 					{
@@ -163,6 +166,170 @@ public class Worlds
 			}
 		}
 		
+		Array<Entity> objects = loadWorldObjects(game, camera, worldName);
+		
+		for(Entity object : objects)
+		{
+			entities.add(object);
+		}
+		
 		return entities;
+	}
+	
+	private static Array<Entity> loadWorldObjects(WiseGuys game, OrthographicCamera camera, String worldName)
+	{
+		ArrayMap<String, Integer> keyMap = new ArrayMap<>();;
+		
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder dBuilder = null;
+	    Document doc = null;
+	     
+		try
+		{
+			dBuilder = dbFactory.newDocumentBuilder();
+		}
+		catch(ParserConfigurationException e)
+		{
+			e.printStackTrace();
+		}
+		
+		try
+		{
+			doc = dBuilder.parse(worldName + ".tmx");
+		}
+		catch (SAXException e)
+		{
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+	    doc.getDocumentElement().normalize();
+
+	    Array<Entity> objectEntities = new Array<>();
+	    Entity object;
+	    
+	    float mapHeight = Float.parseFloat(doc.getDocumentElement().getAttribute("height")) * 16;
+	    
+	    NodeList objectList = doc.getElementsByTagName("object");
+        for(int i = 0; i < objectList.getLength(); i++)
+        {
+            Node objectNode = objectList.item(i);
+            if(objectNode.getNodeType() == Node.ELEMENT_NODE)
+            {
+            	object = new Entity();
+                Element objectElement = (Element)objectNode;
+                
+                if(objectElement.getAttribute("type").equals("Warp"))
+                {
+                	float x = Float.parseFloat(objectElement.getAttribute("x"));
+            		float y = Float.parseFloat(objectElement.getAttribute("y"));
+            		float height = Float.parseFloat(objectElement.getAttribute("height"));
+            		y = mapHeight - y - height;
+            		
+                	float destinationX = 0;
+                	float destinationY = 0;
+                	float hitboxXOffset = 0;
+                	float hitboxYOffset = 0;
+                	float hitboxWidth = 0;
+                	float hitboxHeight = 0;
+                	String destination = "world1-1";
+                	String triggerKey = "DOWN";
+                
+            		keyMap.put("DOWN", Keys.DOWN);
+            		keyMap.put("UP", Keys.UP);
+            		keyMap.put("RIGHT", Keys.RIGHT);
+            		keyMap.put("LEFT", Keys.LEFT);
+                	
+                	NodeList propertyList = objectElement.getElementsByTagName("property");
+                	
+                	for(int j = 0; j < propertyList.getLength(); j++)
+                	{
+                		Node propertyNode = propertyList.item(j);
+                		if(objectNode.getNodeType() == Node.ELEMENT_NODE)
+                		{
+                 			Element propertyElement = (Element)propertyNode;
+                    		String attribute = propertyElement.getAttribute("name");
+                    		
+                    		if(attribute.equals("Destination"))
+                    		{
+                    			destination = propertyElement.getAttribute("value");
+                    		}
+                    		else if(attribute.equals("Destination X"))
+                    		{
+                    			destinationX = Float.parseFloat(propertyElement.getAttribute("value"));
+                    		}
+                    		else if(attribute.equals("Destination Y"))
+                    		{
+                    			destinationY = Float.parseFloat(propertyElement.getAttribute("value"));
+                    		}
+                    		else if(attribute.equals("Hitbox X Offset"))
+                    		{
+                    			hitboxXOffset = Float.parseFloat(propertyElement.getAttribute("value"));
+                    		}
+                    		else if(attribute.equals("Hitbox Y Offset"))
+                    		{
+                    			hitboxYOffset = Float.parseFloat(propertyElement.getAttribute("value"));
+                    		}
+                    		else if(attribute.equals("Hitbox Width"))
+                    		{
+                    			hitboxWidth = Float.parseFloat(propertyElement.getAttribute("value"));
+                    		}
+                    		else if(attribute.equals("Hitbox Height"))
+                    		{
+                    			hitboxHeight = Float.parseFloat(propertyElement.getAttribute("value"));
+                    		}
+                    		else if(attribute.equals("Trigger Key"))
+                    		{
+                    			triggerKey = propertyElement.getAttribute("value");;
+                    		}
+                		}
+                	}
+                	
+                	object.add(new PositionComponent(x, y));
+            		object.add(new HitboxComponent
+    				(
+    					x + hitboxXOffset,
+    					y + hitboxYOffset,
+    					hitboxWidth,
+    					hitboxHeight,
+    					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
+    				));
+            		
+            		Array<Object> args = new Array<>();
+					args.add(game);
+					args.add(Gdx.input);
+					args.add(keyMap.get(triggerKey));
+					args.add(Gdx.audio.newSound(Gdx.files.internal("pipe.wav")));
+					args.add(camera);
+					args.add(destination);
+					args.add(destinationX);
+					args.add(destinationY);
+					
+					object.add(new ScriptComponent(false, "teleport.lua", args));
+                }
+        		
+                objectEntities.add(object);
+                
+                // Obstacle Hitboxes
+//                float x = Float.parseFloat(eElement.getAttribute("x"));
+//                float y = Float.parseFloat(eElement.getAttribute("y"));
+//                float width = Float.parseFloat(eElement.getAttribute("width"));
+//                float height = Float.parseFloat(eElement.getAttribute("height"));
+//                
+//                object.add(new HitboxComponent
+//				(
+//					x,
+//					512 - y - height,
+//					width,
+//					height,
+//					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
+//				));
+           }
+        }
+        
+        return objectEntities;
 	}
 }

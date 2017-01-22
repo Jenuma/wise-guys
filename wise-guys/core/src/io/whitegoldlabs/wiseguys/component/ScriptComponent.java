@@ -4,6 +4,7 @@ import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.utils.Array;
 
 public class ScriptComponent implements Component
 {
@@ -18,7 +19,7 @@ public class ScriptComponent implements Component
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public ScriptComponent(boolean collidable, String scriptName, Object[] args)
+	public ScriptComponent(boolean collidable, String scriptName, Array<Object> args)
 	{
 		this.collidable = collidable;
 		
@@ -26,11 +27,11 @@ public class ScriptComponent implements Component
 		this.moduleName = scriptName.substring(0, 1).toUpperCase() +
 			scriptName.substring(1, scriptName.indexOf('.'));
 		
-		this.args = new LuaValue[args.length];
+		this.args = new LuaValue[args.size];
 		
-		for(int i = 0; i < args.length; i++)
+		for(int i = 0; i < args.size; i++)
 		{
-			this.args[i] = CoerceJavaToLua.coerce(args[i]);
+			this.args[i] = CoerceJavaToLua.coerce(args.get(i));
 		}
 	}
 }

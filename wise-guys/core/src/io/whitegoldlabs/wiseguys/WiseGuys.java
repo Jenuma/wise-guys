@@ -25,22 +25,24 @@ public class WiseGuys extends Game
 	
 	public ScriptManager scriptManager;
 	
+	public boolean wasSleeping;
+	
 	@Override
 	public void create()
 	{
 		batch = new SpriteBatch();
 		
 		font = new BitmapFont(Gdx.files.internal("pressstart2p.fnt"));
-		font.setColor(0.2f, 0.3f, 0, 1);
 		
 		bigFont = new BitmapFont(Gdx.files.internal("pressstart2p.fnt"));
-		bigFont.setColor(0.2f, 0.3f, 0, 1);
 		bigFont.getData().setScale(2);
 		
 		engine = new Engine();
 		player = new Entity();
 		
 		scriptManager = new ScriptManager();
+		
+		wasSleeping = false;
 		
 		MainMenuScreen mainMenuScreen = new MainMenuScreen(this);
 		this.currentScreen = mainMenuScreen;

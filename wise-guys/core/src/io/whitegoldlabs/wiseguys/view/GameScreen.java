@@ -58,6 +58,8 @@ public class GameScreen implements Screen
 	short time = 400;
 	float timer = 0;
 	
+	boolean isfirstFrame;
+	
 	// ---------------------------------------------------------------------------------|
 	// Constructors                                                                     |
 	// ---------------------------------------------------------------------------------|
@@ -71,6 +73,8 @@ public class GameScreen implements Screen
 		initCamera();
 		initPlayer(x, y);
 		initEngine(worldName);
+		
+		isfirstFrame = true;
 	}
 	
 	// Constructor for loading new worlds with existing player:
@@ -97,6 +101,8 @@ public class GameScreen implements Screen
 		
 		debugRenderSystem = game.engine.getSystem(DebugRenderSystem.class);
 		debugRenderSystem.setProcessing(debugMode);
+		
+		isfirstFrame = true;
 	}
 	
 	@Override
@@ -108,6 +114,13 @@ public class GameScreen implements Screen
 	@Override
 	public void render(float delta)
 	{
+		// Resetting the delta here prevents the engine from updating based on longer deltas that resulted from a thread pause.
+		if(game.wasSleeping)
+		{
+			delta = 0;
+			game.wasSleeping = false;
+		}
+		
 		game.scriptManager.executeScriptIfReady();
 		
 		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
@@ -150,14 +163,14 @@ public class GameScreen implements Screen
         	debugRenderSystem.setProcessing(debugMode);
         }
         
-        if(playerPosition.x <= 208)
-        {
-        	camera.position.set(208, 108, 0);
-        }
-        else
-        {
+//        if(playerPosition.x <= 208)
+//        {
+//        	camera.position.set(208, 108, 0);
+//        }
+//        else
+//        {
         	camera.position.set(playerPosition.x, 108, 0);
-        }
+//        }
         
         // Simulate moving between game screens.
         if(Gdx.input.isKeyJustPressed(Keys.NUM_1))
@@ -221,7 +234,7 @@ public class GameScreen implements Screen
 	{
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.zoom -= 0.7f;
+		//camera.zoom -= 0.7f;
 	}
 	
 	private void initPlayer(float x, float y)
@@ -281,7 +294,7 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new ReaperSystem(game.engine));
 		game.engine.addSystem(new MovementSystem());
 		game.engine.addSystem(new GravitySystem());
-		game.engine.addSystem(new CollisionSystem(game.player));
+		game.engine.addSystem(new CollisionSystem());
 		game.engine.addSystem(new ScriptSystem(game.player, game.scriptManager));
 		game.engine.addSystem(new RenderSystem(game.batch, camera));
 		game.engine.addSystem(new PlayerInputSystem(game.player));

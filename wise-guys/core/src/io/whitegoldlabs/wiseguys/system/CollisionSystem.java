@@ -22,7 +22,7 @@ public class CollisionSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public CollisionSystem(Entity player) {}
+	public CollisionSystem() {}
 	
 	@Override
 	public void addedToEngine(Engine engine)
@@ -60,13 +60,15 @@ public class CollisionSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	private boolean isCollidingWithObstacle(Entity entity)
 	{	
-		boolean collidable = true;
+		boolean collidable;
 		
 		for(int i = 0; i < otherEntities.size(); i++)
 		{
 			Entity otherEntity = otherEntities.get(i);
 			if(entity != otherEntity)
 			{
+				collidable = true;
+				
 				if(Mappers.script.has(otherEntity))
 				{
 					collidable = Mappers.script.get(otherEntity).collidable;
@@ -186,7 +188,9 @@ public class CollisionSystem extends EntitySystem
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
+//					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
+//					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + testHitbox.width;
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
 					colliding = true;
 					break;
