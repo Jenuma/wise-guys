@@ -15,7 +15,6 @@ import org.xml.sax.SAXException;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -222,13 +221,13 @@ public class Worlds
             	object = new Entity();
                 Element objectElement = (Element)objectNode;
                 
+                float x = Float.parseFloat(objectElement.getAttribute("x"));
+        		float y = Float.parseFloat(objectElement.getAttribute("y"));
+        		float height = Float.parseFloat(objectElement.getAttribute("height"));
+        		y = mapHeight - y - height;
+                
                 if(objectElement.getAttribute("type").equals("Warp"))
                 {
-                	float x = Float.parseFloat(objectElement.getAttribute("x"));
-            		float y = Float.parseFloat(objectElement.getAttribute("y"));
-            		float height = Float.parseFloat(objectElement.getAttribute("height"));
-            		y = mapHeight - y - height;
-            		
                 	float destinationX = 0;
                 	float destinationY = 0;
                 	float hitboxXOffset = 0;
@@ -308,7 +307,27 @@ public class Worlds
 					args.add(destinationX);
 					args.add(destinationY);
 					
-					object.add(new ScriptComponent(false, "teleport.lua", args));
+					object.add(new ScriptComponent(false, "warp.lua", args));
+                }
+                else if(objectElement.getAttribute("type").equals("Deadzone"))
+                {
+                	float width = Float.parseFloat(objectElement.getAttribute("width"));
+                	
+                	object.add(new PositionComponent(x, y));
+            		object.add(new HitboxComponent
+    				(
+    					x,
+    					y,
+    					width,
+    					1,
+    					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
+    				));
+            		
+            		Array<Object> args = new Array<>();
+					args.add(game);
+					args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
+					
+					object.add(new ScriptComponent(false, "jules_death.lua", args));
                 }
         		
                 objectEntities.add(object);
@@ -327,7 +346,7 @@ public class Worlds
 //					height,
 //					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
 //				));
-           }
+            }
         }
         
         return objectEntities;

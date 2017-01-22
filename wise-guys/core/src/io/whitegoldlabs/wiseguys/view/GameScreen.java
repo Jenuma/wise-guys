@@ -114,6 +114,9 @@ public class GameScreen implements Screen
 	@Override
 	public void render(float delta)
 	{
+		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
 		// Resetting the delta here prevents the engine from updating based on longer deltas that resulted from a thread pause.
 		if(game.wasSleeping)
 		{
@@ -123,10 +126,7 @@ public class GameScreen implements Screen
 		
 		game.scriptManager.executeScriptIfReady();
 		
-		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
-        playerPosition = Mappers.position.get(game.player);
+		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
 	    playerInventory = Mappers.inventory.get(game.player);
         

@@ -1,6 +1,6 @@
-Teleport = {}
+Warp = {}
 
-function Teleport.execute(game, input, triggerKey, sfxPipe, camera, destination, x, y)
+function Warp.execute(game, input, triggerKey, sfxPipe, camera, destination, x, y)
 	if input:isKeyPressed(triggerKey) then
 		local thread = luajava.bindClass("java.lang.Thread") 
 		
@@ -15,4 +15,4 @@ function Teleport.execute(game, input, triggerKey, sfxPipe, camera, destination,
 	end
 end
 
-return Teleport
+return Warp

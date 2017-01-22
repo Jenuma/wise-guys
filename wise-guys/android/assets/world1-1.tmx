@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="left-up" width="214" height="32" tilewidth="16" tileheight="16" nextobjectid="63">
+<map version="1.0" orientation="orthogonal" renderorder="left-up" width="214" height="32" tilewidth="16" tileheight="16" nextobjectid="66">
  <tileset firstgid="1" name="spriteSheet" tilewidth="16" tileheight="16" tilecount="100" columns="10">
   <image source="sprites.png" width="160" height="160"/>
   <tile id="80">
@@ -110,5 +110,8 @@
     <property name="Hitbox X Offset" type="float" value="15"/>
    </properties>
   </object>
+  <object id="63" type="Deadzone" x="1104" y="496" width="32" height="16"/>
+  <object id="64" type="Deadzone" x="1376" y="496" width="48" height="16"/>
+  <object id="65" type="Deadzone" x="2448" y="496" width="32" height="16"/>
  </objectgroup>
 </map>
