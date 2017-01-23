@@ -7,22 +7,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
-import io.whitegoldlabs.wiseguys.component.AnimationComponent;
-import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
-import io.whitegoldlabs.wiseguys.component.SpriteComponent;
-import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -47,8 +40,6 @@ public class GameScreen implements Screen
 	
 	String worldName;
 	
-	OrthographicCamera camera;
-	
 	DebugRenderSystem debugRenderSystem;
 	
 	PositionComponent playerPosition;
@@ -57,56 +48,30 @@ public class GameScreen implements Screen
     
     ScriptComponent julesDeathScript;
 	
-    boolean isfirstFrame;
 	boolean debugMode = false;
-	
 	float timer = 0;
 	
 	// ---------------------------------------------------------------------------------|
-	// Constructors                                                                     |
+	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	
-	// Constructor for first time world loading:
 	public GameScreen(final WiseGuys game, String worldName, float x, float y)
 	{
 		this.game = game;
-		this.worldName = worldName.substring(5, 8);
+		this.worldName = worldName.substring(5);
 		
 		initHud();
-		initCamera();
-		initPlayer(x, y);
-		initEngine(worldName);
-		
-		isfirstFrame = true;
-	}
-	
-	// Constructor for loading new worlds with existing player:
-	public GameScreen(final WiseGuys game, OrthographicCamera camera, String worldName, float x, float y)
-	{
-		this.game = game;
-		this.worldName = worldName.substring(5, 8);
-		
-		initHud();
-		this.camera = camera;
 		
 		Mappers.position.get(game.player).x = x;
 		Mappers.position.get(game.player).y = y;
+		Mappers.hitbox.get(game.player).hitbox.x = x;
+		Mappers.hitbox.get(game.player).hitbox.y = y;
 		
-		game.engine.removeAllEntities();
+		initEngine(worldName);
 		
-		for(Entity entity : Worlds.getWorld(game, camera, worldName))
-		{
-			game.engine.addEntity(entity);
-		}
-		
-		loadScripts();
-		
-		game.engine.addEntity(game.player);
-		
-		debugRenderSystem = game.engine.getSystem(DebugRenderSystem.class);
-		debugRenderSystem.setProcessing(debugMode);
-		
-		isfirstFrame = true;
+		Array<Object> args = new Array<>();
+		args.add(game);
+		args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
+		this.julesDeathScript = new ScriptComponent(false, "jules_death.lua", args);
 	}
 	
 	@Override
@@ -128,13 +93,23 @@ public class GameScreen implements Screen
 			game.wasSleeping = false;
 		}
 		
-		game.engine.update(delta);
-		
 		game.scriptManager.executeScriptIfReady();
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
 	    playerInventory = Mappers.inventory.get(game.player);
+	    
+	    // Camera Following
+	    if(playerPosition.x <= 208)
+        {
+        	game.camera.position.set(208, 108, 0);
+        }
+        else
+        {
+        	game.camera.position.set(playerPosition.x, 108, 0);
+        }
+	    
+	    game.engine.update(delta);
 	    
 	    // HUD
         hudBatch.begin();
@@ -173,15 +148,6 @@ public class GameScreen implements Screen
         {
         	debugMode = !debugMode;
         	debugRenderSystem.setProcessing(debugMode);
-        }
-        
-        if(playerPosition.x <= 208)
-        {
-        	camera.position.set(208, 108, 0);
-        }
-        else
-        {
-        	camera.position.set(playerPosition.x, 108, 0);
         }
 	}
 
@@ -229,66 +195,11 @@ public class GameScreen implements Screen
 		coinSprite.setScale(2);
 	}
 	
-	private void initCamera()
-	{
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		camera.zoom -= 0.7f;
-	}
-	
-	private void initPlayer(float x, float y)
-	{
-		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
-		Array<Sprite> playerStillSprites = new Array<>(); 
-		Array<Sprite> playerJumpingSprites = new Array<>();
-		Array<Sprite> playerMovingSprites = new Array<>();
-		Array<Sprite> playerSlowingSprites = new Array<>();
-		
-		playerStillSprites.add(playerStillSprite);
-		playerJumpingSprites.add(new Sprite(spriteSheet, 64, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 16, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 32, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 48, 0, 16, 16));
-		playerSlowingSprites.add(playerStillSprite);
-		
-		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
-		
-		game.player.add(new SpriteComponent(playerStillSprite));
-		
-		StateComponent state = new StateComponent();
-		state.directionState = StateComponent.DirectionState.RIGHT;
-		state.airborneState = StateComponent.AirborneState.GROUNDED;
-		game.player.add(state);
-		
-		game.player.add(new PositionComponent(x, y));
-		game.player.add(new VelocityComponent(0, 0));
-		game.player.add(new AccelerationComponent(0, 0));
-		game.player.add(new InventoryComponent(0, (byte)0, (byte)3));
-		game.player.add(new HitboxComponent
-		(
-			x,
-			y,
-			playerStillSprite.getWidth(),
-			playerStillSprite.getHeight(),
-			playerHitboxSprite
-		));
-		
-		AnimationComponent animation = new AnimationComponent();
-		animation.animations.put("STILL", new Animation<Sprite>(1f/32f, playerStillSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("MOVING", new Animation<Sprite>(1f/32f, playerMovingSprites, Animation.PlayMode.LOOP));
-		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
-		game.player.add(animation);
-		
-		Array<Object> args = new Array<>();
-		args.add(game);
-		args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
-		julesDeathScript = new ScriptComponent(false, "jules_death.lua", args);
-	}
-	
 	private void initEngine(String worldName)
 	{
-		for(Entity worldObject : Worlds.getWorld(game, camera, worldName))
+		game.engine.removeAllEntities();
+		
+		for(Entity worldObject : Worlds.getWorld(game, worldName))
 		{
 			game.engine.addEntity(worldObject);
 		}
@@ -300,12 +211,12 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new GravitySystem());
 		game.engine.addSystem(new CollisionSystem());
 		game.engine.addSystem(new ScriptSystem(game.player, game.scriptManager));
-		game.engine.addSystem(new RenderSystem(game.batch, camera));
+		game.engine.addSystem(new RenderSystem(game.batch, game.camera));
 		game.engine.addSystem(new PlayerInputSystem(game.player));
 		game.engine.addSystem(new AnimationSystem());
 		
 		SpriteBatch debugBatch = new SpriteBatch();
-		debugRenderSystem = new DebugRenderSystem(game, debugBatch, camera);
+		debugRenderSystem = new DebugRenderSystem(game, debugBatch, game.camera);
 		game.engine.addSystem(debugRenderSystem);
 		
 		game.engine.addEntity(game.player);

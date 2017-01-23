@@ -1,6 +1,6 @@
 Warp = {}
 
-function Warp.execute(game, input, triggerKey, sfxPipe, camera, destination, x, y)
+function Warp.execute(game, input, triggerKey, sfxPipe, destination, x, y)
 	if input:isKeyPressed(triggerKey) then
 		local thread = luajava.bindClass("java.lang.Thread") 
 		
@@ -8,7 +8,7 @@ function Warp.execute(game, input, triggerKey, sfxPipe, camera, destination, x, 
 		thread:sleep(1000)
 		game.wasSleeping = true
 		
-		newGameScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.GameScreen", game, camera, destination, x, y)
+		newGameScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.GameScreen", game, destination, x, y)
 		game.currentScreen:dispose()
 		game.currentScreen = newGameScreen
 		game:setScreen(newGameScreen)

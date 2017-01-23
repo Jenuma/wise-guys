@@ -5,14 +5,14 @@ import com.badlogic.ashley.core.Component;
 public class InventoryComponent implements Component
 {
 	public int score;
-	public byte coins;
-	public byte lives;
+	public int coins;
+	public int lives;
 	public short time;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public InventoryComponent(int score, byte coins, byte lives)
+	public InventoryComponent(int score, int coins, int lives)
 	{
 		this.score = score;
 		this.coins = coins;

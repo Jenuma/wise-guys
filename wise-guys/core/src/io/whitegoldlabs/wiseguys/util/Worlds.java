@@ -15,7 +15,6 @@ import org.xml.sax.SAXException;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
@@ -39,11 +38,11 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	// getWorld                                                                         |
 	// ---------------------------------------------------------------------------------|
-	public static Array<Entity> getWorld(WiseGuys game, OrthographicCamera camera, String worldName)
+	public static Array<Entity> getWorld(WiseGuys game, String worldName)
 	{
 		if(!worldEntities.containsKey(worldName))
 		{
-			worldEntities.put(worldName, loadWorldEntitiesFromFile(game, camera, worldName));
+			worldEntities.put(worldName, loadWorldEntitiesFromFile(game, worldName));
 		}
 		
 		return worldEntities.get(worldName);
@@ -60,7 +59,7 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	// loadWorldEntitiesFromFile                                                        |
 	// ---------------------------------------------------------------------------------|
-	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, OrthographicCamera camera, String worldName)
+	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, String worldName)
 	{
 		Array<Entity> entities = new Array<>();
 		Entity entity;
@@ -184,7 +183,7 @@ public class Worlds
 			}
 		}
 		
-		Array<Entity> objects = loadWorldObjects(game, camera, worldName);
+		Array<Entity> objects = loadWorldObjects(game, worldName);
 		
 		for(Entity object : objects)
 		{
@@ -194,7 +193,7 @@ public class Worlds
 		return entities;
 	}
 	
-	private static Array<Entity> loadWorldObjects(WiseGuys game, OrthographicCamera camera, String worldName)
+	private static Array<Entity> loadWorldObjects(WiseGuys game, String worldName)
 	{
 		ArrayMap<String, Integer> keyMap = new ArrayMap<>();;
 		
@@ -321,7 +320,6 @@ public class Worlds
 					args.add(Gdx.input);
 					args.add(keyMap.get(triggerKey));
 					args.add(Gdx.audio.newSound(Gdx.files.internal("pipe.wav")));
-					args.add(camera);
 					args.add(destination);
 					args.add(destinationX);
 					args.add(destinationY);
@@ -341,6 +339,8 @@ public class Worlds
             		
             		Array<Object> args = new Array<>();
 					args.add(game);
+					args.add(Mappers.inventory.get(game.player));
+					args.add(worldName);
 					args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
 					
 					object.add(new ScriptComponent(false, "jules_death.lua", args));

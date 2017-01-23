@@ -1,30 +1,36 @@
 package io.whitegoldlabs.wiseguys.view;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.constant.Constants;
+import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class MainMenuScreen implements Screen
 {
 	final WiseGuys game;
-	OrthographicCamera camera;
 	
 	Stage stage;
 	Table table;
+	VerticalGroup modeGroup;
 	
-	Texture titleTexture;
-	Image title;
+	Image selector;
+	Sound sfxPop;
+	
+	boolean arcadeSelected;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructors                                                                     |
@@ -33,15 +39,15 @@ public class MainMenuScreen implements Screen
 	{
 		this.game = game;
 		
-		stage = new Stage();
-		table = new Table();
+		this.stage = new Stage();
+		this.table = new Table();
 		
 		table.setFillParent(true);
 	    stage.addActor(table);
 	    
 	    // Title Image
-	    titleTexture = new Texture(Gdx.files.internal("title.png"));
-	    title = new Image(titleTexture);
+	    Texture titleTexture = new Texture(Gdx.files.internal("title.png"));
+	    Image title = new Image(titleTexture);
 	    title.setSize(title.getWidth()*3, title.getHeight()*3);
 	    title.setPosition((Gdx.graphics.getWidth() - title.getWidth()) / 2, (Gdx.graphics.getHeight() - title.getHeight()) / 2);
 	    stage.addActor(title);
@@ -50,15 +56,25 @@ public class MainMenuScreen implements Screen
 	    
 	    // Labels
 	    Label lblArcade = new Label("Arcade Mode", skin, "default");
-	    lblArcade.setPosition((Gdx.graphics.getWidth() - lblArcade.getWidth()) / 2, 180);
-	    stage.addActor(lblArcade);
-	    
 	    Label lblStageSelect = new Label("Select Stage", skin, "default");
-	    lblStageSelect.setPosition((Gdx.graphics.getWidth() - lblStageSelect.getWidth()) / 2, 150);
-	    stage.addActor(lblStageSelect);
 	    
-		camera = new OrthographicCamera();
-		camera.setToOrtho(false, Constants.WINDOW_WIDTH, Constants.WINDOW_HEIGHT);
+	    modeGroup = new VerticalGroup();
+	    modeGroup.addActor(lblArcade);
+	    modeGroup.addActor(lblStageSelect);
+	    modeGroup.setPosition((Gdx.graphics.getWidth() - modeGroup.getWidth()) / 2, 180);
+	    modeGroup.space(5);
+	    stage.addActor(modeGroup);
+	    
+	    TextureRegion selectorTexture = new TextureRegion(new Texture(Gdx.files.internal("uiskin.png")), 0, 0, 10, 19);
+	    selector = new Image(selectorTexture);
+	    selector.setSize(selector.getWidth() * 1.5f, selector.getHeight() * 1.5f);
+	    selector.setRotation(90);
+	    selector.setPosition(modeGroup.getX() - 100, 168);
+	    stage.addActor(selector);
+	    
+	    sfxPop = Gdx.audio.newSound(Gdx.files.internal("pop.wav"));
+	    
+	    arcadeSelected = true;
 	}
 
 	// ---------------------------------------------------------------------------------|
@@ -73,28 +89,49 @@ public class MainMenuScreen implements Screen
 	@Override
 	public void render(float delta)
 	{
-		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
+		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
-		stage.act(Gdx.graphics.getDeltaTime());
+	    if(Gdx.input.isKeyJustPressed(Keys.DOWN) || Gdx.input.isKeyJustPressed(Keys.UP))
+	    {
+	    	sfxPop.play();
+	    	arcadeSelected = !arcadeSelected;
+	    }
+	    
+	    if(Gdx.input.isKeyJustPressed(Keys.Z))
+	    {
+	    	InventoryComponent playerInventory = Mappers.inventory.get(game.player);
+	    	playerInventory.score = 0;
+	    	playerInventory.coins = 0;
+	    	playerInventory.lives = 3;
+	    	playerInventory.time = 400;
+		    
+	    	if(arcadeSelected)
+	    	{
+	    		sfxPop.play();
+	    		
+	    		WorldIntroScreen worldIntroScreen = new WorldIntroScreen(game, "world1-1");
+				game.currentScreen = worldIntroScreen;
+				game.setScreen(game.currentScreen);
+				dispose();
+	    	}
+	    	else
+	    	{
+	    		System.out.println("Not implemented!");
+	    	}
+	    }
+	    
+	    if(arcadeSelected)
+	    {
+	    	selector.setPosition(modeGroup.getX() - 100, 168);
+	    }
+	    else
+	    {
+	    	selector.setPosition(modeGroup.getX() - 100, 148);
+	    }
+	    
+	    stage.act(Gdx.graphics.getDeltaTime());
 	    stage.draw();
-		
-//		camera.update();
-//		game.batch.setProjectionMatrix(camera.combined);
-//		
-//		game.batch.begin();
-//		game.font.draw(game.batch, "Wise Guys", 5, Constants.WINDOW_HEIGHT - 8);
-//		
-//		game.batch.end();
-		
-		// For now, clicking anywhere in the menu will bring you to the game screen.
-		if(Gdx.input.isTouched())
-		{
-			GameScreen newGameScreen = new GameScreen(game, "world1-1", 16, 32);
-			game.currentScreen = newGameScreen;
-			game.setScreen(game.currentScreen);
-			dispose();
-		}
 	}
 
 	@Override
