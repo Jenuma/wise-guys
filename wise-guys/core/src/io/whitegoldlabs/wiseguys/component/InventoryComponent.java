@@ -7,6 +7,7 @@ public class InventoryComponent implements Component
 	public int score;
 	public byte coins;
 	public byte lives;
+	public short time;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -16,5 +17,6 @@ public class InventoryComponent implements Component
 		this.score = score;
 		this.coins = coins;
 		this.lives = lives;
+		this.time = 400;
 	}
 }

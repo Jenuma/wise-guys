@@ -9,6 +9,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
@@ -25,6 +27,7 @@ public class DebugRenderSystem extends EntitySystem
 	private final WiseGuys game;
 	
 	private SpriteBatch debugBatch;
+	private ShapeRenderer shapeRenderer;
 	private OrthographicCamera camera;
 	
 	// ---------------------------------------------------------------------------------|
@@ -35,6 +38,7 @@ public class DebugRenderSystem extends EntitySystem
 		this.game = game;
 		
 		this.debugBatch = debugBatch;
+		this.shapeRenderer = new ShapeRenderer();
 		this.camera = camera;
 	}
 	
@@ -51,17 +55,30 @@ public class DebugRenderSystem extends EntitySystem
 		// Debug Hitboxes
 		camera.update();
 		game.batch.setProjectionMatrix(camera.combined);
+		shapeRenderer.setProjectionMatrix(camera.combined);
 		game.batch.begin();
+		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+		shapeRenderer.setColor(1, 0, 1, 1);
 		
 		for(Entity entity : hitboxEntities)
 		{
 			HitboxComponent hitboxComponent = Mappers.hitbox.get(entity);
+			Rectangle hitbox = hitboxComponent.hitbox;
         	Sprite hitboxSprite = hitboxComponent.sprite;
-        	hitboxSprite.setPosition(hitboxComponent.hitbox.x, hitboxComponent.hitbox.y);
-        	hitboxSprite.draw(game.batch);
+        	
+        	if(hitboxSprite != null)
+        	{
+        		hitboxSprite.setPosition(hitbox.x, hitbox.y);
+            	hitboxSprite.draw(game.batch);
+        	}
+        	else
+        	{
+        		shapeRenderer.rect(hitbox.x, hitbox.y, hitbox.width, hitbox.height);
+        	}
 		}
 		
 		game.batch.end();
+		shapeRenderer.end();
 		
 		PositionComponent playerPosition = Mappers.position.get(game.player);
 		VelocityComponent playerVelocity = Mappers.velocity.get(game.player);

@@ -42,6 +42,12 @@ public class ScriptManager
 		this.scriptToExecute = script;
 	}
 	
+	public void executeScriptImmediately(ScriptComponent script)
+	{
+		this.scriptToExecute = script;
+		executeScriptIfReady();
+	}
+	
 	public void executeScriptIfReady()
 	{
 		if(scriptToExecute != null)

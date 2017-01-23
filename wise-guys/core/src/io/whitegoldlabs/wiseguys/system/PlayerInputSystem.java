@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.audio.Sound;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
@@ -14,12 +15,16 @@ public class PlayerInputSystem extends EntitySystem
 {
 	private Entity player;
 	
+	private Sound sfxJump;
+	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
 	public PlayerInputSystem(Entity player)
 	{
 		this.player = player;
+		
+		this.sfxJump = Gdx.audio.newSound(Gdx.files.internal("jump.wav"));
 	}
 	
 	public void update(float deltaTime)
@@ -57,6 +62,7 @@ public class PlayerInputSystem extends EntitySystem
         // Jump
         if(Gdx.input.isKeyJustPressed(Keys.Z) && playerState.airborneState == StateComponent.AirborneState.GROUNDED)
         {
+        	sfxJump.play();
         	playerState.airborneState = StateComponent.AirborneState.JUMPING;
         	playerVelocity.y += 430;
         }

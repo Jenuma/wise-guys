@@ -50,6 +50,14 @@ public class Worlds
 	}
 	
 	// ---------------------------------------------------------------------------------|
+	// unloadWorldEntities                                                              |
+	// ---------------------------------------------------------------------------------|
+	public static void unloadWorldEntities()
+	{
+		worldEntities.clear();
+	}
+	
+	// ---------------------------------------------------------------------------------|
 	// loadWorldEntitiesFromFile                                                        |
 	// ---------------------------------------------------------------------------------|
 	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, OrthographicCamera camera, String worldName)
@@ -61,6 +69,8 @@ public class Worlds
 		Sprite hitboxSprite = null;
 		
 		boolean hasSprite = true;
+		boolean hasHitbox = true;
+		
 		int spriteX = -1;
 		int spriteY = -1;
 		
@@ -133,9 +143,18 @@ public class Worlds
 						ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
 						entity.add(ac);
 					}
+					else if(cells[x].equals("59"))
+					{
+						hasHitbox = false;
+					}
+					else if(cells[x].equals("69"))
+					{
+						hasHitbox = false;
+					}
 					else
 					{
 						hasSprite = true;
+						hasHitbox = true;
 						hitboxSprite = null;
 					}
 				
@@ -146,7 +165,7 @@ public class Worlds
 					}
 					
 					// Obstacle default hitbox and hitbox sprite
-					if(hitboxSprite == null)
+					if(hasHitbox && hitboxSprite == null)
 					{
 						hitboxSprite = new Sprite(Assets.spriteSheet, 128, 144, 16, 16);
 						entity.add(new HitboxComponent
@@ -223,6 +242,7 @@ public class Worlds
                 
                 float x = Float.parseFloat(objectElement.getAttribute("x"));
         		float y = Float.parseFloat(objectElement.getAttribute("y"));
+        		float width = Float.parseFloat(objectElement.getAttribute("width"));
         		float height = Float.parseFloat(objectElement.getAttribute("height"));
         		y = mapHeight - y - height;
                 
@@ -293,8 +313,7 @@ public class Worlds
     					x + hitboxXOffset,
     					y + hitboxYOffset,
     					hitboxWidth,
-    					hitboxHeight,
-    					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
+    					hitboxHeight
     				));
             		
             		Array<Object> args = new Array<>();
@@ -311,16 +330,13 @@ public class Worlds
                 }
                 else if(objectElement.getAttribute("type").equals("Deadzone"))
                 {
-                	float width = Float.parseFloat(objectElement.getAttribute("width"));
-                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent
     				(
     					x,
     					y,
     					width,
-    					1,
-    					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
+    					1
     				));
             		
             		Array<Object> args = new Array<>();
@@ -328,6 +344,23 @@ public class Worlds
 					args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
 					
 					object.add(new ScriptComponent(false, "jules_death.lua", args));
+                }
+                else if(objectElement.getAttribute("type").equals("Goal"))
+                {
+                	object.add(new PositionComponent(x, y));
+            		object.add(new HitboxComponent
+    				(
+    					x+7,
+    					y,
+    					2,
+    					height
+    				));
+            		
+            		Array<Object> args = new Array<>();
+					args.add(game);
+					args.add(Gdx.audio.newSound(Gdx.files.internal("stage_clear.wav")));
+					
+					object.add(new ScriptComponent(false, "goal.lua", args));
                 }
         		
                 objectEntities.add(object);

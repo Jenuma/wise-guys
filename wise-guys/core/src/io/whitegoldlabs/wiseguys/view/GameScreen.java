@@ -45,6 +45,8 @@ public class GameScreen implements Screen
 	Texture spriteSheet;
 	Sprite coinSprite;
 	
+	String worldName;
+	
 	OrthographicCamera camera;
 	
 	DebugRenderSystem debugRenderSystem;
@@ -52,13 +54,13 @@ public class GameScreen implements Screen
 	PositionComponent playerPosition;
 	VelocityComponent playerVelocity;
     InventoryComponent playerInventory;
+    
+    ScriptComponent julesDeathScript;
 	
+    boolean isfirstFrame;
 	boolean debugMode = false;
 	
-	short time = 400;
 	float timer = 0;
-	
-	boolean isfirstFrame;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructors                                                                     |
@@ -68,6 +70,7 @@ public class GameScreen implements Screen
 	public GameScreen(final WiseGuys game, String worldName, float x, float y)
 	{
 		this.game = game;
+		this.worldName = worldName.substring(5, 8);
 		
 		initHud();
 		initCamera();
@@ -81,6 +84,7 @@ public class GameScreen implements Screen
 	public GameScreen(final WiseGuys game, OrthographicCamera camera, String worldName, float x, float y)
 	{
 		this.game = game;
+		this.worldName = worldName.substring(5, 8);
 		
 		initHud();
 		this.camera = camera;
@@ -124,12 +128,14 @@ public class GameScreen implements Screen
 			game.wasSleeping = false;
 		}
 		
+		game.engine.update(delta);
+		
 		game.scriptManager.executeScriptIfReady();
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
 	    playerInventory = Mappers.inventory.get(game.player);
-        
+	    
 	    // HUD
         hudBatch.begin();
 
@@ -141,10 +147,10 @@ public class GameScreen implements Screen
         game.bigFont.draw(hudBatch, String.format("%02d", playerInventory.coins), 448, 680);
         
         game.bigFont.draw(hudBatch, "WORLD", 745, 710);
-        game.bigFont.draw(hudBatch, "0-0", 777, 680);
+        game.bigFont.draw(hudBatch, worldName, 777, 680);
         
         game.bigFont.draw(hudBatch, "TIME", 1138, 710);
-        game.bigFont.draw(hudBatch, String.format("%03d", time), 1170, 680);
+        game.bigFont.draw(hudBatch, String.format("%03d", playerInventory.time), 1170, 680);
 
         hudBatch.end();
         
@@ -152,8 +158,14 @@ public class GameScreen implements Screen
         timer += delta;
         if(timer > 1)
         {
-        	time--;
+        	playerInventory.time--;
         	timer = 0;
+        }
+        
+        // Player dies if time falls below 0.
+        if(playerInventory.time < 0)
+        {
+        	game.scriptManager.executeScriptImmediately(julesDeathScript);
         }
         
         // Debug Mode
@@ -163,27 +175,14 @@ public class GameScreen implements Screen
         	debugRenderSystem.setProcessing(debugMode);
         }
         
-//        if(playerPosition.x <= 208)
-//        {
-//        	camera.position.set(208, 108, 0);
-//        }
-//        else
-//        {
+        if(playerPosition.x <= 208)
+        {
+        	camera.position.set(208, 108, 0);
+        }
+        else
+        {
         	camera.position.set(playerPosition.x, 108, 0);
-//        }
-        
-        // Simulate moving between game screens.
-        if(Gdx.input.isKeyJustPressed(Keys.NUM_1))
-        {
-        	game.setScreen(new GameScreen(game, camera, "world1-1a", 3*16, 14*16));
         }
-        
-        if(Gdx.input.isKeyJustPressed(Keys.NUM_2))
-        {
-        	game.setScreen(new GameScreen(game, camera, "world1-1", 163*16, 4*16));
-        }
-        
-        game.engine.update(delta);
 	}
 
 	@Override
@@ -234,7 +233,7 @@ public class GameScreen implements Screen
 	{
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		//camera.zoom -= 0.7f;
+		camera.zoom -= 0.7f;
 	}
 	
 	private void initPlayer(float x, float y)
@@ -280,6 +279,11 @@ public class GameScreen implements Screen
 		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
 		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
 		game.player.add(animation);
+		
+		Array<Object> args = new Array<>();
+		args.add(game);
+		args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
+		julesDeathScript = new ScriptComponent(false, "jules_death.lua", args);
 	}
 	
 	private void initEngine(String worldName)
@@ -320,5 +324,7 @@ public class GameScreen implements Screen
 		{
 			game.scriptManager.loadScript(Mappers.script.get(scriptedEntity).scriptName);
 		}
+		
+		game.scriptManager.loadScript("jules_death.lua");
 	}
 }
