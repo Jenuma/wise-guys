@@ -3,20 +3,17 @@ package io.whitegoldlabs.wiseguys.system;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.audio.Sound;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
+import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class PlayerInputSystem extends EntitySystem
 {
 	private final WiseGuys game;
-	
-	private Sound sfxJump;
-	private Sound sfxPause;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -25,8 +22,9 @@ public class PlayerInputSystem extends EntitySystem
 	{
 		this.game = game;
 		
-		this.sfxJump = Gdx.audio.newSound(Gdx.files.internal("jump.wav"));
-		this.sfxPause = Gdx.audio.newSound(Gdx.files.internal("pause.wav"));
+		game.assets.manager.load(Assets.sfxJump);
+		game.assets.manager.load(Assets.sfxPause);
+		game.assets.manager.finishLoading();
 	}
 	
 	public void update(float deltaTime)
@@ -66,7 +64,7 @@ public class PlayerInputSystem extends EntitySystem
 	        // Jump
 	        if(Gdx.input.isKeyJustPressed(Keys.Z) && playerState.airborneState == StateComponent.AirborneState.GROUNDED)
 	        {
-	        	sfxJump.play();
+	        	game.assets.manager.get(Assets.sfxJump).play();
 	        	playerState.airborneState = StateComponent.AirborneState.JUMPING;
 	        	playerVelocity.y += 430;
 	        }
@@ -75,7 +73,7 @@ public class PlayerInputSystem extends EntitySystem
         // Pause
         if(Gdx.input.isKeyJustPressed(Keys.ESCAPE))
         {
-        	sfxPause.play();
+        	game.assets.manager.get(Assets.sfxPause).play();
         	game.isRunning = !game.isRunning;
         }
 	}

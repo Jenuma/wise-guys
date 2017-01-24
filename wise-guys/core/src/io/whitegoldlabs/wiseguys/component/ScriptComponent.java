@@ -24,8 +24,9 @@ public class ScriptComponent implements Component
 		this.collidable = collidable;
 		
 		this.scriptName = scriptName;
-		this.moduleName = scriptName.substring(0, 1).toUpperCase() +
-			scriptName.substring(1, scriptName.indexOf('.'));
+		System.out.println(scriptName.substring(8, 9));
+		this.moduleName = scriptName.substring(8, 9).toUpperCase() +
+			scriptName.substring(9, scriptName.indexOf('.'));
 		
 		this.args = new LuaValue[args.size];
 		

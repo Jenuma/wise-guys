@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Array;
@@ -61,6 +62,15 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, String worldName)
 	{
+		game.assets.manager.load(Assets.spriteSheet);
+		game.assets.manager.load(Assets.sfxCoin);
+		game.assets.manager.load(Assets.sfxPipe);
+		game.assets.manager.load(Assets.sfxJulesDeath);
+		game.assets.manager.load(Assets.sfxStageClear);
+		game.assets.manager.finishLoading();
+		
+		Texture spriteSheet = game.assets.manager.get(Assets.spriteSheet);
+		
 		Array<Entity> entities = new Array<>();
 		Entity entity;
 		
@@ -102,7 +112,7 @@ public class Worlds
 					// COIN
 					if(cells[x].equals("7"))
 					{
-						hitboxSprite = new Sprite(Assets.spriteSheet, 112, 144, 16, 16);
+						hitboxSprite = new Sprite(spriteSheet, 112, 144, 16, 16);
 						entity.add(new HitboxComponent
 						(
 							x*16+3,
@@ -116,14 +126,14 @@ public class Worlds
 						args.add(Mappers.inventory.get(game.player));
 						args.add(state);
 						args.add(StateComponent.EnabledState.DISABLED);
-						args.add(Gdx.audio.newSound(Gdx.files.internal("coin.wav")));
+						args.add(game.assets.manager.get(Assets.sfxCoin));
 						
-						entity.add(new ScriptComponent(false, "coin.lua", args));
+						entity.add(new ScriptComponent(false, "scripts\\coin.lua", args));
 					}
 					// BOX
 					else if(cells[x].equals("50"))
 					{
-						hitboxSprite = new Sprite(Assets.spriteSheet, 128, 144, 16, 16);
+						hitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
 						entity.add(new HitboxComponent
 						(
 							x*16,
@@ -134,9 +144,9 @@ public class Worlds
 						));
 						
 						Array<Sprite> boxStillSprites = new Array<>();
-						boxStillSprites.add(new Sprite(Assets.spriteSheet, 0, 80, 16, 16));
-						boxStillSprites.add(new Sprite(Assets.spriteSheet, 16, 80, 16, 16));
-						boxStillSprites.add(new Sprite(Assets.spriteSheet, 32, 80, 16, 16));
+						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
+						boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+						boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
 						
 						AnimationComponent ac = new AnimationComponent();
 						ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
@@ -160,13 +170,13 @@ public class Worlds
 					// Get sprite from spriteSheet
 					if(hasSprite)
 					{
-						entity.add(new SpriteComponent(new Sprite(Assets.spriteSheet, spriteX, spriteY, 16, 16)));
+						entity.add(new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16)));
 					}
 					
 					// Obstacle default hitbox and hitbox sprite
 					if(hasHitbox && hitboxSprite == null)
 					{
-						hitboxSprite = new Sprite(Assets.spriteSheet, 128, 144, 16, 16);
+						hitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
 						entity.add(new HitboxComponent
 						(
 							x*16,
@@ -319,12 +329,12 @@ public class Worlds
 					args.add(game);
 					args.add(Gdx.input);
 					args.add(keyMap.get(triggerKey));
-					args.add(Gdx.audio.newSound(Gdx.files.internal("pipe.wav")));
+					args.add(game.assets.manager.get(Assets.sfxPipe));
 					args.add(destination);
 					args.add(destinationX);
 					args.add(destinationY);
 					
-					object.add(new ScriptComponent(false, "warp.lua", args));
+					object.add(new ScriptComponent(false, "scripts\\warp.lua", args));
                 }
                 else if(objectElement.getAttribute("type").equals("Deadzone"))
                 {
@@ -341,9 +351,9 @@ public class Worlds
 					args.add(game);
 					args.add(Mappers.inventory.get(game.player));
 					args.add(worldName);
-					args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
+					args.add(game.assets.manager.get(Assets.sfxJulesDeath));
 					
-					object.add(new ScriptComponent(false, "jules_death.lua", args));
+					object.add(new ScriptComponent(false, "scripts\\jules_death.lua", args));
                 }
                 else if(objectElement.getAttribute("type").equals("Goal"))
                 {
@@ -358,9 +368,9 @@ public class Worlds
             		
             		Array<Object> args = new Array<>();
 					args.add(game);
-					args.add(Gdx.audio.newSound(Gdx.files.internal("stage_clear.wav")));
+					args.add(game.assets.manager.get(Assets.sfxStageClear));
 					
-					object.add(new ScriptComponent(false, "goal.lua", args));
+					object.add(new ScriptComponent(false, "scripts\\goal.lua", args));
                 }
         		
                 objectEntities.add(object);

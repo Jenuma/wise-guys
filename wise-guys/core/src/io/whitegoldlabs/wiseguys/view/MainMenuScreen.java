@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class MainMenuScreen implements Screen
@@ -39,6 +40,10 @@ public class MainMenuScreen implements Screen
 	{
 		this.game = game;
 		
+		game.assets.manager.load(Assets.title);
+		game.assets.manager.load(Assets.sfxPop);
+		game.assets.manager.finishLoading();
+		
 		this.stage = new Stage();
 		this.table = new Table();
 		
@@ -46,13 +51,13 @@ public class MainMenuScreen implements Screen
 	    stage.addActor(table);
 	    
 	    // Title Image
-	    Texture titleTexture = new Texture(Gdx.files.internal("title.png"));
-	    Image title = new Image(titleTexture);
+	    Image title = new Image(game.assets.manager.get(Assets.title));
 	    title.setSize(title.getWidth()*3, title.getHeight()*3);
 	    title.setPosition((Gdx.graphics.getWidth() - title.getWidth()) / 2, (Gdx.graphics.getHeight() - title.getHeight()) / 2);
 	    stage.addActor(title);
 	    
-	    Skin skin = new Skin(Gdx.files.internal("uiskin.json"), new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
+	    Skin skin = new Skin(Gdx.files.internal("uiskin.json"),
+    		new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
 	    
 	    // Labels
 	    Label lblArcade = new Label("Arcade Mode", skin, "default");
@@ -72,7 +77,7 @@ public class MainMenuScreen implements Screen
 	    selector.setPosition(modeGroup.getX() - 100, 168);
 	    stage.addActor(selector);
 	    
-	    sfxPop = Gdx.audio.newSound(Gdx.files.internal("pop.wav"));
+	    sfxPop = game.assets.manager.get(Assets.sfxPop);
 	    
 	    arcadeSelected = true;
 	}

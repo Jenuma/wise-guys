@@ -64,6 +64,11 @@ public class GameScreen implements Screen
 	public GameScreen(final WiseGuys game, String worldName, float x, float y)
 	{
 		this.game = game;
+		
+		game.assets.manager.load(Assets.spriteSheet);
+		game.assets.manager.load(Assets.sfxJulesDeath);
+		game.assets.manager.finishLoading();
+		
 		this.worldName = worldName.substring(5, 8);
 		
 		initHud();
@@ -86,8 +91,8 @@ public class GameScreen implements Screen
 		
 		Array<Object> args = new Array<>();
 		args.add(game);
-		args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
-		this.julesDeathScript = new ScriptComponent(false, "jules_death.lua", args);
+		args.add(game.assets.manager.get(Assets.sfxJulesDeath));
+		this.julesDeathScript = new ScriptComponent(false, "scripts\\jules_death.lua", args);
 		
 		pausedText = new GlyphLayout(game.bigFont, "PAUSED");
 	}
@@ -216,7 +221,7 @@ public class GameScreen implements Screen
 	{
 		hudBatch = new SpriteBatch();
 		
-		spriteSheet = Assets.spriteSheet;
+		spriteSheet = game.assets.manager.get(Assets.spriteSheet);
 		
 		coinSprite = new Sprite(spriteSheet, 96, 0, 16, 16);
 		coinSprite.setPosition(400, 662);
@@ -264,6 +269,6 @@ public class GameScreen implements Screen
 			game.scriptManager.loadScript(Mappers.script.get(scriptedEntity).scriptName);
 		}
 		
-		game.scriptManager.loadScript("jules_death.lua");
+		game.scriptManager.loadScript("scripts\\jules_death.lua");
 	}
 }

@@ -34,6 +34,9 @@ public class WorldIntroScreen implements Screen
 	{
 		this.game = game;
 		
+		game.assets.manager.load(Assets.spriteSheet);
+		game.assets.manager.finishLoading();
+		
 		this.worldName = worldName;
 		this.time = 0;
 		
@@ -52,7 +55,8 @@ public class WorldIntroScreen implements Screen
 	    lblWorldName.setPosition((Gdx.graphics.getWidth() - lblWorldName.getWidth()) / 2, ((Gdx.graphics.getHeight() - lblWorldName.getHeight()) / 2) + 30);
 	    
 	    // Remaining Lives
-	    TextureRegion livesTexture = new TextureRegion(Assets.spriteSheet, 0, 0, 16, 16);
+	    TextureRegion livesTexture =
+	    		new TextureRegion(game.assets.manager.get(Assets.spriteSheet), 0, 0, 16, 16);
 	    Image imgLives = new Image(livesTexture);
 	    Label lblLives = new Label("x " + playerInventory.lives, skin, "default");
 	    

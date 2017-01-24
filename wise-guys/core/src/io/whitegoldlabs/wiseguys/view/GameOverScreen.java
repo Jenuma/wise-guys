@@ -2,19 +2,17 @@ package io.whitegoldlabs.wiseguys.view;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.constant.Constants;
+import io.whitegoldlabs.wiseguys.util.Assets;
 
 public class GameOverScreen implements Screen
 {
 	final WiseGuys game;
 	OrthographicCamera camera;
-	
-	Sound sfxGameOver;
 	
 	float time;
 	
@@ -22,7 +20,9 @@ public class GameOverScreen implements Screen
 	{
 		this.game = game;
 		
-		sfxGameOver = Gdx.audio.newSound(Gdx.files.internal("game_over.wav"));
+		game.assets.manager.load(Assets.sfxGameOver);
+		game.assets.manager.finishLoading();
+		
 		this.time = 0;
 		
 		camera = new OrthographicCamera();
@@ -32,7 +32,7 @@ public class GameOverScreen implements Screen
 	@Override
 	public void show()
 	{
-		sfxGameOver.play();
+		game.assets.manager.get(Assets.sfxGameOver).play();
 	}
 
 	@Override

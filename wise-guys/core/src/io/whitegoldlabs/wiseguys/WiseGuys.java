@@ -27,6 +27,8 @@ import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
 
 public class WiseGuys extends Game
 {
+	public Assets assets;
+	
 	public Screen currentScreen;
 	public OrthographicCamera camera;
 	
@@ -46,6 +48,10 @@ public class WiseGuys extends Game
 	@Override
 	public void create()
 	{
+		this.assets = new Assets();
+		assets.manager.load(Assets.spriteSheet);
+		assets.manager.finishLoading();
+		
 		this.camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.zoom -= 0.7f;
@@ -87,7 +93,7 @@ public class WiseGuys extends Game
 	{
 		this.player = new Entity();
 		
-		Texture spriteSheet = Assets.spriteSheet;
+		Texture spriteSheet = assets.manager.get(Assets.spriteSheet);
 		
 		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
 		Array<Sprite> playerStillSprites = new Array<>(); 
