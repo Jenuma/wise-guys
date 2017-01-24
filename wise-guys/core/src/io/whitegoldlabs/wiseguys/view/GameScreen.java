@@ -242,8 +242,9 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new ReaperSystem(game));
 		game.engine.addSystem(new MovementSystem(game));
 		game.engine.addSystem(new GravitySystem(game));
-		game.engine.addSystem(new CollisionSystem(game));
 		game.engine.addSystem(new ScriptSystem(game));
+		game.engine.addSystem(new CollisionSystem(game));
+		
 		game.engine.addSystem(new RenderSystem(game));
 		game.engine.addSystem(new PlayerInputSystem(game));
 		game.engine.addSystem(new AnimationSystem(game));

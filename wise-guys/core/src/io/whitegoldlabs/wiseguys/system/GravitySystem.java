@@ -30,12 +30,14 @@ public class GravitySystem extends EntitySystem
 		this.game = game;
 	}
 	
+	@Override
 	public void addedToEngine(Engine engine)
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
 				StateComponent.class,
 				VelocityComponent.class,
+				AccelerationComponent.class,
 				HitboxComponent.class
 		).get());
 		
@@ -50,6 +52,7 @@ public class GravitySystem extends EntitySystem
 		).get());
 	}
 	
+	@Override
 	public void update(float deltaTime)
 	{
 		if(game.isRunning)
@@ -75,16 +78,21 @@ public class GravitySystem extends EntitySystem
 					Rectangle fallbox = new Rectangle(Mappers.hitbox.get(dynamicEntity).hitbox);
 					fallbox.y--;
 					
+					boolean grounded = false;
 					for(Entity obstacle : obstacleEntities)
 					{
 						Rectangle obstacleHitbox = Mappers.hitbox.get(obstacle).hitbox;
 						if(fallbox.overlaps(obstacleHitbox))
 						{
-							return;
+							grounded = true;
+							break;
 						}
 					}
 					
-					state.airborneState = StateComponent.AirborneState.FALLING;
+					if(!grounded)
+					{
+						state.airborneState = StateComponent.AirborneState.FALLING;
+					}
 				}
 			}
 		}

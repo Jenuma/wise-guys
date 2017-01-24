@@ -104,7 +104,7 @@ public class CollisionSystem extends EntitySystem
 		{
 			Mappers.position.get(entity).x += xDistanceToResolve;
 			Mappers.hitbox.get(entity).hitbox.x += xDistanceToResolve;
-			Mappers.velocity.get(entity).x = 0;
+			Mappers.velocity.get(entity).x = 0 - Mappers.velocity.get(entity).x;
 		}
 		else if(Math.abs(yDistanceToResolve) < Math.abs(xDistanceToResolve) && Math.abs(yDistanceToResolve) < xAndYTotalDistanceToResolve)
 		{

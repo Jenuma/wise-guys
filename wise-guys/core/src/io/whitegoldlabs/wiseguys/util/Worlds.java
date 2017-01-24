@@ -22,12 +22,14 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
+import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 
 public class Worlds
 {
@@ -108,7 +110,24 @@ public class Worlds
 						spriteX = 16 * Integer.parseInt(cells[x]);
 						spriteY = 0;
 					}
-					
+					// Goomba
+					if(cells[x].equals("10"))
+					{
+						entity.add(new VelocityComponent(10, 0));
+						entity.add(new AccelerationComponent(0, 0));
+						
+						state.motionState = StateComponent.MotionState.MOVING;
+						state.airborneState = StateComponent.AirborneState.GROUNDED;
+						state.directionState = StateComponent.DirectionState.RIGHT;
+						
+						Array<Sprite> movingSprites = new Array<>();
+						movingSprites.add(new Sprite(spriteSheet, 0, 16, 16, 16));
+						movingSprites.add(new Sprite(spriteSheet, 16, 16, 16, 16));
+						
+						AnimationComponent ac = new AnimationComponent();
+						ac.animations.put("MOVING", new Animation<Sprite>(1f/4f, movingSprites, Animation.PlayMode.LOOP));
+						entity.add(ac);
+					}
 					// COIN
 					if(cells[x].equals("7"))
 					{
@@ -133,6 +152,15 @@ public class Worlds
 					// BOX
 					else if(cells[x].equals("50"))
 					{
+						Array<Sprite> boxStillSprites = new Array<>();
+						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
+						boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+						boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
+						
+						AnimationComponent ac = new AnimationComponent();
+						ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
+						entity.add(ac);
+						
 						hitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
 						entity.add(new HitboxComponent
 						(
@@ -143,14 +171,14 @@ public class Worlds
 							hitboxSprite
 						));
 						
-						Array<Sprite> boxStillSprites = new Array<>();
-						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
-						boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
-						boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
+						Array<Object> args = new Array<>();
+						args.add(Mappers.hitbox.get(game.player).hitbox);
+						args.add(Mappers.hitbox.get(entity).hitbox);
+						args.add(game.assets.manager.get(Assets.sfxCoin));
 						
-						AnimationComponent ac = new AnimationComponent();
-						ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
-						entity.add(ac);
+						ScriptComponent script = new ScriptComponent(false, "scripts\\box.lua", args);
+						script.collidable = true;
+						entity.add(script);
 					}
 					else if(cells[x].equals("59"))
 					{

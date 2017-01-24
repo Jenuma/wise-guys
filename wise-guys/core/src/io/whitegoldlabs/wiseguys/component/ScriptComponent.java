@@ -24,7 +24,6 @@ public class ScriptComponent implements Component
 		this.collidable = collidable;
 		
 		this.scriptName = scriptName;
-		System.out.println(scriptName.substring(8, 9));
 		this.moduleName = scriptName.substring(8, 9).toUpperCase() +
 			scriptName.substring(9, scriptName.indexOf('.'));
 		
