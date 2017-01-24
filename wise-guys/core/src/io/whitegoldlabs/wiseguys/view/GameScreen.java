@@ -16,6 +16,7 @@ import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -29,6 +30,10 @@ import io.whitegoldlabs.wiseguys.system.ScriptSystem;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.util.Worlds;
+
+import static io.whitegoldlabs.wiseguys.component.StateComponent.AirborneState;
+import static io.whitegoldlabs.wiseguys.component.StateComponent.DirectionState;
+import static io.whitegoldlabs.wiseguys.component.StateComponent.MotionState;
 
 public class GameScreen implements Screen
 {
@@ -57,14 +62,23 @@ public class GameScreen implements Screen
 	public GameScreen(final WiseGuys game, String worldName, float x, float y)
 	{
 		this.game = game;
-		this.worldName = worldName.substring(5);
+		this.worldName = worldName.substring(5, 8);
 		
 		initHud();
 		
 		Mappers.position.get(game.player).x = x;
 		Mappers.position.get(game.player).y = y;
+		Mappers.velocity.get(game.player).x = 0;
+		Mappers.velocity.get(game.player).y = 0;
+		Mappers.acceleration.get(game.player).x = 0;
+		Mappers.acceleration.get(game.player).y = 0;
 		Mappers.hitbox.get(game.player).hitbox.x = x;
 		Mappers.hitbox.get(game.player).hitbox.y = y;
+		
+		StateComponent playerState = Mappers.state.get(game.player);
+		playerState.airborneState = AirborneState.GROUNDED;
+		playerState.directionState = DirectionState.RIGHT;
+		playerState.motionState = MotionState.STILL;
 		
 		initEngine(worldName);
 		
