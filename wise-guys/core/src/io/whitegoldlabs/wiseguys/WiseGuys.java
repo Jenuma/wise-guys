@@ -40,6 +40,7 @@ public class WiseGuys extends Game
 	
 	public ScriptManager scriptManager;
 	
+	public boolean isRunning;
 	public boolean wasSleeping;
 	
 	@Override
@@ -59,9 +60,10 @@ public class WiseGuys extends Game
 		this.engine = new Engine();
 		initPlayer();
 		
-		scriptManager = new ScriptManager();
+		this.scriptManager = new ScriptManager();
 		
-		wasSleeping = false;
+		this.isRunning = true;
+		this.wasSleeping = false;
 		
 		MainMenuScreen mainMenuScreen = new MainMenuScreen(this);
 		this.currentScreen = mainMenuScreen;

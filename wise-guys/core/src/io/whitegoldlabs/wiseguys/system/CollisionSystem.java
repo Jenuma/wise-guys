@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
@@ -19,10 +20,15 @@ public class CollisionSystem extends EntitySystem
 	private ImmutableArray<Entity> dynamicEntities;
 	private ImmutableArray<Entity> otherEntities;
 	
+	private final WiseGuys game;
+	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public CollisionSystem() {}
+	public CollisionSystem(final WiseGuys game)
+	{
+		this.game = game;
+	}
 	
 	@Override
 	public void addedToEngine(Engine engine)
@@ -45,12 +51,15 @@ public class CollisionSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
-		// Handle collisions between moving entities and obstacles.
-		for(int i = 0; i < dynamicEntities.size(); i++)
+		if(game.isRunning)
 		{
-			while(isCollidingWithObstacle(dynamicEntities.get(i)))
+			// Handle collisions between moving entities and obstacles.
+			for(int i = 0; i < dynamicEntities.size(); i++)
 			{
-				resolveCollision(dynamicEntities.get(i));
+				while(isCollidingWithObstacle(dynamicEntities.get(i)))
+				{
+					resolveCollision(dynamicEntities.get(i));
+				}
 			}
 		}
 	}

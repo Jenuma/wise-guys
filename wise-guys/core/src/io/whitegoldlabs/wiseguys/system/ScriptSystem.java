@@ -6,9 +6,9 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 
+import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
-import io.whitegoldlabs.wiseguys.util.ScriptManager;
 
 public class ScriptSystem extends EntitySystem
 {
@@ -17,16 +17,14 @@ public class ScriptSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	private ImmutableArray<Entity> scriptedEntities;
 	
-	private Entity player;
-	private ScriptManager scriptManager;
+	private final WiseGuys game;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public ScriptSystem(Entity player, ScriptManager scriptManager)
+	public ScriptSystem(final WiseGuys game)
 	{
-		this.player = player;
-		this.scriptManager = scriptManager;
+		this.game = game;
 	}
 	
 	@Override
@@ -44,13 +42,16 @@ public class ScriptSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
-		// Handle collisions between the player and scripted entities.
-		for(Entity scriptedEntity : scriptedEntities)
+		if(game.isRunning)
 		{
-			if(Mappers.hitbox.get(player).hitbox.overlaps(Mappers.hitbox.get(scriptedEntity).hitbox))
+			// Handle collisions between the player and scripted entities.
+			for(Entity scriptedEntity : scriptedEntities)
 			{
-				scriptManager.setScriptToExecute(Mappers.script.get(scriptedEntity));
-				break;
+				if(Mappers.hitbox.get(game.player).hitbox.overlaps(Mappers.hitbox.get(scriptedEntity).hitbox))
+				{
+					game.scriptManager.setScriptToExecute(Mappers.script.get(scriptedEntity));
+					break;
+				}
 			}
 		}
 	}

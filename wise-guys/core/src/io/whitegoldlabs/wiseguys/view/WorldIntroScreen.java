@@ -93,7 +93,7 @@ public class WorldIntroScreen implements Screen
 	    
 	    time += delta;
 	    
-	    if(time >= 3)
+	    if(time >= 2)
 	    {
 	    	GameScreen newGameScreen = new GameScreen(game, worldName, 16, 32);
 			game.currentScreen = newGameScreen;

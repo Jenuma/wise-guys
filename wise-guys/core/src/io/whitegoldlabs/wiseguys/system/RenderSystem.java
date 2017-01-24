@@ -5,9 +5,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
@@ -16,16 +15,14 @@ public class RenderSystem extends EntitySystem
 {
 	private ImmutableArray<Entity> entities;
 	
-	private SpriteBatch batch;
-	private OrthographicCamera camera;
+	private final WiseGuys game;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public RenderSystem(SpriteBatch batch, OrthographicCamera camera)
+	public RenderSystem(final WiseGuys game)
 	{
-		this.batch = batch;
-		this.camera = camera;
+		this.game = game;
 	}
 	
 	public void addedToEngine(Engine engine)
@@ -39,9 +36,9 @@ public class RenderSystem extends EntitySystem
 	
 	public void update(float deltaTime)
 	{
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		batch.begin();
+		game.camera.update();
+		game.batch.setProjectionMatrix(game.camera.combined);
+		game.batch.begin();
 		
 		for(Entity entity : entities)
 		{
@@ -50,9 +47,9 @@ public class RenderSystem extends EntitySystem
 			SpriteComponent sprite = Mappers.sprite.get(entity);
 			
 			sprite.sprite.setPosition(x, y);
-			sprite.sprite.draw(batch);
+			sprite.sprite.draw(game.batch);
 		}
 		
-		batch.end();
+		game.batch.end();
 	}
 }

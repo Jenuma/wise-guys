@@ -8,6 +8,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
@@ -17,6 +18,9 @@ import io.whitegoldlabs.wiseguys.component.InventoryComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.StateComponent.AirborneState;
+import io.whitegoldlabs.wiseguys.component.StateComponent.DirectionState;
+import io.whitegoldlabs.wiseguys.component.StateComponent.MotionState;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -30,10 +34,6 @@ import io.whitegoldlabs.wiseguys.system.ScriptSystem;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.util.Worlds;
-
-import static io.whitegoldlabs.wiseguys.component.StateComponent.AirborneState;
-import static io.whitegoldlabs.wiseguys.component.StateComponent.DirectionState;
-import static io.whitegoldlabs.wiseguys.component.StateComponent.MotionState;
 
 public class GameScreen implements Screen
 {
@@ -52,6 +52,8 @@ public class GameScreen implements Screen
     InventoryComponent playerInventory;
     
     ScriptComponent julesDeathScript;
+    
+    GlyphLayout pausedText;
 	
 	boolean debugMode = false;
 	float timer = 0;
@@ -86,6 +88,8 @@ public class GameScreen implements Screen
 		args.add(game);
 		args.add(Gdx.audio.newSound(Gdx.files.internal("jules_death.wav")));
 		this.julesDeathScript = new ScriptComponent(false, "jules_death.lua", args);
+		
+		pausedText = new GlyphLayout(game.bigFont, "PAUSED");
 	}
 	
 	@Override
@@ -141,14 +145,24 @@ public class GameScreen implements Screen
         game.bigFont.draw(hudBatch, "TIME", 1138, 710);
         game.bigFont.draw(hudBatch, String.format("%03d", playerInventory.time), 1170, 680);
 
+        if(!game.isRunning)
+        {
+        	game.bigFont.draw(hudBatch, pausedText,
+    			(Gdx.graphics.getWidth() - pausedText.width) / 2,
+    			(Gdx.graphics.getHeight() - pausedText.height) / 2);
+        }
+        
         hudBatch.end();
         
-        // Timer
-        timer += delta;
-        if(timer > 1)
+        if(game.isRunning)
         {
-        	playerInventory.time--;
-        	timer = 0;
+        	// Timer
+            timer += delta;
+            if(timer > 1)
+            {
+            	playerInventory.time--;
+            	timer = 0;
+            }
         }
         
         // Player dies if time falls below 0.
@@ -220,14 +234,14 @@ public class GameScreen implements Screen
 		
 		loadScripts();
 		
-		game.engine.addSystem(new ReaperSystem(game.engine));
-		game.engine.addSystem(new MovementSystem());
-		game.engine.addSystem(new GravitySystem());
-		game.engine.addSystem(new CollisionSystem());
-		game.engine.addSystem(new ScriptSystem(game.player, game.scriptManager));
-		game.engine.addSystem(new RenderSystem(game.batch, game.camera));
-		game.engine.addSystem(new PlayerInputSystem(game.player));
-		game.engine.addSystem(new AnimationSystem());
+		game.engine.addSystem(new ReaperSystem(game));
+		game.engine.addSystem(new MovementSystem(game));
+		game.engine.addSystem(new GravitySystem(game));
+		game.engine.addSystem(new CollisionSystem(game));
+		game.engine.addSystem(new ScriptSystem(game));
+		game.engine.addSystem(new RenderSystem(game));
+		game.engine.addSystem(new PlayerInputSystem(game));
+		game.engine.addSystem(new AnimationSystem(game));
 		
 		SpriteBatch debugBatch = new SpriteBatch();
 		debugRenderSystem = new DebugRenderSystem(game, debugBatch, game.camera);
