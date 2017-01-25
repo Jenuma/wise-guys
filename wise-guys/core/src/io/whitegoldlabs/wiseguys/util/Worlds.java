@@ -132,7 +132,7 @@ public class Worlds
 						entity.add(ac);
 					}
 					// COIN
-					if(cells[x].equals("7"))
+					else if(cells[x].equals("7"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.PICKUP));
 						
@@ -204,12 +204,12 @@ public class Worlds
 					}
 					else
 					{
+						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+						
 						hasSprite = true;
 						hasHitbox = true;
 						hitboxSprite = null;
 					}
-				
-					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					
 					// Get sprite from spriteSheet
 					if(hasSprite && !Mappers.sprite.has(entity))
