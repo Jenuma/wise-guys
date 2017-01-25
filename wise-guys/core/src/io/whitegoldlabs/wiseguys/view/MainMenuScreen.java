@@ -16,7 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -105,7 +105,7 @@ public class MainMenuScreen implements Screen
 	    
 	    if(Gdx.input.isKeyJustPressed(Keys.Z))
 	    {
-	    	InventoryComponent playerInventory = Mappers.inventory.get(game.player);
+	    	PlayerComponent playerInventory = Mappers.player.get(game.player);
 	    	playerInventory.score = 0;
 	    	playerInventory.coins = 0;
 	    	playerInventory.lives = 3;

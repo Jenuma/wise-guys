@@ -29,6 +29,7 @@ import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 
 public class Worlds
@@ -113,6 +114,8 @@ public class Worlds
 					// Goomba
 					if(cells[x].equals("10"))
 					{
+						entity.add(new TypeComponent(TypeComponent.Type.ENEMY));
+						
 						entity.add(new VelocityComponent(10, 0));
 						entity.add(new AccelerationComponent(0, 0));
 						
@@ -131,6 +134,8 @@ public class Worlds
 					// COIN
 					if(cells[x].equals("7"))
 					{
+						entity.add(new TypeComponent(TypeComponent.Type.PICKUP));
+						
 						hitboxSprite = new Sprite(spriteSheet, 112, 144, 16, 16);
 						entity.add(new HitboxComponent
 						(
@@ -142,7 +147,7 @@ public class Worlds
 						));
 						
 						Array<Object> args = new Array<>();
-						args.add(Mappers.inventory.get(game.player));
+						args.add(Mappers.player.get(game.player));
 						args.add(state);
 						args.add(StateComponent.EnabledState.DISABLED);
 						args.add(game.assets.manager.get(Assets.sfxCoin));
@@ -152,14 +157,19 @@ public class Worlds
 					// BOX
 					else if(cells[x].equals("50"))
 					{
+						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
+						
+						SpriteComponent spriteComponent = new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16));
+						entity.add(spriteComponent);
+						
 						Array<Sprite> boxStillSprites = new Array<>();
 						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
 						boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
 						boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
 						
-						AnimationComponent ac = new AnimationComponent();
-						ac.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
-						entity.add(ac);
+						AnimationComponent animationComponent = new AnimationComponent();
+						animationComponent.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
+						entity.add(animationComponent);
 						
 						hitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
 						entity.add(new HitboxComponent
@@ -170,10 +180,14 @@ public class Worlds
 							hitboxSprite.getHeight(),
 							hitboxSprite
 						));
-						
+					
 						Array<Object> args = new Array<>();
+						args.add(entity);
 						args.add(Mappers.hitbox.get(game.player).hitbox);
 						args.add(Mappers.hitbox.get(entity).hitbox);
+						args.add(AnimationComponent.class);
+						args.add(spriteComponent);
+						args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
 						args.add(game.assets.manager.get(Assets.sfxCoin));
 						
 						ScriptComponent script = new ScriptComponent(false, "scripts\\box.lua", args);
@@ -195,8 +209,10 @@ public class Worlds
 						hitboxSprite = null;
 					}
 				
+					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+					
 					// Get sprite from spriteSheet
-					if(hasSprite)
+					if(hasSprite && !Mappers.sprite.has(entity))
 					{
 						entity.add(new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16)));
 					}
@@ -344,6 +360,8 @@ public class Worlds
                 		}
                 	}
                 	
+                	object.add(new TypeComponent(TypeComponent.Type.EVENT));
+                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent
     				(
@@ -366,6 +384,8 @@ public class Worlds
                 }
                 else if(objectElement.getAttribute("type").equals("Deadzone"))
                 {
+                	object.add(new TypeComponent(TypeComponent.Type.EVENT));
+                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent
     				(
@@ -377,7 +397,7 @@ public class Worlds
             		
             		Array<Object> args = new Array<>();
 					args.add(game);
-					args.add(Mappers.inventory.get(game.player));
+					args.add(Mappers.player.get(game.player));
 					args.add(worldName);
 					args.add(game.assets.manager.get(Assets.sfxJulesDeath));
 					
@@ -385,6 +405,8 @@ public class Worlds
                 }
                 else if(objectElement.getAttribute("type").equals("Goal"))
                 {
+                	object.add(new TypeComponent(TypeComponent.Type.EVENT));
+                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent
     				(

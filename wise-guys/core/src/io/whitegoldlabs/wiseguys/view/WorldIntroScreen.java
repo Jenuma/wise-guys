@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -48,7 +48,7 @@ public class WorldIntroScreen implements Screen
 	    
 	    Skin skin = new Skin(Gdx.files.internal("uiskin.json"), new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
 	    
-    	InventoryComponent playerInventory = Mappers.inventory.get(game.player);
+    	PlayerComponent playerInventory = Mappers.player.get(game.player);
 	    
 	    // World Name
 	    Label lblWorldName = new Label("World " + worldName.substring(5), skin, "default");

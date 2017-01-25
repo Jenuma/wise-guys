@@ -1,10 +1,10 @@
 Coin = {}
 
-function Coin.execute(playerInventory, coinState, disabled, sfxCoin)
+function Coin.execute(player, coinState, disabled, sfxCoin)
 	sfxCoin:play()
 	
-	playerInventory.coins = playerInventory.coins + 1
-	playerInventory.score = playerInventory.score + 200
+	player.coins = player.coins + 1
+	player.score = player.score + 200
 	
 	coinState.enabledState = disabled
 end

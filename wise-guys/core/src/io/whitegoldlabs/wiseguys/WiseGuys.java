@@ -16,10 +16,11 @@ import com.badlogic.gdx.utils.Array;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
-import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.ScriptManager;
@@ -117,8 +118,8 @@ public class WiseGuys extends Game
 		state.airborneState = StateComponent.AirborneState.GROUNDED;
 		player.add(state);
 		
-		InventoryComponent playerInventory = new InventoryComponent(0, 0, 3);
-	    player.add(playerInventory);
+	    player.add(new PlayerComponent(0, 0, 3));
+	    player.add(new TypeComponent(TypeComponent.Type.PLAYER));
 		player.add(new PositionComponent(0, 0));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));

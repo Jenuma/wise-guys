@@ -14,7 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.InventoryComponent;
+import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
@@ -49,7 +49,7 @@ public class GameScreen implements Screen
 	
 	PositionComponent playerPosition;
 	VelocityComponent playerVelocity;
-    InventoryComponent playerInventory;
+    PlayerComponent playerInventory;
     
     ScriptComponent julesDeathScript;
     
@@ -120,7 +120,7 @@ public class GameScreen implements Screen
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
-	    playerInventory = Mappers.inventory.get(game.player);
+	    playerInventory = Mappers.player.get(game.player);
 	    
 	    // Camera Following
 	    if(playerPosition.x <= 208)
