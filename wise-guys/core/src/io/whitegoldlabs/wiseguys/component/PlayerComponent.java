@@ -35,6 +35,5 @@ public class PlayerComponent implements Component
 		this.score = score;
 		this.coins = coins;
 		this.lives = lives;
-		this.time = 400;
 	}
 }

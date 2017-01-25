@@ -109,7 +109,6 @@ public class MainMenuScreen implements Screen
 	    	playerInventory.score = 0;
 	    	playerInventory.coins = 0;
 	    	playerInventory.lives = 3;
-	    	playerInventory.time = 400;
 		    
 	    	if(arcadeSelected)
 	    	{

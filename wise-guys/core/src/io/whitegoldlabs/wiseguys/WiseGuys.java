@@ -29,10 +29,12 @@ import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
 public class WiseGuys extends Game
 {
 	public Assets assets;
+	public ScriptManager scriptManager;
 	
 	public Screen currentScreen;
-	public OrthographicCamera camera;
+	public String currentWorld;
 	
+	public OrthographicCamera camera;
 	public SpriteBatch batch;
 	
 	public BitmapFont font;
@@ -40,8 +42,6 @@ public class WiseGuys extends Game
 	
 	public Engine engine;
 	public Entity player;
-	
-	public ScriptManager scriptManager;
 	
 	public boolean isRunning;
 	public boolean wasSleeping;
@@ -71,6 +71,8 @@ public class WiseGuys extends Game
 		
 		this.isRunning = true;
 		this.wasSleeping = false;
+		
+		this.currentWorld = "world1-1";
 		
 		MainMenuScreen mainMenuScreen = new MainMenuScreen(this);
 		this.currentScreen = mainMenuScreen;

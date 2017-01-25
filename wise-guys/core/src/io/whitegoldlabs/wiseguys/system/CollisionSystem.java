@@ -83,6 +83,11 @@ public class CollisionSystem extends EntitySystem
 					collidable = Mappers.script.get(otherEntity).collidable;
 				}
 				
+				if(otherEntity == game.player)
+				{
+					collidable = false;
+				}
+				
 				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox) && collidable)
 				{
 					return true;

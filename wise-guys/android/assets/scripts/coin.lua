@@ -1,12 +1,27 @@
 Coin = {}
 
-function Coin.execute(player, coinState, disabled, sfxCoin)
-	sfxCoin:play()
+function Coin.execute(thisEntity, sfxCoin)
+	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
+	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
-	player.coins = player.coins + 1
-	player.score = player.score + 200
+	local collisionComponent = mappers.collision:get(thisEntity)
+	local collidingEntity = collisionComponent.collidingWith
+	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
-	coinState.enabledState = disabled
+	if collidingEntityTypeComponent.type == types.Type.PLAYER then
+		local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
+		local collisions = luajava.bindClass("io.whitegoldlabs.wiseguys.component.CollisionComponent")
+	
+		local player = mappers.player:get(collidingEntity)
+		local thisEntityStateComponent = mappers.state:get(thisEntity)
+	
+		sfxCoin:play()
+		player.coins = player.coins + 1
+		player.score = player.score + 200
+		
+		thisEntityStateComponent.enabledState = states.EnabledState.DISABLED
+		thisEntity:remove(collisions)
+	end
 end
 
 return Coin

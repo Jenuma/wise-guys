@@ -66,6 +66,7 @@ public class Worlds
 	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, String worldName)
 	{
 		game.assets.manager.load(Assets.spriteSheet);
+		game.assets.manager.load(Assets.sfxStomp);
 		game.assets.manager.load(Assets.sfxCoin);
 		game.assets.manager.load(Assets.sfxPipe);
 		game.assets.manager.load(Assets.sfxJulesDeath);
@@ -130,6 +131,16 @@ public class Worlds
 						AnimationComponent ac = new AnimationComponent();
 						ac.animations.put("MOVING", new Animation<Sprite>(1f/4f, movingSprites, Animation.PlayMode.LOOP));
 						entity.add(ac);
+						
+						Array<Object> args = new Array<>();
+						args.add(entity);
+						args.add(game.assets.manager.get(Assets.sfxStomp));
+						args.add(game);
+						args.add(game.assets.manager.get(Assets.sfxJulesDeath));
+						
+						ScriptComponent script = new ScriptComponent(false, "scripts\\goomba.lua", args);
+						script.collidable = false;
+						entity.add(script);
 					}
 					// COIN
 					else if(cells[x].equals("7"))
@@ -147,9 +158,8 @@ public class Worlds
 						));
 						
 						Array<Object> args = new Array<>();
-						args.add(Mappers.player.get(game.player));
-						args.add(state);
-						args.add(StateComponent.EnabledState.DISABLED);
+						
+						args.add(entity);
 						args.add(game.assets.manager.get(Assets.sfxCoin));
 						
 						entity.add(new ScriptComponent(false, "scripts\\coin.lua", args));
@@ -158,9 +168,6 @@ public class Worlds
 					else if(cells[x].equals("50"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
-						
-						SpriteComponent spriteComponent = new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16));
-						entity.add(spriteComponent);
 						
 						Array<Sprite> boxStillSprites = new Array<>();
 						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
@@ -183,10 +190,6 @@ public class Worlds
 					
 						Array<Object> args = new Array<>();
 						args.add(entity);
-						args.add(Mappers.hitbox.get(game.player).hitbox);
-						args.add(Mappers.hitbox.get(entity).hitbox);
-						args.add(AnimationComponent.class);
-						args.add(spriteComponent);
 						args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
 						args.add(game.assets.manager.get(Assets.sfxCoin));
 						
@@ -372,6 +375,7 @@ public class Worlds
     				));
             		
             		Array<Object> args = new Array<>();
+            		args.add(object);
 					args.add(game);
 					args.add(Gdx.input);
 					args.add(keyMap.get(triggerKey));
@@ -396,12 +400,11 @@ public class Worlds
     				));
             		
             		Array<Object> args = new Array<>();
+            		args.add(object);
 					args.add(game);
-					args.add(Mappers.player.get(game.player));
-					args.add(worldName);
 					args.add(game.assets.manager.get(Assets.sfxJulesDeath));
 					
-					object.add(new ScriptComponent(false, "scripts\\jules_death.lua", args));
+					object.add(new ScriptComponent(false, "scripts\\deadzone.lua", args));
                 }
                 else if(objectElement.getAttribute("type").equals("Goal"))
                 {
@@ -417,6 +420,7 @@ public class Worlds
     				));
             		
             		Array<Object> args = new Array<>();
+            		args.add(object);
 					args.add(game);
 					args.add(game.assets.manager.get(Assets.sfxStageClear));
 					

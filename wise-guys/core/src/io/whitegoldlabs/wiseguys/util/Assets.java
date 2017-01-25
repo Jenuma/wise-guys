@@ -34,6 +34,9 @@ public class Assets
 	public static final AssetDescriptor<Sound> sfxJump =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\jump.wav"), Sound.class);
 	
+	public static final AssetDescriptor<Sound> sfxStomp =
+			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\stomp.wav"), Sound.class);
+	
 	public static final AssetDescriptor<Sound> sfxPause =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\pause.wav"), Sound.class);
 	

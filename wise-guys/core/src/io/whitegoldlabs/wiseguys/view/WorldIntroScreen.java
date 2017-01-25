@@ -33,6 +33,7 @@ public class WorldIntroScreen implements Screen
 	public WorldIntroScreen(final WiseGuys game, String worldName)
 	{
 		this.game = game;
+		game.currentWorld = worldName;
 		
 		game.assets.manager.load(Assets.spriteSheet);
 		game.assets.manager.finishLoading();
@@ -48,7 +49,8 @@ public class WorldIntroScreen implements Screen
 	    
 	    Skin skin = new Skin(Gdx.files.internal("uiskin.json"), new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
 	    
-    	PlayerComponent playerInventory = Mappers.player.get(game.player);
+    	PlayerComponent player = Mappers.player.get(game.player);
+    	player.time = 400;
 	    
 	    // World Name
 	    Label lblWorldName = new Label("World " + worldName.substring(5), skin, "default");
@@ -58,7 +60,7 @@ public class WorldIntroScreen implements Screen
 	    TextureRegion livesTexture =
 	    		new TextureRegion(game.assets.manager.get(Assets.spriteSheet), 0, 0, 16, 16);
 	    Image imgLives = new Image(livesTexture);
-	    Label lblLives = new Label("x " + playerInventory.lives, skin, "default");
+	    Label lblLives = new Label("x " + player.lives, skin, "default");
 	    
 	    HorizontalGroup livesGroup = new HorizontalGroup();
 	    livesGroup.addActor(imgLives);
@@ -99,7 +101,7 @@ public class WorldIntroScreen implements Screen
 	    
 	    if(time >= 2)
 	    {
-	    	GameScreen newGameScreen = new GameScreen(game, worldName, 16, 32);
+	    	GameScreen newGameScreen = new GameScreen(game, game.currentWorld, 16, 32);
 			game.currentScreen = newGameScreen;
 			game.setScreen(game.currentScreen);
 			dispose();

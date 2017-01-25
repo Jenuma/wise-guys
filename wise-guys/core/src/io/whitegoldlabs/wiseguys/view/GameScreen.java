@@ -51,7 +51,7 @@ public class GameScreen implements Screen
 	VelocityComponent playerVelocity;
     PlayerComponent playerInventory;
     
-    ScriptComponent julesDeathScript;
+    ScriptComponent julesTimeOutScript;
     
     GlyphLayout pausedText;
 	
@@ -92,7 +92,7 @@ public class GameScreen implements Screen
 		Array<Object> args = new Array<>();
 		args.add(game);
 		args.add(game.assets.manager.get(Assets.sfxJulesDeath));
-		this.julesDeathScript = new ScriptComponent(false, "scripts\\jules_death.lua", args);
+		this.julesTimeOutScript = new ScriptComponent(false, "scripts\\jules_death.lua", args);
 		
 		pausedText = new GlyphLayout(game.bigFont, "PAUSED");
 	}
@@ -173,7 +173,7 @@ public class GameScreen implements Screen
         // Player dies if time falls below 0.
         if(playerInventory.time < 0)
         {
-        	game.scriptManager.executeScriptImmediately(julesDeathScript);
+        	game.scriptManager.executeScriptImmediately(julesTimeOutScript);
         }
         
         // Debug Mode
