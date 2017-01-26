@@ -46,6 +46,12 @@ public class Assets
 	public static final AssetDescriptor<Sound> sfxPop =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\pop.wav"), Sound.class);
 	
+	public static final AssetDescriptor<Sound> sfxPowerupAppears =
+			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\powerup_appears.wav"), Sound.class);
+	
+	public static final AssetDescriptor<Sound> sfxPowerup =
+			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\powerup.wav"), Sound.class);
+	
 	public static final AssetDescriptor<Sound> sfxStageClear =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\stage_clear.wav"), Sound.class);
 	

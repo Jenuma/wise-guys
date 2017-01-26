@@ -65,9 +65,8 @@ public class WiseGuys extends Game
 		bigFont.getData().setScale(2);
 		
 		this.engine = new Engine();
-		initPlayer();
-		
 		this.scriptManager = new ScriptManager();
+		initPlayer();
 		
 		this.isRunning = true;
 		this.wasSleeping = false;

@@ -6,7 +6,6 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -28,18 +27,16 @@ public class DebugRenderSystem extends EntitySystem
 	
 	private SpriteBatch debugBatch;
 	private ShapeRenderer shapeRenderer;
-	private OrthographicCamera camera;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public DebugRenderSystem(final WiseGuys game, SpriteBatch debugBatch, OrthographicCamera camera)
+	public DebugRenderSystem(final WiseGuys game, SpriteBatch debugBatch)
 	{
 		this.game = game;
 		
 		this.debugBatch = debugBatch;
 		this.shapeRenderer = new ShapeRenderer();
-		this.camera = camera;
 	}
 	
 	public void addedToEngine(Engine engine)
@@ -53,12 +50,12 @@ public class DebugRenderSystem extends EntitySystem
 	public void update(float deltaTime)
 	{
 		// Debug Hitboxes
-		camera.update();
-		game.batch.setProjectionMatrix(camera.combined);
-		shapeRenderer.setProjectionMatrix(camera.combined);
+		game.camera.update();
+		game.batch.setProjectionMatrix(game.camera.combined);
+		shapeRenderer.setProjectionMatrix(game.camera.combined);
 		game.batch.begin();
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.setColor(1, 0, 1, 1);
+		shapeRenderer.setColor(1, 0, 1, 0.5f);
 		
 		for(Entity entity : hitboxEntities)
 		{

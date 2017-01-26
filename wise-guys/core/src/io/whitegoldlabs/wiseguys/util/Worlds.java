@@ -69,6 +69,7 @@ public class Worlds
 		game.assets.manager.load(Assets.sfxStomp);
 		game.assets.manager.load(Assets.sfxCoin);
 		game.assets.manager.load(Assets.sfxPipe);
+		game.assets.manager.load(Assets.sfxPowerupAppears);
 		game.assets.manager.load(Assets.sfxJulesDeath);
 		game.assets.manager.load(Assets.sfxStageClear);
 		game.assets.manager.finishLoading();
@@ -112,12 +113,13 @@ public class Worlds
 						spriteX = 16 * Integer.parseInt(cells[x]);
 						spriteY = 0;
 					}
+					
 					// Goomba
 					if(cells[x].equals("10"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.ENEMY));
 						
-						entity.add(new VelocityComponent(10, 0));
+						entity.add(new VelocityComponent(15, 0));
 						entity.add(new AccelerationComponent(0, 0));
 						
 						state.motionState = StateComponent.MotionState.MOVING;
@@ -139,7 +141,6 @@ public class Worlds
 						args.add(game.assets.manager.get(Assets.sfxJulesDeath));
 						
 						ScriptComponent script = new ScriptComponent(false, "scripts\\goomba.lua", args);
-						script.collidable = false;
 						entity.add(script);
 					}
 					// COIN
@@ -190,19 +191,23 @@ public class Worlds
 					
 						Array<Object> args = new Array<>();
 						args.add(entity);
+						args.add(game);
 						args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
-						args.add(game.assets.manager.get(Assets.sfxCoin));
+						args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
+						args.add(game.assets.manager.get(Assets.sfxPowerupAppears));
+						args.add(new Array<Object>());
 						
-						ScriptComponent script = new ScriptComponent(false, "scripts\\box.lua", args);
-						script.collidable = true;
+						ScriptComponent script = new ScriptComponent(true, "scripts\\box.lua", args);
 						entity.add(script);
 					}
 					else if(cells[x].equals("59"))
 					{
+						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
 						hasHitbox = false;
 					}
 					else if(cells[x].equals("69"))
 					{
+						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
 						hasHitbox = false;
 					}
 					else

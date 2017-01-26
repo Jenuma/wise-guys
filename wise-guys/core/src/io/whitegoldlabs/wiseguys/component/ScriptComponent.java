@@ -14,6 +14,9 @@ public class ScriptComponent implements Component
 	public String scriptName;
 	public String moduleName;
 	public LuaValue[] args;
+	
+	// Collidable indicates whether or not a scripted entity responds to typical
+	// collision resolution. Only set to false if collision is resolved via script.
 	public boolean collidable;
 	
 	// ---------------------------------------------------------------------------------|
