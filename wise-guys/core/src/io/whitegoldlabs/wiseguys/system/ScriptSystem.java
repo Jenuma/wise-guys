@@ -69,8 +69,7 @@ public class ScriptSystem extends EntitySystem
 						if(Mappers.hitbox.get(dynamicEntity).hitbox.overlaps(Mappers.hitbox.get(scriptedEntity).hitbox))
 						{
 							scriptedEntity.add(new CollisionComponent(dynamicEntity));
-							game.scriptManager.setScriptToExecute(Mappers.script.get(scriptedEntity));
-							break;
+							game.scriptManager.queueScriptToExecute(Mappers.script.get(scriptedEntity));
 						}
 					}
 				}

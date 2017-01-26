@@ -116,7 +116,7 @@ public class GameScreen implements Screen
 			game.wasSleeping = false;
 		}
 		
-		game.scriptManager.executeScriptIfReady();
+		game.scriptManager.executeScriptsInQueue();
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
