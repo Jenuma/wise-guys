@@ -55,7 +55,7 @@ public class DebugRenderSystem extends EntitySystem
 		shapeRenderer.setProjectionMatrix(game.camera.combined);
 		game.batch.begin();
 		shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-		shapeRenderer.setColor(1, 0, 1, 0.5f);
+		shapeRenderer.setColor(1, 0, 1, 0.2f);
 		
 		for(Entity entity : hitboxEntities)
 		{

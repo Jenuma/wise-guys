@@ -9,16 +9,16 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
-import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
+import io.whitegoldlabs.wiseguys.component.CollisionComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
-import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class CollisionSystem extends EntitySystem
 {
-	private ImmutableArray<Entity> dynamicEntities;
-	private ImmutableArray<Entity> otherEntities;
+	private ImmutableArray<Entity> scriptedEntities;
+	private ImmutableArray<Entity> hitboxEntities;
 	
 	private final WiseGuys game;
 	
@@ -33,14 +33,11 @@ public class CollisionSystem extends EntitySystem
 	@Override
 	public void addedToEngine(Engine engine)
 	{
-		dynamicEntities = engine.getEntitiesFor(Family.all
-		(
-			HitboxComponent.class,
-			VelocityComponent.class,
-			AccelerationComponent.class
-		).get());
+		scriptedEntities = engine.getEntitiesFor(Family
+				.all(ScriptComponent.class)
+		.get());
 		
-		otherEntities = engine.getEntitiesFor(Family
+		hitboxEntities = engine.getEntitiesFor(Family
 				.all(HitboxComponent.class)
 		.get());
 	}
@@ -53,13 +50,19 @@ public class CollisionSystem extends EntitySystem
 	{
 		if(game.isRunning)
 		{
-			// Handle collisions between moving entities and obstacles.
-			for(int i = 0; i < dynamicEntities.size(); i++)
+			// Handle all non-player collisions.
+			for(int i = 0; i < scriptedEntities.size(); i++)
 			{
-				while(isCollidingWithObstacle(dynamicEntities.get(i)))
+				while(isColliding(scriptedEntities.get(i)))
 				{
-					resolveCollision(dynamicEntities.get(i));
+					resolveCollision(scriptedEntities.get(i));
 				}
+			}
+			
+			// Handle player collisions.
+			while(isColliding(game.player))
+			{
+				resolveCollision(game.player);
 			}
 		}
 	}
@@ -67,43 +70,122 @@ public class CollisionSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	// Private Methods                                                                  |
 	// ---------------------------------------------------------------------------------|
-	private boolean isCollidingWithObstacle(Entity entity)
+	private boolean isColliding(Entity entity)
 	{	
-		if(Mappers.script.has(entity))
+		boolean colliding = false;
+		
+		// Test scripted entities against everything except the player.
+		if(entity != game.player)
 		{
-			if(!Mappers.script.get(entity).collidable)
+			for(int i = 0; i < hitboxEntities.size(); i++)
 			{
-				return false;
+				// Ignore the collision if they are the same entity.
+				if(entity == hitboxEntities.get(i))
+				{
+					continue;
+				}
+				
+				// If the scripted entity is colliding with something, queue its script.
+				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
+				{
+					entity.add(new CollisionComponent(hitboxEntities.get(i)));
+					game.scriptManager.queueScriptToExecute(Mappers.script.get(entity));
+					
+					// Don't bother trying to resolve collision if entity doesn't move!
+					if(!Mappers.velocity.has(entity))
+					{
+						continue;
+					}
+					
+					if(Mappers.script.get(entity).collidable)
+					{
+						// Check if other entity is scripted.
+						if(Mappers.script.has(hitboxEntities.get(i)))
+						{
+							// If both entities are collidable, resolve.
+							if(Mappers.script.get(hitboxEntities.get(i)).collidable)
+							{
+								colliding = true;
+							}
+						}
+						// If this entity is collidable and the other isn't scripted, resolve.
+						else
+						{
+							colliding = true;
+						}
+					}
+				}
 			}
+			
+			return colliding;
+		}
+		// Test the player against hitbox entities.
+		else
+		{
+			for(int i = 0; i < hitboxEntities.size(); i++)
+			{
+				// Make sure player is not checking itself.
+				if(entity != hitboxEntities.get(i))
+				{
+					if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
+					{
+						// Check if other entity is scripted.
+						if(Mappers.script.has(hitboxEntities.get(i)))
+						{
+							// If the other entity is collidable, resolve.
+							if(Mappers.script.get(hitboxEntities.get(i)).collidable)
+							{
+								return true;
+							}
+						}
+						// If the other entity isn't scripted, resolve.
+						else
+						{
+							return true;
+						}
+					}
+				}
+			}
+			
+			return false;
 		}
 		
-		boolean collidable;
-		
-		for(int i = 0; i < otherEntities.size(); i++)
-		{
-			Entity otherEntity = otherEntities.get(i);
-			if(entity != otherEntity)
-			{
-				collidable = true;
-				
-				if(Mappers.script.has(otherEntity))
-				{
-					collidable = Mappers.script.get(otherEntity).collidable;
-				}
-				
-				if(otherEntity == game.player)
-				{
-					collidable = false;
-				}
-				
-				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox) && collidable)
-				{
-					return true;
-				}
-			}
-		}
-		
-		return false;
+		//////////////
+//		if(Mappers.script.has(entity))
+//		{
+//			if(!Mappers.script.get(entity).collidable)
+//			{
+//				return false;
+//			}
+//		}
+//		
+//		boolean collidable;
+//		
+//		for(int i = 0; i < hitboxEntities.size(); i++)
+//		{
+//			Entity otherEntity = hitboxEntities.get(i);
+//			if(entity != otherEntity)
+//			{
+//				collidable = true;
+//				
+//				if(Mappers.script.has(otherEntity))
+//				{
+//					collidable = Mappers.script.get(otherEntity).collidable;
+//				}
+//				
+//				if(otherEntity == game.player)
+//				{
+//					collidable = false;
+//				}
+//				
+//				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox) && collidable)
+//				{
+//					return true;
+//				}
+//			}
+//		}
+//		
+//		return false;
 	}
 	
 	private void resolveCollision(Entity entity)
@@ -206,7 +288,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -231,7 +313,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -254,7 +336,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -278,7 +360,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -301,7 +383,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -323,7 +405,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -345,7 +427,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
@@ -367,7 +449,7 @@ public class CollisionSystem extends EntitySystem
 		while(colliding)
 		{
 			colliding = false;
-			for(Entity obstacle : otherEntities)
+			for(Entity obstacle : hitboxEntities)
 			{
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{

@@ -15,7 +15,6 @@ function Box.execute(thisEntity, game, emptyBoxSprite, contentsSprite, sfx, scri
 		if collidingEntityHitboxComponent.hitbox.y < thisEntityHitboxComponent.hitbox.y then
 			local thread = luajava.bindClass("java.lang.Thread")
 		
-			local collisions = luajava.bindClass("io.whitegoldlabs.wiseguys.component.CollisionComponent")
 			local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
 			local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
 	
@@ -50,7 +49,6 @@ function Box.execute(thisEntity, game, emptyBoxSprite, contentsSprite, sfx, scri
 			game.engine:addEntity(contents)
 			
 			thisEntity:remove(animations)
-			thisEntity:remove(collisions)
 			thisEntity:remove(scripts)
 			thisEntityTypeComponent.type = types.Type.OBSTACLE
 		end

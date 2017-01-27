@@ -34,7 +34,6 @@ import io.whitegoldlabs.wiseguys.system.MovementSystem;
 import io.whitegoldlabs.wiseguys.system.PlayerInputSystem;
 import io.whitegoldlabs.wiseguys.system.ReaperSystem;
 import io.whitegoldlabs.wiseguys.system.RenderSystem;
-import io.whitegoldlabs.wiseguys.system.ScriptSystem;
 import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.util.Worlds;
@@ -246,7 +245,6 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new ReaperSystem(game));
 		game.engine.addSystem(new MovementSystem(game));
 		game.engine.addSystem(new GravitySystem(game));
-		game.engine.addSystem(new ScriptSystem(game));
 		game.engine.addSystem(new CollisionSystem(game));
 		
 		Family family = Family.all(TypeComponent.class, SpriteComponent.class).get();
