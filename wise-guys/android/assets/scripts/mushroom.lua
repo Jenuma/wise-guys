@@ -13,6 +13,7 @@ function Mushroom.execute(thisEntity)
 	local thisEntityHitboxComponent = mappers.hitbox:get(thisEntity)
 	
 	local thisEntityStateComponent = mappers.state:get(thisEntity)
+	local thisEntityPositionComponent = mappers.position:get(thisEntity)
 	
 	-----------------------------
 	-- Collision with Obstacle --
@@ -23,22 +24,30 @@ function Mushroom.execute(thisEntity)
 		-- Mushroom Spawning --
 		-----------------------
 		if thisEntityStateComponent.motionState == states.MotionState.STILL then
-			local thisEntityPositionComponent = mappers.position:get(thisEntity)
-		
 			thisEntityPositionComponent.y = thisEntityPositionComponent.y + 0.4
 			thisEntityHitboxComponent.hitbox.y = thisEntityPositionComponent.y
-			
-		---------------------
-		-- Mushroom Moving --
-		---------------------
 		else
-			local thisEntityVelocityComponent = mappers.velocity:get(thisEntity)
-			thisEntityVelocityComponent.x = 0 - thisEntityVelocityComponent.x
-			
-			if thisEntityStateComponent.directionState == states.DirectionState.RIGHT then
-				thisEntityStateComponent.directionState = states.DirectionState.LEFT
+			----------------------
+			-- Mushroom Falling --
+			----------------------
+			if thisEntityStateComponent.airborneState == states.AirborneState.FALLING then
+				thisEntityPositionComponent.y = collidingEntityHitboxComponent.hitbox.y + collidingEntityHitboxComponent.hitbox.height
+				thisEntityHitboxComponent.hitbox.y = thisEntityPositionComponent.y
+				
+				thisEntityStateComponent.airborneState = states.AirborneState.GROUNDED
+				
+			---------------------
+			-- Mushroom Moving --
+			---------------------
 			else
-				thisEntityStateComponent.directionState = states.DirectionState.RIGHT
+				local thisEntityVelocityComponent = mappers.velocity:get(thisEntity)
+				thisEntityVelocityComponent.x = 0 - thisEntityVelocityComponent.x
+			
+				if thisEntityStateComponent.directionState == states.DirectionState.RIGHT then
+					thisEntityStateComponent.directionState = states.DirectionState.LEFT
+				else
+					thisEntityStateComponent.directionState = states.DirectionState.RIGHT
+				end
 			end
 		end
 	end

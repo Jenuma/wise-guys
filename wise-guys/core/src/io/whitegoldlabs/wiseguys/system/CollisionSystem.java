@@ -89,7 +89,7 @@ public class CollisionSystem extends EntitySystem
 				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
 				{
 					entity.add(new CollisionComponent(hitboxEntities.get(i)));
-					game.scriptManager.queueScriptToExecute(Mappers.script.get(entity));
+					game.scriptManager.executeScriptImmediately(Mappers.script.get(entity));
 					
 					// Don't bother trying to resolve collision if entity doesn't move!
 					if(!Mappers.velocity.has(entity))

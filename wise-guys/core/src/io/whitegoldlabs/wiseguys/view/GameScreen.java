@@ -2,6 +2,7 @@ package io.whitegoldlabs.wiseguys.view;
 
 import java.util.Comparator;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -76,6 +77,8 @@ public class GameScreen implements Screen
 		
 		initHud();
 		
+		initEngine(worldName);
+		
 		Mappers.position.get(game.player).x = x;
 		Mappers.position.get(game.player).y = y;
 		Mappers.velocity.get(game.player).x = 0;
@@ -90,7 +93,7 @@ public class GameScreen implements Screen
 		playerState.directionState = DirectionState.RIGHT;
 		playerState.motionState = MotionState.STILL;
 		
-		initEngine(worldName);
+		
 		
 		Array<Object> args = new Array<>();
 		args.add(game);
@@ -119,7 +122,7 @@ public class GameScreen implements Screen
 			game.wasSleeping = false;
 		}
 		
-		game.scriptManager.executeScriptsInQueue();
+		//game.scriptManager.executeScriptsInQueue();
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
@@ -233,7 +236,7 @@ public class GameScreen implements Screen
 	
 	private void initEngine(String worldName)
 	{
-		game.engine.removeAllEntities();
+		game.engine = new Engine();
 		
 		for(Entity worldObject : Worlds.getWorld(game, worldName))
 		{

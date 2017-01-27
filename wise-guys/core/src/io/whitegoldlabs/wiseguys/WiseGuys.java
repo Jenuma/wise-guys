@@ -64,7 +64,6 @@ public class WiseGuys extends Game
 		this.bigFont = new BitmapFont(Gdx.files.internal("pressstart2p.fnt"));
 		bigFont.getData().setScale(2);
 		
-		this.engine = new Engine();
 		this.scriptManager = new ScriptManager();
 		initPlayer();
 		
