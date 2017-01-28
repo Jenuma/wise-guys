@@ -9,12 +9,12 @@ function Goal.execute(thisEntity, game, sfxStageClear)
 	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
-		local thread = luajava.bindClass("java.lang.Thread") 
+		--local thread = luajava.bindClass("java.lang.Thread") 
 		local worlds = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Worlds")
 		
 		sfxStageClear:play()
-		thread:sleep(6000)
-		game.wasSleeping = true
+		--thread:sleep(6000)
+		--game.wasSleeping = true
 		
 		local newMainMenuScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.MainMenuScreen", game)
 		game.currentScreen:dispose()

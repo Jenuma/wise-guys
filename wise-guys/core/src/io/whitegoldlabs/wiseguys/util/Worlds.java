@@ -52,6 +52,18 @@ public class Worlds
 		return worldEntities.get(worldName);
 	}
 	
+	public static Array<String> getLoadedWorlds()
+	{
+		Array<String> worldNames = new Array<>();
+		
+		for(String worldName : worldEntities.keys())
+		{
+			worldNames.add(worldName.toString());
+		}
+		
+		return worldNames;
+	}
+	
 	// ---------------------------------------------------------------------------------|
 	// unloadWorldEntities                                                              |
 	// ---------------------------------------------------------------------------------|

@@ -10,16 +10,18 @@ function Warp.execute(thisEntity, game, input, triggerKey, sfxPipe, destination,
 	
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
 		if input:isKeyPressed(triggerKey) then
-			local thread = luajava.bindClass("java.lang.Thread") 
+			--local thread = luajava.bindClass("java.lang.Thread") 
 			
 			sfxPipe:play()
-			thread:sleep(1000)
-			game.wasSleeping = true
+			--thread:sleep(1000)
+			--game.wasSleeping = true
 			
-			local newGameScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.GameScreen", game, destination, x, y)
-			game.currentScreen:dispose()
-			game.currentScreen = newGameScreen
-			game:setScreen(newGameScreen)
+			game:prepareNextGameScreen(destination, x, y)
+			
+			--local newGameScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.GameScreen", game, destination, x, y)
+			--game.currentScreen:dispose()
+			--game.currentScreen = newGameScreen
+			--game:setScreen(newGameScreen)
 		end
 	end
 end

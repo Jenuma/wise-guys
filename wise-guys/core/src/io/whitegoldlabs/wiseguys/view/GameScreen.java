@@ -87,13 +87,12 @@ public class GameScreen implements Screen
 		Mappers.acceleration.get(game.player).y = 0;
 		Mappers.hitbox.get(game.player).hitbox.x = x;
 		Mappers.hitbox.get(game.player).hitbox.y = y;
+		Mappers.sprite.get(game.player).sprite.setPosition(x, y);
 		
 		StateComponent playerState = Mappers.state.get(game.player);
 		playerState.airborneState = AirborneState.GROUNDED;
 		playerState.directionState = DirectionState.RIGHT;
 		playerState.motionState = MotionState.STILL;
-		
-		
 		
 		Array<Object> args = new Array<>();
 		args.add(game);
@@ -112,6 +111,11 @@ public class GameScreen implements Screen
 	@Override
 	public void render(float delta)
 	{
+		if(game.nextGameScreenDestination != null)
+		{
+			game.setNextGameScreen();
+		}
+		
 		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
@@ -188,6 +192,8 @@ public class GameScreen implements Screen
         	debugMode = !debugMode;
         	debugRenderSystem.setProcessing(debugMode);
         }
+        
+    	game.console.draw();
 	}
 
 	@Override
@@ -236,7 +242,7 @@ public class GameScreen implements Screen
 	
 	private void initEngine(String worldName)
 	{
-		game.engine = new Engine();
+		game.engine.removeAllEntities();
 		
 		for(Entity worldObject : Worlds.getWorld(game, worldName))
 		{

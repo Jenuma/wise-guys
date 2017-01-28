@@ -24,7 +24,6 @@ public class WorldIntroScreen implements Screen
 	Stage stage;
 	Table table;
 	
-	String worldName;
 	float time;
 	
 	// ---------------------------------------------------------------------------------|
@@ -38,7 +37,6 @@ public class WorldIntroScreen implements Screen
 		game.assets.manager.load(Assets.spriteSheet);
 		game.assets.manager.finishLoading();
 		
-		this.worldName = worldName;
 		this.time = 0;
 		
 		this.stage = new Stage();

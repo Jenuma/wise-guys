@@ -38,6 +38,11 @@ public class ScriptManager
 		}
 	}
 	
+	public Array<String> getLoadedScripts()
+	{
+		return this.loadedScripts;
+	}
+	
 	public void queueScriptToExecute(ScriptComponent script)
 	{
 		this.scriptsToExecute.add(script);

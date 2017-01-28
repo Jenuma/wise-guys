@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,6 +13,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
+import com.strongjoshua.console.Console;
+import com.strongjoshua.console.GUIConsole;
 
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
@@ -23,7 +26,9 @@ import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Assets;
+import io.whitegoldlabs.wiseguys.util.ConsoleCommandExecutor;
 import io.whitegoldlabs.wiseguys.util.ScriptManager;
+import io.whitegoldlabs.wiseguys.view.GameScreen;
 import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
 
 public class WiseGuys extends Game
@@ -43,8 +48,14 @@ public class WiseGuys extends Game
 	public Engine engine;
 	public Entity player;
 	
+	public Console console;
+	
 	public boolean isRunning;
 	public boolean wasSleeping;
+	
+	public String nextGameScreenDestination;
+	private float nextGameScreenX;
+	private float nextGameScreenY;
 	
 	@Override
 	public void create()
@@ -65,12 +76,20 @@ public class WiseGuys extends Game
 		bigFont.getData().setScale(2);
 		
 		this.scriptManager = new ScriptManager();
+		this.engine = new Engine();
 		initPlayer();
 		
 		this.isRunning = true;
 		this.wasSleeping = false;
 		
 		this.currentWorld = "world1-1";
+		
+		this.console = new GUIConsole();
+		console.setCommandExecutor(new ConsoleCommandExecutor(this));
+		console.setPosition(0, Gdx.graphics.getHeight() / 2);
+		console.setSizePercent(100, 50);
+		console.setDisplayKeyID(Input.Keys.GRAVE);
+		
 		
 		MainMenuScreen mainMenuScreen = new MainMenuScreen(this);
 		this.currentScreen = mainMenuScreen;
@@ -88,6 +107,24 @@ public class WiseGuys extends Game
 	{
 		batch.dispose();
 		font.dispose();
+	}
+	
+	public void prepareNextGameScreen(String worldName, float x, float y)
+	{
+		this.nextGameScreenDestination = worldName;
+		this.nextGameScreenX = x;
+		this.nextGameScreenY = y;
+	}
+	
+	public void setNextGameScreen()
+	{
+		GameScreen nextGameScreen = new GameScreen(this, nextGameScreenDestination, nextGameScreenX, nextGameScreenY);
+		
+		currentScreen.dispose();
+		currentScreen = nextGameScreen;
+		screen = nextGameScreen;
+	
+		nextGameScreenDestination = null;
 	}
 	
 	private void initPlayer()
