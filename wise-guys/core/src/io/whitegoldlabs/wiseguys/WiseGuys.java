@@ -50,6 +50,7 @@ public class WiseGuys extends Game
 	
 	public Console console;
 	
+	public boolean eventProcessing;
 	public boolean isRunning;
 	public boolean wasSleeping;
 	
@@ -79,6 +80,7 @@ public class WiseGuys extends Game
 		this.engine = new Engine();
 		initPlayer();
 		
+		this.eventProcessing = false;
 		this.isRunning = true;
 		this.wasSleeping = false;
 		

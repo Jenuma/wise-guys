@@ -394,7 +394,7 @@ public class Worlds
             		Array<Object> args = new Array<>();
             		args.add(object);
 					args.add(game);
-					args.add(Gdx.input);
+					//args.add(Gdx.input);
 					args.add(keyMap.get(triggerKey));
 					args.add(game.assets.manager.get(Assets.sfxPipe));
 					args.add(destination);

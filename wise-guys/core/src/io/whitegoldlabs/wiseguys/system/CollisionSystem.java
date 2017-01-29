@@ -122,6 +122,11 @@ public class CollisionSystem extends EntitySystem
 		// Test the player against hitbox entities.
 		else
 		{
+			if(game.eventProcessing)
+			{
+				return false;
+			}
+			
 			for(int i = 0; i < hitboxEntities.size(); i++)
 			{
 				// Make sure player is not checking itself.

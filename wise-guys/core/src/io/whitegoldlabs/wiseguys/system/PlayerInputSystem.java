@@ -29,7 +29,7 @@ public class PlayerInputSystem extends EntitySystem
 	
 	public void update(float deltaTime)
 	{
-		if(game.isRunning)
+		if(game.isRunning && !game.eventProcessing)
 		{
 			VelocityComponent playerVelocity = Mappers.velocity.get(game.player);
 			AccelerationComponent playerAcceleration = Mappers.acceleration.get(game.player);
