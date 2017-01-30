@@ -57,18 +57,14 @@ public class Assets
 	
 	public void load()
 	{
-		manager.load(title);
 		manager.load(spriteSheet);
 		manager.load(sfxCoin);
 		manager.load(sfxGameOver);
 		manager.load(sfxJulesDeath);
 		manager.load(sfxJump);
-		manager.load(sfxStomp);
 		manager.load(sfxPause);
 		manager.load(sfxPipe);
 		manager.load(sfxPop);
-		manager.load(sfxPowerupAppears);
-		manager.load(sfxPowerup);
 		manager.load(sfxStageClear);
 	}
 	

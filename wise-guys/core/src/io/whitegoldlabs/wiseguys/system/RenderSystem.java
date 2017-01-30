@@ -8,7 +8,6 @@ import com.badlogic.ashley.systems.SortedIteratingSystem;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
-import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class RenderSystem extends SortedIteratingSystem
@@ -18,9 +17,9 @@ public class RenderSystem extends SortedIteratingSystem
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
 	// ---------------------------------------------------------------------------------|
-	public RenderSystem(final WiseGuys game)
+	public RenderSystem(final WiseGuys game, Family family, Comparator<Entity> comparator)
 	{
-		super(Family.all(TypeComponent.class, SpriteComponent.class).get(), new TypeComparator());
+		super(family, comparator);
 		
 		this.game = game;
 	}
@@ -40,75 +39,5 @@ public class RenderSystem extends SortedIteratingSystem
 		sprite.sprite.draw(game.batch);
 		
 		game.batch.end();
-	}
-	
-	private static class TypeComparator implements Comparator<Entity>
-	{
-		@Override
-		public int compare(Entity entityA, Entity entityB)
-		{
-			TypeComponent typeA = Mappers.type.get(entityA);
-			TypeComponent typeB = Mappers.type.get(entityB);
-			
-			if(typeA.type == typeB.type)
-			{
-				return 0;
-			}
-			
-			int valueA = 0;
-			int valueB = 0;
-			
-			switch(typeA.type)
-			{
-				case PICKUP:
-					valueA = 0;
-					break;
-				case EVENT:
-					valueA = 1;
-					break;
-				case ENEMY_PROJECTILE:
-					valueA = 2;
-					break;
-				case ENEMY:
-					valueA = 3;
-					break;
-				case PLAYER_PROJECTILE:
-					valueA = 4;
-					break;
-				case PLAYER:
-					valueA = 5;
-					break;
-				case OBSTACLE:
-					valueA = 6;
-					break;
-			}
-			
-			switch(typeB.type)
-			{
-				case PICKUP:
-					valueB = 0;
-					break;
-				case EVENT:
-					valueB = 1;
-					break;
-				case ENEMY_PROJECTILE:
-					valueB = 2;
-					break;
-				case ENEMY:
-					valueB = 3;
-					break;
-				case PLAYER_PROJECTILE:
-					valueB = 4;
-					break;
-				case PLAYER:
-					valueB = 5;
-					break;
-				case OBSTACLE:
-					valueB = 6;
-					break;
-			}
-			
-			return valueA - valueB;
-		}
 	}
 }

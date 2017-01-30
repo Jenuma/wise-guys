@@ -8,9 +8,6 @@ function Deadzone.execute(thisEntity, game)
 	local collidingEntity = collisionComponent.collidingWith
 	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
-	---------------------------
-  -- Collision with Player --
-  ---------------------------
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
 		Jules_death.execute(game)
 	end

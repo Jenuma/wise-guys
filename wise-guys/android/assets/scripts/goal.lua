@@ -1,16 +1,13 @@
 Goal = {}
 
-function Goal.execute(goal, game)
+function Goal.execute(thisEntity, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
-	local collisionComponent = mappers.collision:get(goal)
+	local collisionComponent = mappers.collision:get(thisEntity)
 	local collidingEntity = collisionComponent.collidingWith
 	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
-	---------------------------
-  -- Collision with Player --
-  ---------------------------
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
 		local worlds = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Worlds")
 		local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")

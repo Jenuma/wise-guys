@@ -1,23 +1,23 @@
 Goomba = {}
 
-function Goomba.execute(goomba, game)
+function Goomba.execute(thisEntity, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
 	
-	local collisionComponent = mappers.collision:get(goomba)
+	local collisionComponent = mappers.collision:get(thisEntity)
 	local collidingEntity = collisionComponent.collidingWith
 	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
-	local goombaStateComponent = mappers.state:get(goomba)
+	local thisEntityStateComponent = mappers.state:get(thisEntity)
 	
 	---------------------------
 	-- Collision with Player --
 	---------------------------
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
-		local playerComponent = mappers.player:get(collidingEntity)
+		local collidingEntityPlayerComponent = mappers.player:get(collidingEntity)
 		
-		if not playerComponent.damaged then
+		if not collidingEntityPlayerComponent.damaged then
 			local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
 			local playerStates = luajava.bindClass("io.whitegoldlabs.wiseguys.component.PlayerComponent")
 			
@@ -25,29 +25,30 @@ function Goomba.execute(goomba, game)
 			local julesDeathSfx = game.assets.manager:get(assetFiles.sfxJulesDeath)
 			local powerdownSfx = game.assets.manager:get(assetFiles.sfxPipe)
 			
-			local playerHitboxComponent = mappers.hitbox:get(collidingEntity)
-			local goombaHitboxComponent = mappers.hitbox:get(goomba)
+			local collidingEntityHitboxComponent = mappers.hitbox:get(collidingEntity)
+			local thisEntityHitboxComponent = mappers.hitbox:get(thisEntity)
 		
 			--------------------------------
 			-- Get Intersection Rectangle --
 			--------------------------------
-			local intersectX = math.max(playerHitboxComponent.hitbox.x, goombaHitboxComponent.hitbox.x)
-			local intersectY = math.max(playerHitboxComponent.hitbox.y, goombaHitboxComponent.hitbox.y)
-			local intersectWidth = math.min(playerHitboxComponent.hitbox.x + playerHitboxComponent.hitbox.width, goombaHitboxComponent.hitbox.x + goombaHitboxComponent.hitbox.width) - intersectX
-			local intersectHeight = math.min(playerHitboxComponent.hitbox.y + playerHitboxComponent.hitbox.height, goombaHitboxComponent.hitbox.y + goombaHitboxComponent.hitbox.height) - intersectY
+			local intersectX = math.max(collidingEntityHitboxComponent.hitbox.x, thisEntityHitboxComponent.hitbox.x)
+			local intersectY = math.max(collidingEntityHitboxComponent.hitbox.y, thisEntityHitboxComponent.hitbox.y)
+			local intersectWidth = math.min(collidingEntityHitboxComponent.hitbox.x + collidingEntityHitboxComponent.hitbox.width, thisEntityHitboxComponent.hitbox.x + thisEntityHitboxComponent.hitbox.width) - intersectX
+			local intersectHeight = math.min(collidingEntityHitboxComponent.hitbox.y + collidingEntityHitboxComponent.hitbox.height, thisEntityHitboxComponent.hitbox.y + thisEntityHitboxComponent.hitbox.height) - intersectY
 			
 			if intersectWidth > intersectHeight then
-				if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
-					local playerVelocityComponent = mappers.velocity:get(collidingEntity)
+				if collidingEntityHitboxComponent.hitbox.y > thisEntityHitboxComponent.hitbox.y then
+					local collidingEntityVelocityComponent = mappers.velocity:get(collidingEntity)
 					
 					stompSfx:play()
-					playerVelocityComponent.y = 430
-					goombaStateComponent.enabledState = states.EnabledState.DISABLED
+					collidingEntityVelocityComponent.y = 430
+					
+					thisEntityStateComponent.enabledState = states.EnabledState.DISABLED
 				end
 			else
-				if playerComponent.playerState == playerStates.PlayerState.NORMAL then
+				if collidingEntityPlayerComponent.playerState == playerStates.PlayerState.NORMAL then
 					Jules_death.execute(game, julesDeathSfx)
-				elseif playerComponent.playerState == playerStates.PlayerState.SUPER then
+				elseif collidingEntityPlayerComponent.playerState == playerStates.PlayerState.SUPER then
 					powerdownSfx:play()
 					game:powerdownJulesNormal()
 				end
@@ -58,14 +59,14 @@ function Goomba.execute(goomba, game)
 	-- Collision with Obstacle --
 	-----------------------------
 	elseif collidingEntityTypeComponent.type == types.Type.OBSTACLE then
-		if goombaStateComponent.airborneState == states.AirborneState.GROUNDED then
-			local goombaVelocityComponent = mappers.velocity:get(goomba)
-			goombaVelocityComponent.x = 0 - goombaVelocityComponent.x
+		if thisEntityStateComponent.airborneState == states.AirborneState.GROUNDED then
+			local thisEntityVelocityComponent = mappers.velocity:get(thisEntity)
+			thisEntityVelocityComponent.x = 0 - thisEntityVelocityComponent.x
 			
-			if goombaStateComponent.directionState == states.DirectionState.RIGHT then
-				goombaStateComponent.directionState = states.DirectionState.LEFT
+			if thisEntityStateComponent.directionState == states.DirectionState.RIGHT then
+				thisEntityStateComponent.directionState = states.DirectionState.LEFT
 			else
-				goombaStateComponent.directionState = states.DirectionState.RIGHT
+				thisEntityStateComponent.directionState = states.DirectionState.RIGHT
 			end
 		end
 	end
