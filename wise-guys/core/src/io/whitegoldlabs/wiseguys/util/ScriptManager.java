@@ -14,7 +14,6 @@ public class ScriptManager
 	// ---------------------------------------------------------------------------------|
 	private Globals globals;
 	private Array<String> loadedScripts;
-	private Array<ScriptComponent> scriptsToExecute;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -23,7 +22,6 @@ public class ScriptManager
 	{
 		this.globals = JsePlatform.standardGlobals();
 		this.loadedScripts = new Array<>();
-		this.scriptsToExecute = new Array<>();
 	}
 	
 	// ---------------------------------------------------------------------------------|
@@ -43,26 +41,8 @@ public class ScriptManager
 		return this.loadedScripts;
 	}
 	
-	public void queueScriptToExecute(ScriptComponent script)
-	{
-		this.scriptsToExecute.add(script);
-	}
-	
 	public void executeScriptImmediately(ScriptComponent script)
 	{
 		globals.get(script.moduleName).get("execute").invoke(script.args);
-	}
-	
-	public void executeScriptsInQueue()
-	{
-		if(scriptsToExecute != null)
-		{
-			for(ScriptComponent script : scriptsToExecute)
-			{
-				globals.get(script.moduleName).get("execute").invoke(script.args);
-			}
-			
-			scriptsToExecute.clear();
-		}
 	}
 }

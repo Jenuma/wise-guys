@@ -1,16 +1,21 @@
 Jules_death = {}
 
-function Jules_death.execute(game, sfxJulesDeath)
-	--local thread = luajava.bindClass("java.lang.Thread")
-	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers") 
+function Jules_death.execute(game)
+	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
+	local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+	local playerStates = luajava.bindClass("io.whitegoldlabs.wiseguys.component.PlayerComponent")
+	
+	local julesDeathSfx = game.assets.manager:get(assetFiles.sfxJulesDeath)
 		
 	local player = mappers.player:get(game.player)
 	
-	sfxJulesDeath:play()
-	--thread:sleep(3000)
-	--game.wasSleeping = true
-	
+	julesDeathSfx:play()
 	player.lives = player.lives - 1
+	
+	if player.playerState ~= playerStates.PlayerState.NORMAL then
+		game:powerdownJulesNormal()
+	end
+	
 	game.engine:removeAllEntities()
 	
 	if player.lives > 0 then

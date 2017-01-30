@@ -179,6 +179,17 @@ public class GameScreen implements Screen
             }
         }
         
+        if(Mappers.player.get(game.player).damaged)
+        {
+        	Mappers.player.get(game.player).damagedTime += delta;
+        	
+        	if(Mappers.player.get(game.player).damagedTime > 2)
+        	{
+        		Mappers.player.get(game.player).damaged = false;
+        		Mappers.player.get(game.player).damagedTime = 0;
+        	}
+        }
+        
         // Player dies if time falls below 0.
         if(playerInventory.time < 0)
         {

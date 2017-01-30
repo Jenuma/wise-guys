@@ -1,6 +1,6 @@
 Deadzone = {}
 
-function Deadzone.execute(thisEntity, game, sfxJulesDeath)
+function Deadzone.execute(thisEntity, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
@@ -9,7 +9,7 @@ function Deadzone.execute(thisEntity, game, sfxJulesDeath)
 	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
-		Jules_death.execute(game, sfxJulesDeath)
+		Jules_death.execute(game)
 	end
 end
 

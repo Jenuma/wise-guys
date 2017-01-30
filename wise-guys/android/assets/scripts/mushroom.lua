@@ -1,6 +1,6 @@
 Mushroom = {}
 
-function Mushroom.execute(thisEntity)
+function Mushroom.execute(thisEntity, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
@@ -50,6 +50,17 @@ function Mushroom.execute(thisEntity)
 				end
 			end
 		end
+		
+	---------------------------
+	-- Collision with Player --
+	---------------------------
+	elseif collidingEntityTypeComponent.type == types.Type.PLAYER then
+		local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+		local powerupSfx = game.assets.manager:get(assetFiles.sfxPowerup)
+	
+		powerupSfx:play()
+		game:powerupSuperJules() 
+		thisEntityStateComponent.enabledState = states.EnabledState.DISABLED
 	end
 	
 	--------------------------------

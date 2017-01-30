@@ -5,11 +5,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class AnimationSystem extends EntitySystem
@@ -17,6 +19,7 @@ public class AnimationSystem extends EntitySystem
 	private ImmutableArray<Entity> entities;
 	
 	private final WiseGuys game;
+	private float blinkingTime;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -24,6 +27,7 @@ public class AnimationSystem extends EntitySystem
 	public AnimationSystem(final WiseGuys game)
 	{
 		this.game = game;
+		this.blinkingTime = 0;
 	}
 	
 	@Override
@@ -53,6 +57,20 @@ public class AnimationSystem extends EntitySystem
 				else if(animation.animations.containsKey(state.motionState.toString()))
 				{
 					currentSprite.sprite = animation.animations.get(state.motionState.toString()).getKeyFrame(state.time, true);
+				}
+				
+				if(entity == game.player)
+				{
+					if(Mappers.player.get(game.player).damaged)
+					{
+						blinkingTime += deltaTime;
+						
+						if(currentSprite.sprite.getWidth() > 0 && blinkingTime > 0.1f)
+						{
+							currentSprite.sprite = new Sprite(game.assets.manager.get(Assets.spriteSheet), 0, 0, 0, 0);
+							blinkingTime = 0;
+						}
+					}
 				}
 				
 				// Flip if facing left.

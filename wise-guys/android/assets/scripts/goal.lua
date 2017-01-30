@@ -1,6 +1,6 @@
 Goal = {}
 
-function Goal.execute(thisEntity, game, sfxStageClear)
+function Goal.execute(thisEntity, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
@@ -9,12 +9,12 @@ function Goal.execute(thisEntity, game, sfxStageClear)
 	local collidingEntityTypeComponent = mappers.type:get(collidingEntity)
 	
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
-		--local thread = luajava.bindClass("java.lang.Thread") 
 		local worlds = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Worlds")
+		local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
 		
-		sfxStageClear:play()
-		--thread:sleep(6000)
-		--game.wasSleeping = true
+		local stageClearSfx = game.assets.manager:get(assetFiles.sfxStageClear)
+		
+		stageClearSfx:play()
 		
 		local newMainMenuScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.MainMenuScreen", game)
 		game.currentScreen:dispose()

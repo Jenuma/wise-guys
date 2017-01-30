@@ -82,6 +82,7 @@ public class Worlds
 		game.assets.manager.load(Assets.sfxCoin);
 		game.assets.manager.load(Assets.sfxPipe);
 		game.assets.manager.load(Assets.sfxPowerupAppears);
+		game.assets.manager.load(Assets.sfxPowerup);
 		game.assets.manager.load(Assets.sfxJulesDeath);
 		game.assets.manager.load(Assets.sfxStageClear);
 		game.assets.manager.finishLoading();
@@ -127,7 +128,7 @@ public class Worlds
 					}
 					
 					// Goomba
-					if(cells[x].equals("10"))
+					if(cells[x].equals("30"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.ENEMY));
 						
@@ -139,8 +140,8 @@ public class Worlds
 						state.directionState = StateComponent.DirectionState.RIGHT;
 						
 						Array<Sprite> movingSprites = new Array<>();
-						movingSprites.add(new Sprite(spriteSheet, 0, 16, 16, 16));
-						movingSprites.add(new Sprite(spriteSheet, 16, 16, 16, 16));
+						movingSprites.add(new Sprite(spriteSheet, 0, 48, 16, 16));
+						movingSprites.add(new Sprite(spriteSheet, 16, 48, 16, 16));
 						
 						AnimationComponent ac = new AnimationComponent();
 						ac.animations.put("MOVING", new Animation<Sprite>(1f/4f, movingSprites, Animation.PlayMode.LOOP));
@@ -148,9 +149,7 @@ public class Worlds
 						
 						Array<Object> args = new Array<>();
 						args.add(entity);
-						args.add(game.assets.manager.get(Assets.sfxStomp));
 						args.add(game);
-						args.add(game.assets.manager.get(Assets.sfxJulesDeath));
 						
 						ScriptComponent script = new ScriptComponent(false, "scripts\\goomba.lua", args);
 						entity.add(script);
@@ -173,7 +172,7 @@ public class Worlds
 						Array<Object> args = new Array<>();
 						
 						args.add(entity);
-						args.add(game.assets.manager.get(Assets.sfxCoin));
+						args.add(game);
 						
 						entity.add(new ScriptComponent(false, "scripts\\coin.lua", args));
 					}
@@ -206,7 +205,6 @@ public class Worlds
 						args.add(game);
 						args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
 						args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
-						args.add(game.assets.manager.get(Assets.sfxPowerupAppears));
 						args.add(new Array<Object>());
 						
 						ScriptComponent script = new ScriptComponent(true, "scripts\\box.lua", args);
@@ -394,9 +392,7 @@ public class Worlds
             		Array<Object> args = new Array<>();
             		args.add(object);
 					args.add(game);
-					//args.add(Gdx.input);
 					args.add(keyMap.get(triggerKey));
-					args.add(game.assets.manager.get(Assets.sfxPipe));
 					args.add(destination);
 					args.add(destinationX);
 					args.add(destinationY);
@@ -419,7 +415,6 @@ public class Worlds
             		Array<Object> args = new Array<>();
             		args.add(object);
 					args.add(game);
-					args.add(game.assets.manager.get(Assets.sfxJulesDeath));
 					
 					object.add(new ScriptComponent(false, "scripts\\deadzone.lua", args));
                 }
@@ -439,7 +434,6 @@ public class Worlds
             		Array<Object> args = new Array<>();
             		args.add(object);
 					args.add(game);
-					args.add(game.assets.manager.get(Assets.sfxStageClear));
 					
 					object.add(new ScriptComponent(false, "scripts\\goal.lua", args));
                 }

@@ -19,6 +19,10 @@ public class PlayerComponent implements Component
 	
 	public PlayerState playerState;
 	public AnonState anonState;
+	
+	public boolean damaged;
+	public float damagedTime = 0;
+	
 	public int score;
 	public int coins;
 	public int lives;
@@ -31,6 +35,8 @@ public class PlayerComponent implements Component
 	{
 		this.playerState = PlayerState.NORMAL;
 		this.anonState = AnonState.OPEN;
+		
+		this.damaged = false;
 		
 		this.score = score;
 		this.coins = coins;

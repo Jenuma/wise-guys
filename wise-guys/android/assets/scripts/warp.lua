@@ -1,6 +1,6 @@
 Warp = {}
 
-function Warp.execute(thisEntity, game, triggerKey, sfxPipe, destination, x, y)
+function Warp.execute(thisEntity, game, triggerKey, destination, x, y)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	local gdx = luajava.bindClass("com.badlogic.gdx.Gdx")
@@ -39,6 +39,9 @@ function Warp.execute(thisEntity, game, triggerKey, sfxPipe, destination, x, y)
 		-- Start Warp Event --
 		----------------------
 		elseif gdx.input:isKeyPressed(triggerKey) then
+			local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+			local pipeSfx = game.assets.manager:get(assetFiles.sfxPipe)
+		
 			local collidingEntityVelocityComponent = mappers.velocity:get(collidingEntity)
 			local collidingEntityAccelerationComponent = mappers.acceleration:get(collidingEntity)
 			
@@ -47,7 +50,7 @@ function Warp.execute(thisEntity, game, triggerKey, sfxPipe, destination, x, y)
 			collidingEntityAccelerationComponent.x = 0;
 			collidingEntityAccelerationComponent.y = 0;
 		
-			sfxPipe:play()
+			pipeSfx:play()
 			game.eventProcessing = true;
 		end
 	end

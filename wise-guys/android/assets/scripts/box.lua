@@ -1,6 +1,6 @@
 Box = {}
 
-function Box.execute(thisEntity, game, emptyBoxSprite, contentsSprite, sfx, scriptArgs)
+function Box.execute(thisEntity, game, emptyBoxSprite, contentsSprite, scriptArgs)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
@@ -13,15 +13,15 @@ function Box.execute(thisEntity, game, emptyBoxSprite, contentsSprite, sfx, scri
 		local thisEntityHitboxComponent = mappers.hitbox:get(thisEntity)
 	
 		if collidingEntityHitboxComponent.hitbox.y < thisEntityHitboxComponent.hitbox.y then
-			local thread = luajava.bindClass("java.lang.Thread")
-		
 			local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
 			local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
-	
+			local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+			
 			local thisEntitySpriteComponent = mappers.sprite:get(thisEntity)
 			local thisEntityTypeComponent = mappers.type:get(thisEntity)
+			local powerupAppearsSfx = game.assets.manager:get(assetFiles.sfxPowerupAppears)
 	
-			sfx:play()
+			powerupAppearsSfx:play()
 			thisEntitySpriteComponent.sprite = emptyBoxSprite
 			
 			local thisEntityPosition = mappers.position:get(thisEntity)
@@ -35,6 +35,7 @@ function Box.execute(thisEntity, game, emptyBoxSprite, contentsSprite, sfx, scri
 			local contentsCollisionComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.CollisionComponent", thisEntity)
 			
 			scriptArgs:add(contents)
+			scriptArgs:add(game)
 			local contentsScriptComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.ScriptComponent", false, "scripts\\mushroom.lua", scriptArgs)
 			game.scriptManager:loadScript("scripts\\mushroom.lua")
 			

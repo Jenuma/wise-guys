@@ -1,6 +1,6 @@
 Coin = {}
 
-function Coin.execute(thisEntity, sfxCoin)
+function Coin.execute(thisEntity, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
@@ -10,11 +10,13 @@ function Coin.execute(thisEntity, sfxCoin)
 	
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
 		local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
-	
+		local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+		
 		local player = mappers.player:get(collidingEntity)
 		local thisEntityStateComponent = mappers.state:get(thisEntity)
+		local coinSfx = game.assets.manager:get(assetFiles.sfxCoin)
 	
-		sfxCoin:play()
+		coinSfx:play()
 		player.coins = player.coins + 1
 		player.score = player.score + 200
 		
