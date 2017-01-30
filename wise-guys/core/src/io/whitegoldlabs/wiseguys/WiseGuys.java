@@ -134,8 +134,6 @@ public class WiseGuys extends Game
 	{
 		this.player = new Entity();
 		
-		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
-		
 		StateComponent stateComponent = new StateComponent();
 		stateComponent.directionState = StateComponent.DirectionState.RIGHT;
 		stateComponent.airborneState = StateComponent.AirborneState.GROUNDED;
@@ -149,14 +147,7 @@ public class WiseGuys extends Game
 		player.add(new PositionComponent(0, 0));
 		player.add(new VelocityComponent(0, 0));
 		player.add(new AccelerationComponent(0, 0));
-		player.add(new HitboxComponent
-		(
-			0,
-			0,
-			16,
-			16,
-			playerHitboxSprite
-		));
+		player.add(new HitboxComponent(0, 0, 16, 16));
 		
 		setPlayerAnimations(playerComponent.playerState);
 	}

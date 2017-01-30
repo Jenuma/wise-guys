@@ -1,16 +1,12 @@
 package io.whitegoldlabs.wiseguys.util;
 
-import java.io.IOException;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
@@ -93,7 +89,6 @@ public class Worlds
 		Entity entity;
 		
 		StateComponent state;
-		Sprite hitboxSprite = null;
 		
 		boolean hasSprite = true;
 		boolean hasHitbox = true;
@@ -158,19 +153,9 @@ public class Worlds
 					else if(cells[x].equals("7"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.PICKUP));
-						
-						hitboxSprite = new Sprite(spriteSheet, 112, 144, 16, 16);
-						entity.add(new HitboxComponent
-						(
-							x*16+3,
-							(csvLines.length-1-y)*16,
-							10,
-							hitboxSprite.getHeight(),
-							hitboxSprite
-						));
+						entity.add(new HitboxComponent(x*16+3, (csvLines.length-1-y)*16, 10, 16));
 						
 						Array<Object> args = new Array<>();
-						
 						args.add(entity);
 						args.add(game);
 						
@@ -189,16 +174,6 @@ public class Worlds
 						AnimationComponent animationComponent = new AnimationComponent();
 						animationComponent.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
 						entity.add(animationComponent);
-						
-						hitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
-						entity.add(new HitboxComponent
-						(
-							x*16,
-							(csvLines.length-1-y)*16,
-							hitboxSprite.getWidth(),
-							hitboxSprite.getHeight(),
-							hitboxSprite
-						));
 					
 						Array<Object> args = new Array<>();
 						args.add(entity);
@@ -207,14 +182,15 @@ public class Worlds
 						args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
 						args.add(new Array<Object>());
 						
-						ScriptComponent script = new ScriptComponent(true, "scripts\\box.lua", args);
-						entity.add(script);
+						entity.add(new ScriptComponent(true, "scripts\\box.lua", args));
 					}
+					// GOAL TOP
 					else if(cells[x].equals("59"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
 						hasHitbox = false;
 					}
+					// GOAL
 					else if(cells[x].equals("69"))
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
@@ -226,7 +202,6 @@ public class Worlds
 						
 						hasSprite = true;
 						hasHitbox = true;
-						hitboxSprite = null;
 					}
 					
 					// Get sprite from spriteSheet
@@ -235,22 +210,13 @@ public class Worlds
 						entity.add(new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16)));
 					}
 					
-					// Obstacle default hitbox and hitbox sprite
-					if(hasHitbox && hitboxSprite == null)
+					// Obstacle default hitbox
+					if(hasHitbox)
 					{
-						hitboxSprite = new Sprite(spriteSheet, 128, 144, 16, 16);
-						entity.add(new HitboxComponent
-						(
-							x*16,
-							(csvLines.length-1-y)*16,
-							hitboxSprite.getWidth(),
-							hitboxSprite.getHeight(),
-							hitboxSprite
-						));
+						entity.add(new HitboxComponent(x*16, (csvLines.length-1-y)*16, 16, 16));
 					}
 					
 					entities.add(entity);
-					hitboxSprite = null;
 				}
 			}
 		}
@@ -277,23 +243,13 @@ public class Worlds
 		{
 			dBuilder = dbFactory.newDocumentBuilder();
 		}
-		catch(ParserConfigurationException e)
-		{
-			e.printStackTrace();
-		}
+		catch(Exception ex) {}
 		
 		try
 		{
 			doc = dBuilder.parse(worldName + ".tmx");
 		}
-		catch (SAXException e)
-		{
-			e.printStackTrace();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		catch (Exception ex) {}
 		
 	    doc.getDocumentElement().normalize();
 
@@ -381,13 +337,7 @@ public class Worlds
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
                 	
                 	object.add(new PositionComponent(x, y));
-            		object.add(new HitboxComponent
-    				(
-    					x + hitboxXOffset,
-    					y + hitboxYOffset,
-    					hitboxWidth,
-    					hitboxHeight
-    				));
+            		object.add(new HitboxComponent(x + hitboxXOffset, y + hitboxYOffset, hitboxWidth, hitboxHeight));
             		
             		Array<Object> args = new Array<>();
             		args.add(object);
@@ -404,13 +354,7 @@ public class Worlds
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
                 	
                 	object.add(new PositionComponent(x, y));
-            		object.add(new HitboxComponent
-    				(
-    					x,
-    					y,
-    					width,
-    					1
-    				));
+            		object.add(new HitboxComponent(x, y, width, 1));
             		
             		Array<Object> args = new Array<>();
             		args.add(object);
@@ -423,13 +367,7 @@ public class Worlds
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
                 	
                 	object.add(new PositionComponent(x, y));
-            		object.add(new HitboxComponent
-    				(
-    					x+7,
-    					y,
-    					2,
-    					height
-    				));
+            		object.add(new HitboxComponent(x+7, y, 2, height));
             		
             		Array<Object> args = new Array<>();
             		args.add(object);
