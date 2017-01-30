@@ -1,7 +1,5 @@
 package io.whitegoldlabs.wiseguys.view;
 
-import java.util.Comparator;
-
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -19,12 +17,10 @@ import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
-import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent.AirborneState;
 import io.whitegoldlabs.wiseguys.component.StateComponent.DirectionState;
 import io.whitegoldlabs.wiseguys.component.StateComponent.MotionState;
-import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -265,80 +261,7 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new MovementSystem(game));
 		game.engine.addSystem(new GravitySystem(game));
 		game.engine.addSystem(new CollisionSystem(game));
-		
-		Family family = Family.all(TypeComponent.class, SpriteComponent.class).get();
-		
-		Comparator<Entity> comparator = new Comparator<Entity>()
-		{
-			@Override
-			public int compare(Entity entityA, Entity entityB)
-			{
-				TypeComponent typeA = Mappers.type.get(entityA);
-				TypeComponent typeB = Mappers.type.get(entityB);
-				
-				if(typeA.type == typeB.type)
-				{
-					return 0;
-				}
-				
-				int valueA = 0;
-				int valueB = 0;
-				
-				switch(typeA.type)
-				{
-					case PICKUP:
-						valueA = 0;
-						break;
-					case EVENT:
-						valueA = 1;
-						break;
-					case ENEMY_PROJECTILE:
-						valueA = 2;
-						break;
-					case ENEMY:
-						valueA = 3;
-						break;
-					case PLAYER_PROJECTILE:
-						valueA = 4;
-						break;
-					case PLAYER:
-						valueA = 5;
-						break;
-					case OBSTACLE:
-						valueA = 6;
-						break;
-				}
-				
-				switch(typeB.type)
-				{
-					case PICKUP:
-						valueB = 0;
-						break;
-					case EVENT:
-						valueB = 1;
-						break;
-					case ENEMY_PROJECTILE:
-						valueB = 2;
-						break;
-					case ENEMY:
-						valueB = 3;
-						break;
-					case PLAYER_PROJECTILE:
-						valueB = 4;
-						break;
-					case PLAYER:
-						valueB = 5;
-						break;
-					case OBSTACLE:
-						valueB = 6;
-						break;
-				}
-				
-				return valueA - valueB;
-			}
-		};
-		
-		game.engine.addSystem(new RenderSystem(game, family, comparator));
+		game.engine.addSystem(new RenderSystem(game));
 		game.engine.addSystem(new PlayerInputSystem(game));
 		game.engine.addSystem(new AnimationSystem(game));
 		
