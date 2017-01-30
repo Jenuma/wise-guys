@@ -1,7 +1,5 @@
 package io.whitegoldlabs.wiseguys.view;
 
-import java.util.Comparator;
-
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
@@ -19,12 +17,10 @@ import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
-import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent.AirborneState;
 import io.whitegoldlabs.wiseguys.component.StateComponent.DirectionState;
 import io.whitegoldlabs.wiseguys.component.StateComponent.MotionState;
-import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
@@ -52,7 +48,7 @@ public class GameScreen implements Screen
 	
 	PositionComponent playerPosition;
 	VelocityComponent playerVelocity;
-    PlayerComponent playerInventory;
+    PlayerComponent playerComponent;
     
     ScriptComponent julesTimeOutScript;
     
@@ -129,7 +125,7 @@ public class GameScreen implements Screen
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
-	    playerInventory = Mappers.player.get(game.player);
+	    playerComponent = Mappers.player.get(game.player);
 	    
 	    // Camera Following
 	    if(playerPosition.x <= 208)
@@ -147,17 +143,17 @@ public class GameScreen implements Screen
         hudBatch.begin();
 
         game.bigFont.draw(hudBatch, "JULES", 5, 710);
-        game.bigFont.draw(hudBatch, String.format("%06d", playerInventory.score), 5, 680);
+        game.bigFont.draw(hudBatch, String.format("%06d", playerComponent.score), 5, 680);
         
         coinSprite.draw(hudBatch);
         game.font.draw(hudBatch, "X", 425, 675);
-        game.bigFont.draw(hudBatch, String.format("%02d", playerInventory.coins), 448, 680);
+        game.bigFont.draw(hudBatch, String.format("%02d", playerComponent.coins), 448, 680);
         
         game.bigFont.draw(hudBatch, "WORLD", 745, 710);
         game.bigFont.draw(hudBatch, worldName, 777, 680);
         
         game.bigFont.draw(hudBatch, "TIME", 1138, 710);
-        game.bigFont.draw(hudBatch, String.format("%03d", playerInventory.time), 1170, 680);
+        game.bigFont.draw(hudBatch, String.format("%03d", playerComponent.time), 1170, 680);
 
         if(!game.isRunning)
         {
@@ -174,24 +170,25 @@ public class GameScreen implements Screen
             timer += delta;
             if(timer > 1)
             {
-            	playerInventory.time--;
+            	playerComponent.time--;
             	timer = 0;
             }
         }
         
-        if(Mappers.player.get(game.player).damaged)
+        // Player becomes invulnerable for 2 seconds after being damaged.
+        if(playerComponent.damaged)
         {
-        	Mappers.player.get(game.player).damagedTime += delta;
+        	playerComponent.damagedTime += delta;
         	
-        	if(Mappers.player.get(game.player).damagedTime > 2)
+        	if(playerComponent.damagedTime > 2)
         	{
-        		Mappers.player.get(game.player).damaged = false;
-        		Mappers.player.get(game.player).damagedTime = 0;
+        		playerComponent.damaged = false;
+        		playerComponent.damagedTime = 0;
         	}
         }
         
         // Player dies if time falls below 0.
-        if(playerInventory.time < 0)
+        if(playerComponent.time < 0)
         {
         	game.scriptManager.executeScriptImmediately(julesTimeOutScript);
         }
@@ -233,7 +230,7 @@ public class GameScreen implements Screen
 	@Override
 	public void dispose()
 	{
-		
+		hudBatch.dispose();
 	}
 	
 	// ---------------------------------------------------------------------------------|
@@ -265,80 +262,7 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new MovementSystem(game));
 		game.engine.addSystem(new GravitySystem(game));
 		game.engine.addSystem(new CollisionSystem(game));
-		
-		Family family = Family.all(TypeComponent.class, SpriteComponent.class).get();
-		
-		Comparator<Entity> comparator = new Comparator<Entity>()
-		{
-			@Override
-			public int compare(Entity entityA, Entity entityB)
-			{
-				TypeComponent typeA = Mappers.type.get(entityA);
-				TypeComponent typeB = Mappers.type.get(entityB);
-				
-				if(typeA.type == typeB.type)
-				{
-					return 0;
-				}
-				
-				int valueA = 0;
-				int valueB = 0;
-				
-				switch(typeA.type)
-				{
-					case PICKUP:
-						valueA = 0;
-						break;
-					case EVENT:
-						valueA = 1;
-						break;
-					case ENEMY_PROJECTILE:
-						valueA = 2;
-						break;
-					case ENEMY:
-						valueA = 3;
-						break;
-					case PLAYER_PROJECTILE:
-						valueA = 4;
-						break;
-					case PLAYER:
-						valueA = 5;
-						break;
-					case OBSTACLE:
-						valueA = 6;
-						break;
-				}
-				
-				switch(typeB.type)
-				{
-					case PICKUP:
-						valueB = 0;
-						break;
-					case EVENT:
-						valueB = 1;
-						break;
-					case ENEMY_PROJECTILE:
-						valueB = 2;
-						break;
-					case ENEMY:
-						valueB = 3;
-						break;
-					case PLAYER_PROJECTILE:
-						valueB = 4;
-						break;
-					case PLAYER:
-						valueB = 5;
-						break;
-					case OBSTACLE:
-						valueB = 6;
-						break;
-				}
-				
-				return valueA - valueB;
-			}
-		};
-		
-		game.engine.addSystem(new RenderSystem(game, family, comparator));
+		game.engine.addSystem(new RenderSystem(game));
 		game.engine.addSystem(new PlayerInputSystem(game));
 		game.engine.addSystem(new AnimationSystem(game));
 		

@@ -59,6 +59,7 @@ public class AnimationSystem extends EntitySystem
 					currentSprite.sprite = animation.animations.get(state.motionState.toString()).getKeyFrame(state.time, true);
 				}
 				
+				// Blink if player is damaged.
 				if(entity == game.player)
 				{
 					if(Mappers.player.get(game.player).damaged)
