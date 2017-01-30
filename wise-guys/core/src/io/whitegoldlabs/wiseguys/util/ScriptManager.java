@@ -1,11 +1,10 @@
 package io.whitegoldlabs.wiseguys.util;
 
 import org.luaj.vm2.Globals;
+import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
 import com.badlogic.gdx.utils.Array;
-
-import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 
 public class ScriptManager
 {
@@ -41,8 +40,8 @@ public class ScriptManager
 		return this.loadedScripts;
 	}
 	
-	public void executeScriptImmediately(ScriptComponent script)
+	public void executeScript(String moduleName, LuaValue[] args)
 	{
-		globals.get(script.moduleName).get("execute").invoke(script.args);
+		globals.get(moduleName).get("execute").invoke(args);
 	}
 }

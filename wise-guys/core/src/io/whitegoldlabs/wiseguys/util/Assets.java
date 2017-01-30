@@ -37,6 +37,9 @@ public class Assets
 	public static final AssetDescriptor<Sound> sfxStomp =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\stomp.wav"), Sound.class);
 	
+	public static final AssetDescriptor<Sound> sfxBump =
+			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\bump.wav"), Sound.class);
+	
 	public static final AssetDescriptor<Sound> sfxPause =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\pause.wav"), Sound.class);
 	
@@ -57,14 +60,19 @@ public class Assets
 	
 	public void load()
 	{
+		manager.load(title);
 		manager.load(spriteSheet);
 		manager.load(sfxCoin);
 		manager.load(sfxGameOver);
 		manager.load(sfxJulesDeath);
 		manager.load(sfxJump);
+		manager.load(sfxStomp);
+		manager.load(sfxBump);
 		manager.load(sfxPause);
 		manager.load(sfxPipe);
 		manager.load(sfxPop);
+		manager.load(sfxPowerupAppears);
+		manager.load(sfxPowerup);
 		manager.load(sfxStageClear);
 	}
 	

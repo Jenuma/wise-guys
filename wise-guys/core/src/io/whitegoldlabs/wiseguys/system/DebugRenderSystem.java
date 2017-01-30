@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
@@ -39,6 +40,7 @@ public class DebugRenderSystem extends EntitySystem
 		this.shapeRenderer = new ShapeRenderer();
 	}
 	
+	@Override
 	public void addedToEngine(Engine engine)
 	{
 		hitboxEntities = engine.getEntitiesFor(Family.all
@@ -47,6 +49,7 @@ public class DebugRenderSystem extends EntitySystem
 		).get());
 	}
 	
+	@Override
 	public void update(float deltaTime)
 	{
 		// Debug Hitboxes
@@ -95,6 +98,7 @@ public class DebugRenderSystem extends EntitySystem
 		VelocityComponent playerVelocity = Mappers.velocity.get(game.player);
 		AccelerationComponent playerAcceleration = Mappers.acceleration.get(game.player);
 		StateComponent playerMovingState = Mappers.state.get(game.player);
+		PlayerComponent playerComponent = Mappers.player.get(game.player);
 		
 		// Debug Player Attributes
 		debugBatch.begin();
@@ -104,7 +108,8 @@ public class DebugRenderSystem extends EntitySystem
 		game.font.draw(debugBatch, "Accel: " + playerAcceleration.x + ", " + playerAcceleration.y, 5, 590);
 		game.font.draw(debugBatch, "State: " + playerMovingState.airborneState
     		+ ", " + playerMovingState.motionState
-    		+ ", " + playerMovingState.directionState, 5, 570);
+    		+ ", " + playerMovingState.directionState
+    		+ ", " + playerComponent.playerState, 5, 570);
         debugBatch.end();
 	}
 }

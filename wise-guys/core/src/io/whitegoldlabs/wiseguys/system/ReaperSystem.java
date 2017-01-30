@@ -25,6 +25,7 @@ public class ReaperSystem extends EntitySystem
 		this.game = game;
 	}
 	
+	@Override
 	public void addedToEngine(Engine engine)
 	{
 		entities = engine.getEntitiesFor(Family.all
@@ -33,6 +34,7 @@ public class ReaperSystem extends EntitySystem
 		).get());
 	}
 	
+	@Override
 	public void update(float deltaTime)
 	{
 		if(game.isRunning)

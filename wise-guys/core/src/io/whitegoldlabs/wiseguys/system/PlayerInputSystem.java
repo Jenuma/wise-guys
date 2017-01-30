@@ -27,6 +27,7 @@ public class PlayerInputSystem extends EntitySystem
 		game.assets.manager.finishLoading();
 	}
 	
+	@Override
 	public void update(float deltaTime)
 	{
 		if(game.isRunning && !game.eventProcessing)

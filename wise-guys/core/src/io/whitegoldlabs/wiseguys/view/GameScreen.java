@@ -23,6 +23,7 @@ import io.whitegoldlabs.wiseguys.component.StateComponent.DirectionState;
 import io.whitegoldlabs.wiseguys.component.StateComponent.MotionState;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.system.AnimationSystem;
+import io.whitegoldlabs.wiseguys.system.BehaviorSystem;
 import io.whitegoldlabs.wiseguys.system.CollisionSystem;
 import io.whitegoldlabs.wiseguys.system.DebugRenderSystem;
 import io.whitegoldlabs.wiseguys.system.GravitySystem;
@@ -71,7 +72,6 @@ public class GameScreen implements Screen
 		this.worldName = worldName.substring(5, 8);
 		
 		initHud();
-		
 		initEngine(worldName);
 		
 		Mappers.position.get(game.player).x = x;
@@ -113,15 +113,6 @@ public class GameScreen implements Screen
 		
 		Gdx.gl.glClearColor(0.42f, 0.55f, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        
-		// Resetting the delta here prevents the engine from updating based on longer deltas that resulted from a thread pause.
-//		if(game.wasSleeping)
-//		{
-//			delta = 0;
-//			game.wasSleeping = false;
-//		}
-		
-		//game.scriptManager.executeScriptsInQueue();
 		
 		playerPosition = Mappers.position.get(game.player);
 		playerVelocity = Mappers.velocity.get(game.player);
@@ -189,7 +180,7 @@ public class GameScreen implements Screen
         // Player dies if time falls below 0.
         if(playerInventory.time < 0)
         {
-        	game.scriptManager.executeScriptImmediately(julesTimeOutScript);
+        	game.scriptManager.executeScript(julesTimeOutScript.moduleName, julesTimeOutScript.args);
         }
         
         // Debug Mode
@@ -261,6 +252,7 @@ public class GameScreen implements Screen
 		game.engine.addSystem(new MovementSystem(game));
 		game.engine.addSystem(new GravitySystem(game));
 		game.engine.addSystem(new CollisionSystem(game));
+		game.engine.addSystem(new BehaviorSystem(game));
 		game.engine.addSystem(new RenderSystem(game));
 		game.engine.addSystem(new PlayerInputSystem(game));
 		game.engine.addSystem(new AnimationSystem(game));

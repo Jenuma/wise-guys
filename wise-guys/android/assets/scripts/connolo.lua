@@ -83,7 +83,6 @@ function Connolo.execute(connolo, game)
       
       playerSpriteComponent.sprite = playerPowerupAnimation:getKeyFrame(playerStateComponent.time, false)
       
-      
       if playerStateComponent.directionState == states.DirectionState.LEFT then
         playerSpriteComponent.sprite:setFlip(true, false)
       elseif playerStateComponent.directionState == states.DirectionState.LEFT then

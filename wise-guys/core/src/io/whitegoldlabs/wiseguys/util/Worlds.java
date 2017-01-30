@@ -75,6 +75,7 @@ public class Worlds
 	{
 		game.assets.manager.load(Assets.spriteSheet);
 		game.assets.manager.load(Assets.sfxStomp);
+		game.assets.manager.load(Assets.sfxBump);
 		game.assets.manager.load(Assets.sfxCoin);
 		game.assets.manager.load(Assets.sfxPipe);
 		game.assets.manager.load(Assets.sfxPowerupAppears);
