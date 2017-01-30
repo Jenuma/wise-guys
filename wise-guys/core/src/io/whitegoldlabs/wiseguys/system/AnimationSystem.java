@@ -50,6 +50,12 @@ public class AnimationSystem extends EntitySystem
 				SpriteComponent currentSprite = Mappers.sprite.get(entity);
 				StateComponent state = Mappers.state.get(entity);
 			
+				// Freeze non-player animations during events.
+				if(entity != game.player && game.eventProcessing)
+				{
+					continue;
+				}
+				
 				if(animation.animations.containsKey(state.airborneState.toString()))
 				{
 					currentSprite.sprite = animation.animations.get(state.airborneState.toString()).getKeyFrame(state.time, true);

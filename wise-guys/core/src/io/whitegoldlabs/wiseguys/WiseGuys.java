@@ -59,6 +59,8 @@ public class WiseGuys extends Game
 	private float nextGameScreenX;
 	private float nextGameScreenY;
 	
+	private Texture spriteSheet;
+	
 	@Override
 	public void create()
 	{
@@ -70,10 +72,9 @@ public class WiseGuys extends Game
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.zoom -= 0.7f;
 		
+		this.spriteSheet = assets.manager.get(Assets.spriteSheet);
 		this.batch = new SpriteBatch();
-		
 		this.font = new BitmapFont(Gdx.files.internal("pressstart2p.fnt"));
-		
 		this.bigFont = new BitmapFont(Gdx.files.internal("pressstart2p.fnt"));
 		bigFont.getData().setScale(2);
 		
@@ -92,7 +93,6 @@ public class WiseGuys extends Game
 		console.setPosition(0, Gdx.graphics.getHeight() / 2);
 		console.setSizePercent(100, 50);
 		console.setDisplayKeyID(Input.Keys.GRAVE);
-		
 		
 		MainMenuScreen mainMenuScreen = new MainMenuScreen(this);
 		this.currentScreen = mainMenuScreen;
@@ -134,34 +134,17 @@ public class WiseGuys extends Game
 	{
 		this.player = new Entity();
 		
-		Texture spriteSheet = assets.manager.get(Assets.spriteSheet);
-		
-		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
-		Array<Sprite> playerStillSprites = new Array<>(); 
-		Array<Sprite> playerJumpingSprites = new Array<>();
-		Array<Sprite> playerMovingSprites = new Array<>();
-		Array<Sprite> playerSlowingSprites = new Array<>();
-		Array<Sprite> playerDamagedSprites = new Array<>();
-		
-		playerStillSprites.add(playerStillSprite);
-		playerJumpingSprites.add(new Sprite(spriteSheet, 64, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 16, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 32, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 48, 0, 16, 16));
-		playerSlowingSprites.add(playerStillSprite);
-		playerDamagedSprites.add(playerStillSprite);
-		playerDamagedSprites.add(new Sprite(spriteSheet, 0, 0, 0, 0));
-		
 		Sprite playerHitboxSprite = new Sprite(spriteSheet, 144, 144, 16, 16);
 		
-		player.add(new SpriteComponent(playerStillSprite));
+		StateComponent stateComponent = new StateComponent();
+		stateComponent.directionState = StateComponent.DirectionState.RIGHT;
+		stateComponent.airborneState = StateComponent.AirborneState.GROUNDED;
 		
-		StateComponent state = new StateComponent();
-		state.directionState = StateComponent.DirectionState.RIGHT;
-		state.airborneState = StateComponent.AirborneState.GROUNDED;
-		player.add(state);
+		PlayerComponent playerComponent = new PlayerComponent(0, 0, 3);
 		
-	    player.add(new PlayerComponent(0, 0, 3));
+	    player.add(playerComponent);
+	    player.add(stateComponent);
+	    player.add(new SpriteComponent(new Sprite(spriteSheet, 0, 0, 16, 16)));
 	    player.add(new TypeComponent(TypeComponent.Type.PLAYER));
 		player.add(new PositionComponent(0, 0));
 		player.add(new VelocityComponent(0, 0));
@@ -170,89 +153,105 @@ public class WiseGuys extends Game
 		(
 			0,
 			0,
-			playerStillSprite.getWidth(),
-			playerStillSprite.getHeight(),
+			16,
+			16,
 			playerHitboxSprite
 		));
 		
+		setPlayerAnimations(playerComponent.playerState);
+	}
+	
+	private void setPlayerAnimations(PlayerComponent.PlayerState state)
+	{
+		Sprite stillSprite;
+		Sprite jumpingSprite;
+		Sprite moving1Sprite;
+		Sprite moving2Sprite;
+		Sprite moving3Sprite;
+		
+		Array<Sprite> stillSprites = new Array<>(); 
+		Array<Sprite> jumpingSprites = new Array<>();
+		Array<Sprite> movingSprites = new Array<>();
+		Array<Sprite> slowingSprites = new Array<>();
+		Array<Sprite> damagedSprites = new Array<>();
+		Array<Sprite> powerupSprites = new Array<>();
+		
+		switch(state)
+		{
+			case NORMAL:
+				stillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
+				jumpingSprite = new Sprite(spriteSheet, 64, 0, 16, 16);
+				moving1Sprite = new Sprite(spriteSheet, 16, 0, 16, 16);
+				moving2Sprite = new Sprite(spriteSheet, 32, 0, 16, 16);
+				moving3Sprite = new Sprite(spriteSheet, 48, 0, 16, 16);
+				break;
+				
+			case SUPER:
+				stillSprite = new Sprite(spriteSheet, 0, 16, 16, 32);
+				jumpingSprite = new Sprite(spriteSheet, 64, 16, 16, 32);
+				moving1Sprite = new Sprite(spriteSheet, 16, 16, 16, 32);
+				moving2Sprite = new Sprite(spriteSheet, 32, 16, 16, 32);
+				moving3Sprite = new Sprite(spriteSheet, 48, 16, 16, 32);
+				break;
+				
+			default:
+				stillSprite = null;
+				jumpingSprite = null;
+				moving1Sprite = null;
+				moving2Sprite = null;
+				moving3Sprite = null;
+		}
+		
+		stillSprites.add(stillSprite);
+		jumpingSprites.add(jumpingSprite);
+		movingSprites.add(moving1Sprite);
+		movingSprites.add(moving2Sprite);
+		movingSprites.add(moving3Sprite);
+		slowingSprites.add(stillSprite);
+		damagedSprites.add(stillSprite);
+		damagedSprites.add(new Sprite(spriteSheet, 0, 0, 0, 0));
+		
+		Sprite playerMedSprite = new Sprite(spriteSheet, 80, 16, 16, 32);
+		Sprite playerBigSprite = new Sprite(spriteSheet, 0, 16, 16, 32);
+		powerupSprites.add(playerMedSprite);
+		powerupSprites.add(stillSprite);
+		powerupSprites.add(playerMedSprite);
+		powerupSprites.add(stillSprite);
+		powerupSprites.add(playerMedSprite);
+		powerupSprites.add(playerBigSprite);
+		powerupSprites.add(stillSprite);
+		powerupSprites.add(playerMedSprite);
+		powerupSprites.add(playerBigSprite);
+		powerupSprites.add(stillSprite);
+		
 		AnimationComponent animation = new AnimationComponent();
-		animation.animations.put("STILL", new Animation<Sprite>(1f/32f, playerStillSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("MOVING", new Animation<Sprite>(1f/32f, playerMovingSprites, Animation.PlayMode.LOOP));
-		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("DAMAGED", new Animation<Sprite>(1f/32f, playerDamagedSprites, Animation.PlayMode.LOOP));
+		animation.animations.put("STILL", new Animation<Sprite>(1f/32f, stillSprites, Animation.PlayMode.NORMAL));
+		animation.animations.put("MOVING", new Animation<Sprite>(1f/32f, movingSprites, Animation.PlayMode.LOOP));
+		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, slowingSprites, Animation.PlayMode.NORMAL));
+		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, jumpingSprites, Animation.PlayMode.NORMAL));
+		animation.animations.put("DAMAGED", new Animation<Sprite>(1f/32f, damagedSprites, Animation.PlayMode.LOOP));
+		animation.animations.put("POWERUP", new Animation<Sprite>(1f/16f, powerupSprites, Animation.PlayMode.NORMAL));
 		player.add(animation);
 	}
 	
 	public void powerupSuperJules()
 	{
-		Texture spriteSheet = assets.manager.get(Assets.spriteSheet);
-		
-		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 16, 16, 32);
-		Array<Sprite> playerStillSprites = new Array<>(); 
-		Array<Sprite> playerJumpingSprites = new Array<>();
-		Array<Sprite> playerMovingSprites = new Array<>();
-		Array<Sprite> playerSlowingSprites = new Array<>();
-		Array<Sprite> playerDamagedSprites = new Array<>();
-		
-		playerStillSprites.add(playerStillSprite);
-		playerJumpingSprites.add(new Sprite(spriteSheet, 64, 16, 16, 32));
-		playerMovingSprites.add(new Sprite(spriteSheet, 16, 16, 16, 32));
-		playerMovingSprites.add(new Sprite(spriteSheet, 32, 16, 16, 32));
-		playerMovingSprites.add(new Sprite(spriteSheet, 48, 16, 16, 32));
-		playerSlowingSprites.add(playerStillSprite);
-		playerDamagedSprites.add(playerStillSprite);
-		playerDamagedSprites.add(new Sprite(spriteSheet, 0, 0, 0, 0));
-		
-		player.add(new SpriteComponent(playerStillSprite));
-		
-		AnimationComponent animation = new AnimationComponent();
-		animation.animations.put("STILL", new Animation<Sprite>(1f/32f, playerStillSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("MOVING", new Animation<Sprite>(1f/32f, playerMovingSprites, Animation.PlayMode.LOOP));
-		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("DAMAGED", new Animation<Sprite>(1f/32f, playerDamagedSprites, Animation.PlayMode.LOOP));
-		player.add(animation);
-		
 		Mappers.hitbox.get(player).hitbox.height = 32;
-		Mappers.player.get(player).playerState = PlayerComponent.PlayerState.SUPER;
+		PlayerComponent playerComponent = Mappers.player.get(player);
+		
+		playerComponent.playerState = PlayerComponent.PlayerState.SUPER;
+		
+		setPlayerAnimations(playerComponent.playerState);
 	}
 	
-	public void powerdownJulesNormal()
+	public void powerdownNormalJules()
 	{
-		Texture spriteSheet = assets.manager.get(Assets.spriteSheet);
-		
-		Sprite playerStillSprite = new Sprite(spriteSheet, 0, 0, 16, 16);
-		Array<Sprite> playerStillSprites = new Array<>(); 
-		Array<Sprite> playerJumpingSprites = new Array<>();
-		Array<Sprite> playerMovingSprites = new Array<>();
-		Array<Sprite> playerSlowingSprites = new Array<>();
-		Array<Sprite> playerDamagedSprites = new Array<>();
-		
-		playerStillSprites.add(playerStillSprite);
-		playerJumpingSprites.add(new Sprite(spriteSheet, 64, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 16, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 32, 0, 16, 16));
-		playerMovingSprites.add(new Sprite(spriteSheet, 48, 0, 16, 16));
-		playerSlowingSprites.add(playerStillSprite);
-		playerDamagedSprites.add(playerStillSprite);
-		playerDamagedSprites.add(new Sprite(spriteSheet, 0, 0, 0, 0));
-		
-		player.add(new SpriteComponent(playerStillSprite));
-		
-		AnimationComponent animation = new AnimationComponent();
-		animation.animations.put("STILL", new Animation<Sprite>(1f/32f, playerStillSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("MOVING", new Animation<Sprite>(1f/32f, playerMovingSprites, Animation.PlayMode.LOOP));
-		animation.animations.put("SLOWING", new Animation<Sprite>(1f/32f, playerSlowingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("JUMPING", new Animation<Sprite>(1f/32f, playerJumpingSprites, Animation.PlayMode.NORMAL));
-		animation.animations.put("DAMAGED", new Animation<Sprite>(1f/32f, playerDamagedSprites, Animation.PlayMode.LOOP));
-		player.add(animation);
-		
 		Mappers.hitbox.get(player).hitbox.height = 16;
-		
 		PlayerComponent playerComponent = Mappers.player.get(player);
 		
 		playerComponent.playerState = PlayerComponent.PlayerState.NORMAL;
 		playerComponent.damaged = true;
+		
+		setPlayerAnimations(playerComponent.playerState);
 	}
 }

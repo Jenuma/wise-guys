@@ -115,11 +115,11 @@ public class GameScreen implements Screen
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
 		// Resetting the delta here prevents the engine from updating based on longer deltas that resulted from a thread pause.
-		if(game.wasSleeping)
-		{
-			delta = 0;
-			game.wasSleeping = false;
-		}
+//		if(game.wasSleeping)
+//		{
+//			delta = 0;
+//			game.wasSleeping = false;
+//		}
 		
 		//game.scriptManager.executeScriptsInQueue();
 		
@@ -164,7 +164,7 @@ public class GameScreen implements Screen
         
         hudBatch.end();
         
-        if(game.isRunning)
+        if(game.isRunning && !game.eventProcessing)
         {
         	// Timer
             timer += delta;

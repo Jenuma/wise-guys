@@ -36,6 +36,9 @@ function Goomba.execute(goomba, game)
 			local intersectWidth = math.min(playerHitboxComponent.hitbox.x + playerHitboxComponent.hitbox.width, goombaHitboxComponent.hitbox.x + goombaHitboxComponent.hitbox.width) - intersectX
 			local intersectHeight = math.min(playerHitboxComponent.hitbox.y + playerHitboxComponent.hitbox.height, goombaHitboxComponent.hitbox.y + goombaHitboxComponent.hitbox.height) - intersectY
 			
+			-----------------------
+      -- Goomba Stomped On --
+      -----------------------
 			if intersectWidth > intersectHeight then
 				if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
 					local playerVelocityComponent = mappers.velocity:get(collidingEntity)
@@ -45,12 +48,59 @@ function Goomba.execute(goomba, game)
 					
 					goombaStateComponent.enabledState = states.EnabledState.DISABLED
 				end
+				
+			---------------------------
+      -- Goomba Touched Player --
+      ---------------------------
 			else
+			
+			  -----------------
+        -- Player Dies --
+        -----------------
 				if playerComponent.playerState == playerStates.PlayerState.NORMAL then
 					Jules_death.execute(game, julesDeathSfx)
+					
+				--------------------
+        -- Player Damaged --
+        --------------------
 				elseif playerComponent.playerState == playerStates.PlayerState.SUPER then
-					powerdownSfx:play()
-					game:powerdownJulesNormal()
+				  local playerAnimationComponent = mappers.animation:get(collidingEntity)
+          local playerStateComponent = mappers.state:get(collidingEntity)
+          local playerPowerupAnimation = playerAnimationComponent.animations:get("POWERUP")
+    
+          ---------------------------
+          -- Start Powerdown Event --
+          ---------------------------
+				  if not game.eventProcessing then
+            powerdownSfx:play()
+            game.eventProcessing = true
+            
+            playerStateComponent.time = 0
+            
+          ---------------------------------
+          -- Powerdown Animation Playing --
+          ---------------------------------
+          else
+            local animations = luajava.bindClass("com.badlogic.gdx.graphics.g2d.Animation")
+            local playerSpriteComponent = mappers.sprite:get(collidingEntity)
+            
+            playerPowerupAnimation:setPlayMode(animations.PlayMode.REVERSED)
+            playerSpriteComponent.sprite = playerPowerupAnimation:getKeyFrame(playerStateComponent.time, false)
+            
+            if playerStateComponent.directionState == states.DirectionState.LEFT then
+              playerSpriteComponent.sprite:setFlip(true, false)
+            elseif playerStateComponent.directionState == states.DirectionState.LEFT then
+              playerSpriteComponent.sprite:setFlip(false, false)
+            end
+          end
+				
+				  ----------------------------------
+          -- Powerdown Animation Finished --
+          ----------------------------------
+				  if playerPowerupAnimation:isAnimationFinished(playerStateComponent.time) then
+				    game:powerdownNormalJules()
+				    game.eventProcessing = false
+				  end
 				end
 			end
 		end

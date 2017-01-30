@@ -44,7 +44,7 @@ public class MovementSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
-		if(game.isRunning)
+		if(game.isRunning && !game.eventProcessing)
 		{
 			for(Entity entity : entities)
 			{

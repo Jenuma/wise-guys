@@ -13,7 +13,7 @@ public class PlayerComponent implements Component
 	
 	public enum AnonState
 	{
-		OPEN,
+		EXPOSED,
 		BEHIND_7_PROXIES
 	}
 	
@@ -21,7 +21,7 @@ public class PlayerComponent implements Component
 	public AnonState anonState;
 	
 	public boolean damaged;
-	public float damagedTime = 0;
+	public float damagedTime;
 	
 	public int score;
 	public int coins;
@@ -34,9 +34,10 @@ public class PlayerComponent implements Component
 	public PlayerComponent(int score, int coins, int lives)
 	{
 		this.playerState = PlayerState.NORMAL;
-		this.anonState = AnonState.OPEN;
+		this.anonState = AnonState.EXPOSED;
 		
 		this.damaged = false;
+		this.damagedTime = 0;
 		
 		this.score = score;
 		this.coins = coins;
