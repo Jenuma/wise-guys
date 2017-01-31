@@ -64,9 +64,9 @@ function Box.execute(box, game, emptyBoxSprite, contentsSprite, scriptArgs)
   			scriptArgs:clear()
   			scriptArgs:add(box)
   			scriptArgs:add(boxPosition.y)
-  			local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\box_behavior.lua", scriptArgs)
+  			local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\bounce_behavior.lua", scriptArgs)
   			boxBehaviorComponent.behaviorState = "BOUNCING_UP"
-  			game.scriptManager:loadScript("scripts\\box_behavior.lua")
+  			game.scriptManager:loadScript("scripts\\bounce_behavior.lua")
   			
   			box:add(boxBehaviorComponent)
   			box:remove(animations)

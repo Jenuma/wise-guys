@@ -76,6 +76,7 @@ public class Worlds
 		game.assets.manager.load(Assets.spriteSheet);
 		game.assets.manager.load(Assets.sfxStomp);
 		game.assets.manager.load(Assets.sfxBump);
+		game.assets.manager.load(Assets.sfxBrickSmash);
 		game.assets.manager.load(Assets.sfxCoin);
 		game.assets.manager.load(Assets.sfxPipe);
 		game.assets.manager.load(Assets.sfxPowerupAppears);
@@ -165,7 +166,8 @@ public class Worlds
 					// BOX
 					else if(cells[x].equals("50"))
 					{
-						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
+						// Is EVENT type necessary for blocks like this?
+						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 						
 						Array<Sprite> boxStillSprites = new Array<>();
 						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
@@ -196,6 +198,18 @@ public class Worlds
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
 						hasHitbox = false;
+					}
+					// BRICKS
+					else if(cells[x].equals("83"))
+					{
+						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+						
+						Array<Object> args = new Array<>();
+						args.add(entity);
+						args.add(game);
+						args.add(new Array<Object>());
+						
+						entity.add(new ScriptComponent(true, "scripts\\bricks.lua", args));
 					}
 					else
 					{

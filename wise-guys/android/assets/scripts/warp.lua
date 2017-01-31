@@ -14,6 +14,7 @@ function Warp.execute(warpObject, game, triggerKey, destination, x, y)
 	-- Collision with Player --
 	---------------------------
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
+	
 		--------------------
 		-- Warp Animation --
 		--------------------

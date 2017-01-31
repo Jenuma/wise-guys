@@ -13,7 +13,7 @@ function Jules_death.execute(game)
 	player.lives = player.lives - 1
 	
 	if player.playerState ~= playerStates.PlayerState.NORMAL then
-		game:powerdownJulesNormal()
+		game:powerdownNormalJules()
 	end
 	
 	game.engine:removeAllEntities()

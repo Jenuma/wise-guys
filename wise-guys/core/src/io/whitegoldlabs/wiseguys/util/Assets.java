@@ -40,6 +40,9 @@ public class Assets
 	public static final AssetDescriptor<Sound> sfxBump =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\bump.wav"), Sound.class);
 	
+	public static final AssetDescriptor<Sound> sfxBrickSmash =
+			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\brick_smash.wav"), Sound.class);
+	
 	public static final AssetDescriptor<Sound> sfxPause =
 			new AssetDescriptor<Sound>(Gdx.files.internal("sfx\\pause.wav"), Sound.class);
 	
@@ -68,6 +71,7 @@ public class Assets
 		manager.load(sfxJump);
 		manager.load(sfxStomp);
 		manager.load(sfxBump);
+		manager.load(sfxBrickSmash);
 		manager.load(sfxPause);
 		manager.load(sfxPipe);
 		manager.load(sfxPop);

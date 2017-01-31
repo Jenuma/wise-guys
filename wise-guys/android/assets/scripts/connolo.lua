@@ -4,6 +4,7 @@ function Connolo.execute(connolo, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
+	local playerStates = luajava.bindClass("io.whitegoldlabs.wiseguys.component.PlayerComponent")
 	
 	local collisionComponent = mappers.collision:get(connolo)
 	
@@ -55,21 +56,31 @@ function Connolo.execute(connolo, game)
 	-- Collision with Player --
 	---------------------------
 	elseif collidingEntityTypeComponent.type == types.Type.PLAYER then
+	  local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+	  local powerupSfx = game.assets.manager:get(assetFiles.sfxPowerup)
+	  
+	  local playerComponent = mappers.player:get(collidingEntity)
     local playerAnimationComponent = mappers.animation:get(collidingEntity)
     local playerStateComponent = mappers.state:get(collidingEntity)
     local playerPowerupAnimation = playerAnimationComponent.animations:get("POWERUP")
-	
-	  -------------------------
+	  
+	  --------------------------
+    -- Player Already Super --
+    --------------------------
+    if playerComponent.playerState ~= playerStates.PlayerState.NORMAL then
+      powerupSfx:play()
+      playerComponent.score = playerComponent.score + 1000
+      connoloStateComponent.enabledState = states.EnabledState.DISABLED
+    
+    -------------------------
     -- Start Powerup Event --
     -------------------------
-    if not game.eventProcessing then
-      local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
-      
-      local powerupSfx = game.assets.manager:get(assetFiles.sfxPowerup)
+    elseif not game.eventProcessing then
       local connoloSpriteComponent = mappers.sprite:get(connolo)
       local spriteSheet = game.assets.manager:get(assetFiles.spriteSheet)
       
       powerupSfx:play()
+      playerComponent.score = playerComponent.score + 1000
       game.eventProcessing = true
       
       connoloSpriteComponent.sprite = luajava.newInstance("com.badlogic.gdx.graphics.g2d.Sprite", spriteSheet, 0, 0, 0, 0)
