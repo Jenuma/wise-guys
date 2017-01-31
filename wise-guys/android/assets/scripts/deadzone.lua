@@ -12,7 +12,24 @@ function Deadzone.execute(deadzone, game)
 	-- Collision with Player --
 	---------------------------
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
-		Jules_death.execute(game)
+	  local arrayInstantiator = luajava.bindClass("io.whitegoldlabs.wiseguys.util.ArrayInstantiator")
+	  local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
+	
+	  local playerPositionComponent = mappers.position:get(collidingEntity)
+	
+	  local scriptArgs = arrayInstantiator:getNewArray()
+	  scriptArgs:add(game)
+	  scriptArgs:add(playerPositionComponent.y)
+	
+	  local playerBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\jules_death_behavior.lua", scriptArgs)
+    playerBehaviorComponent.behaviorState = "DYING"
+    game.scriptManager:loadScript("scripts\\jules_death_behavior.lua")
+    
+    game.player:add(playerBehaviorComponent)
+	
+	  deadzone:remove(scripts)
+	
+		--Jules_death.execute(game)
 	end
 end
 

@@ -115,7 +115,7 @@ public class CollisionSystem extends EntitySystem
 					if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
 					{
 						// Check if other entity is scripted.
-						if(!Mappers.phase.has(hitboxEntities.get(i)))
+						if(!Mappers.phase.has(entity) && !Mappers.phase.has(hitboxEntities.get(i)))
 						{
 							return true;
 						}
