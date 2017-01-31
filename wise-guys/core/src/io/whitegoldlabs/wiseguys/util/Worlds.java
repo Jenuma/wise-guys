@@ -21,6 +21,7 @@ import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.AnimationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
+import io.whitegoldlabs.wiseguys.component.PhaseComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
@@ -131,6 +132,7 @@ public class Worlds
 						
 						entity.add(new VelocityComponent(15, 0));
 						entity.add(new AccelerationComponent(0, 0));
+						entity.add(new PhaseComponent());
 						
 						state.motionState = StateComponent.MotionState.MOVING;
 						state.airborneState = StateComponent.AirborneState.GROUNDED;
@@ -150,7 +152,7 @@ public class Worlds
 						args.add(new Sprite(spriteSheet, 32, 48, 16, 16));
 						args.add(new Array<Object>());
 						
-						ScriptComponent script = new ScriptComponent(false, "scripts\\goomba.lua", args);
+						ScriptComponent script = new ScriptComponent("scripts\\goomba.lua", args);
 						entity.add(script);
 					}
 					// COIN
@@ -158,12 +160,13 @@ public class Worlds
 					{
 						entity.add(new TypeComponent(TypeComponent.Type.PICKUP));
 						entity.add(new HitboxComponent(x*16+3, (csvLines.length-1-y)*16, 10, 16));
+						entity.add(new PhaseComponent());
 						
 						Array<Object> args = new Array<>();
 						args.add(entity);
 						args.add(game);
 						
-						entity.add(new ScriptComponent(false, "scripts\\coin.lua", args));
+						entity.add(new ScriptComponent("scripts\\coin.lua", args));
 					}
 					// BOX
 					else if(cells[x].equals("50"))
@@ -186,7 +189,7 @@ public class Worlds
 						args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
 						args.add(new Array<Object>());
 						
-						entity.add(new ScriptComponent(true, "scripts\\box.lua", args));
+						entity.add(new ScriptComponent("scripts\\box.lua", args));
 					}
 					// GOAL TOP
 					else if(cells[x].equals("59"))
@@ -210,7 +213,7 @@ public class Worlds
 						args.add(game);
 						args.add(new Array<Object>());
 						
-						entity.add(new ScriptComponent(true, "scripts\\bricks.lua", args));
+						entity.add(new ScriptComponent("scripts\\bricks.lua", args));
 					}
 					else
 					{
@@ -351,9 +354,9 @@ public class Worlds
                 	}
                 	
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
-                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent(x + hitboxXOffset, y + hitboxYOffset, hitboxWidth, hitboxHeight));
+            		object.add(new PhaseComponent());
             		
             		Array<Object> args = new Array<>();
             		args.add(object);
@@ -363,33 +366,33 @@ public class Worlds
 					args.add(destinationX);
 					args.add(destinationY);
 					
-					object.add(new ScriptComponent(false, "scripts\\warp.lua", args));
+					object.add(new ScriptComponent("scripts\\warp.lua", args));
                 }
                 else if(objectElement.getAttribute("type").equals("Deadzone"))
                 {
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
-                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent(x, y, width, 1));
+            		object.add(new PhaseComponent());
             		
             		Array<Object> args = new Array<>();
             		args.add(object);
 					args.add(game);
 					
-					object.add(new ScriptComponent(false, "scripts\\deadzone.lua", args));
+					object.add(new ScriptComponent("scripts\\deadzone.lua", args));
                 }
                 else if(objectElement.getAttribute("type").equals("Goal"))
                 {
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
-                	
                 	object.add(new PositionComponent(x, y));
             		object.add(new HitboxComponent(x+7, y, 2, height));
+            		object.add(new PhaseComponent());
             		
             		Array<Object> args = new Array<>();
             		args.add(object);
 					args.add(game);
 					
-					object.add(new ScriptComponent(false, "scripts\\goal.lua", args));
+					object.add(new ScriptComponent("scripts\\goal.lua", args));
                 }
         		
                 objectEntities.add(object);

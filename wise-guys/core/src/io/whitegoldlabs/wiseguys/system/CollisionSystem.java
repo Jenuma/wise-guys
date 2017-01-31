@@ -72,53 +72,32 @@ public class CollisionSystem extends EntitySystem
 	// ---------------------------------------------------------------------------------|
 	private boolean isColliding(Entity entity)
 	{	
-		boolean colliding = false;
-		
 		// Test scripted entities against everything except the player.
 		if(entity != game.player)
 		{
 			for(int i = 0; i < hitboxEntities.size(); i++)
 			{
 				// Ignore the collision if they are the same entity.
-				if(entity == hitboxEntities.get(i))
+				if(entity != hitboxEntities.get(i))
 				{
-					continue;
-				}
-				
-				// If the scripted entity is colliding with something, queue its script.
-				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
-				{
-					entity.add(new CollisionComponent(hitboxEntities.get(i)));
-					ScriptComponent script = Mappers.script.get(entity);
-					game.scriptManager.executeScript(script.moduleName, script.args);
-					
-					// Don't bother trying to resolve collision if entity doesn't move!
-					if(!Mappers.velocity.has(entity))
+					// If the scripted entity is colliding with something, queue its script.
+					if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
 					{
-						continue;
-					}
-					
-					if(Mappers.script.get(entity).collidable)
-					{
-						// Check if other entity is scripted.
-						if(Mappers.script.has(hitboxEntities.get(i)))
+						entity.add(new CollisionComponent(hitboxEntities.get(i)));
+						ScriptComponent script = Mappers.script.get(entity);
+						game.scriptManager.executeScript(script.moduleName, script.args);
+						
+						// Don't bother trying to resolve collision if entity doesn't move!
+						if(Mappers.velocity.has(entity))
 						{
-							// If both entities are collidable, resolve.
-							if(Mappers.script.get(hitboxEntities.get(i)).collidable)
+							if(!Mappers.phase.has(entity) && !Mappers.phase.has(hitboxEntities.get(i)))
 							{
-								colliding = true;
+								return true;
 							}
-						}
-						// If this entity is collidable and the other isn't scripted, resolve.
-						else
-						{
-							colliding = true;
 						}
 					}
 				}
 			}
-			
-			return colliding;
 		}
 		// Test the player against hitbox entities.
 		else
@@ -136,25 +115,16 @@ public class CollisionSystem extends EntitySystem
 					if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(hitboxEntities.get(i)).hitbox))
 					{
 						// Check if other entity is scripted.
-						if(Mappers.script.has(hitboxEntities.get(i)))
-						{
-							// If the other entity is collidable, resolve.
-							if(Mappers.script.get(hitboxEntities.get(i)).collidable)
-							{
-								return true;
-							}
-						}
-						// If the other entity isn't scripted, resolve.
-						else
+						if(!Mappers.phase.has(hitboxEntities.get(i)))
 						{
 							return true;
 						}
 					}
 				}
 			}
-			
-			return false;
 		}
+		
+		return false;
 	}
 	
 	private void resolveCollision(Entity entity)
@@ -259,12 +229,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -292,12 +259,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -323,12 +287,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -355,12 +316,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -386,12 +344,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -416,12 +371,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -446,12 +398,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
@@ -476,12 +425,9 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
-				if(Mappers.script.has(obstacle))
+				if(Mappers.phase.has(obstacle))
 				{
-					if(!Mappers.script.get(obstacle).collidable)
-					{
-						continue;
-					}
+					continue;
 				}
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))

@@ -92,7 +92,7 @@ public class GameScreen implements Screen
 		Array<Object> args = new Array<>();
 		args.add(game);
 		args.add(game.assets.manager.get(Assets.sfxJulesDeath));
-		this.julesTimeOutScript = new ScriptComponent(false, "scripts\\jules_death.lua", args);
+		this.julesTimeOutScript = new ScriptComponent("scripts\\jules_death.lua", args);
 		
 		pausedText = new GlyphLayout(game.bigFont, "PAUSED");
 	}

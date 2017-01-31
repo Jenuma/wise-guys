@@ -110,6 +110,7 @@ public class DebugRenderSystem extends EntitySystem
     		+ ", " + playerMovingState.motionState
     		+ ", " + playerMovingState.directionState
     		+ ", " + playerComponent.playerState, 5, 570);
+		game.font.draw(debugBatch, "Event Processing: " + game.eventProcessing, 5, 550);
         debugBatch.end();
 	}
 }
