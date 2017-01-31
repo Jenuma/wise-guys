@@ -3,6 +3,7 @@ Jules_death = {}
 function Jules_death.execute(game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+	local worlds = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Worlds")
 	local playerStates = luajava.bindClass("io.whitegoldlabs.wiseguys.component.PlayerComponent")
 	
 	local julesDeathSfx = game.assets.manager:get(assetFiles.sfxJulesDeath)
@@ -16,7 +17,7 @@ function Jules_death.execute(game)
 		game:powerdownNormalJules()
 	end
 	
-	game.engine:removeAllEntities()
+	worlds:unloadWorldEntities()
 	
 	if player.lives > 0 then
 		newScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.WorldIntroScreen", game, game.currentWorld)
