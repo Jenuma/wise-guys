@@ -13,6 +13,7 @@ public class BehaviorComponent implements Component
 	public LuaValue[] args;
 	
 	public String behaviorState;
+	public float behaviorTime;
 	
 	public BehaviorComponent(String scriptName, Array<Object> args)
 	{
@@ -28,5 +29,6 @@ public class BehaviorComponent implements Component
 		}
 		
 		this.behaviorState = "";
+		this.behaviorTime = 0;
 	}
 }

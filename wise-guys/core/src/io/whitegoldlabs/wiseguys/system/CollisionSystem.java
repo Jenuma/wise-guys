@@ -155,43 +155,6 @@ public class CollisionSystem extends EntitySystem
 			
 			return false;
 		}
-		
-		//////////////
-//		if(Mappers.script.has(entity))
-//		{
-//			if(!Mappers.script.get(entity).collidable)
-//			{
-//				return false;
-//			}
-//		}
-//		
-//		boolean collidable;
-//		
-//		for(int i = 0; i < hitboxEntities.size(); i++)
-//		{
-//			Entity otherEntity = hitboxEntities.get(i);
-//			if(entity != otherEntity)
-//			{
-//				collidable = true;
-//				
-//				if(Mappers.script.has(otherEntity))
-//				{
-//					collidable = Mappers.script.get(otherEntity).collidable;
-//				}
-//				
-//				if(otherEntity == game.player)
-//				{
-//					collidable = false;
-//				}
-//				
-//				if(Mappers.hitbox.get(entity).hitbox.overlaps(Mappers.hitbox.get(otherEntity).hitbox) && collidable)
-//				{
-//					return true;
-//				}
-//			}
-//		}
-//		
-//		return false;
 	}
 	
 	private void resolveCollision(Entity entity)
@@ -296,6 +259,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 //					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
@@ -321,6 +292,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
@@ -344,6 +323,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
@@ -368,6 +355,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
@@ -391,6 +386,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
@@ -413,6 +416,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x - Mappers.hitbox.get(entity).hitbox.width;
@@ -435,6 +446,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
@@ -457,6 +476,14 @@ public class CollisionSystem extends EntitySystem
 			colliding = false;
 			for(Entity obstacle : hitboxEntities)
 			{
+				if(Mappers.script.has(obstacle))
+				{
+					if(!Mappers.script.get(obstacle).collidable)
+					{
+						continue;
+					}
+				}
+				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
 					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;

@@ -1,6 +1,6 @@
 Goomba = {}
 
-function Goomba.execute(goomba, game)
+function Goomba.execute(goomba, game, deadSprite, scriptArgs)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
@@ -41,12 +41,33 @@ function Goomba.execute(goomba, game)
       -----------------------
 			if intersectWidth > intersectHeight then
 				if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
+				  local velocities = luajava.bindClass("io.whitegoldlabs.wiseguys.component.VelocityComponent")
+				  local accelerations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AccelerationComponent")
+				  
+				  local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
+				  local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
 					local playerVelocityComponent = mappers.velocity:get(collidingEntity)
+					local playerPositionComponent = mappers.position:get(collidingEntity)
+					local goombaPositionComponent = mappers.position:get(goomba)
+					local goombaSpriteComponent = mappers.sprite:get(goomba)
 					
 					stompSfx:play()
+					playerPositionComponent.y = goombaPositionComponent.y + goombaSpriteComponent.sprite:getHeight()
+					playerHitboxComponent.hitbox.y = playerPositionComponent.y
 					playerVelocityComponent.y = 430
 					
-					goombaStateComponent.enabledState = states.EnabledState.DISABLED
+  				scriptArgs:add(goomba)
+          local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\goomba_death_behavior.lua", scriptArgs)
+          boxBehaviorComponent.behaviorState = "DEAD"
+          game.scriptManager:loadScript("scripts\\goomba_death_behavior.lua")
+          
+          goomba:add(boxBehaviorComponent)
+          
+          goombaSpriteComponent.sprite = deadSprite
+          goomba:remove(velocities)
+          goomba:remove(accelerations)
+          goomba:remove(animations)
+          goomba:remove(scripts)
 				end
 				
 			---------------------------
@@ -105,10 +126,10 @@ function Goomba.execute(goomba, game)
 			end
 		end
 		
-	-----------------------------
-	-- Collision with Obstacle --
-	-----------------------------
-	elseif collidingEntityTypeComponent.type == types.Type.OBSTACLE then
+	--------------------------------------
+	-- Collision with Obstacle or Enemy --
+	--------------------------------------
+	elseif collidingEntityTypeComponent.type == types.Type.OBSTACLE or collidingEntityTypeComponent.type == types.Type.ENEMY then
 		if goombaStateComponent.airborneState == states.AirborneState.GROUNDED then
 			local goombaVelocityComponent = mappers.velocity:get(goomba)
 			goombaVelocityComponent.x = 0 - goombaVelocityComponent.x

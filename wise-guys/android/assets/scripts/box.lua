@@ -30,7 +30,8 @@ function Box.execute(box, game, emptyBoxSprite, contentsSprite, scriptArgs)
   			local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
   			
   			local boxSpriteComponent = mappers.sprite:get(box)
-  			local boxTypeComponent = mappers.type:get(box)
+  			
+  			-- Parameterize box around this line
   			local powerupAppearsSfx = game.assets.manager:get(assetFiles.sfxPowerupAppears)
   	    
   			powerupAppearsSfx:play()
@@ -71,7 +72,6 @@ function Box.execute(box, game, emptyBoxSprite, contentsSprite, scriptArgs)
   			box:add(boxBehaviorComponent)
   			box:remove(animations)
   			box:remove(scripts)
-  			boxTypeComponent.type = types.Type.OBSTACLE
   		end
 		end
 	end

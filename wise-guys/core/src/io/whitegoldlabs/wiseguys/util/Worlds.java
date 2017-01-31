@@ -147,6 +147,8 @@ public class Worlds
 						Array<Object> args = new Array<>();
 						args.add(entity);
 						args.add(game);
+						args.add(new Sprite(spriteSheet, 32, 48, 16, 16));
+						args.add(new Array<Object>());
 						
 						ScriptComponent script = new ScriptComponent(false, "scripts\\goomba.lua", args);
 						entity.add(script);
@@ -166,7 +168,6 @@ public class Worlds
 					// BOX
 					else if(cells[x].equals("50"))
 					{
-						// Is EVENT type necessary for blocks like this?
 						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 						
 						Array<Sprite> boxStillSprites = new Array<>();
