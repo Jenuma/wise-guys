@@ -75,7 +75,7 @@ public class DebugRenderSystem extends EntitySystem
 						break;
 					case ENEMY_PROJECTILE:
 					case ENEMY:
-						shapeRenderer.setColor(1, 0, 1, 0.5f);
+						shapeRenderer.setColor(1, 0, 0, 0.5f);
 						break;
 					case PLAYER_PROJECTILE:
 					case PLAYER:
@@ -83,6 +83,8 @@ public class DebugRenderSystem extends EntitySystem
 						break;
 					case OBSTACLE:
 						shapeRenderer.setColor(0, 0, 0, 0.5f);
+					case PRIORITY:
+						shapeRenderer.setColor(0, 1, 1, 0.5f);
 				}
 			}
 			

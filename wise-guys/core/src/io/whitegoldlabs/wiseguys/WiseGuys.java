@@ -52,8 +52,8 @@ public class WiseGuys extends Game
 	public Console console;
 	
 	public boolean eventProcessing;
+	public boolean playerEventMovementAllowed;
 	public boolean isRunning;
-	public boolean wasSleeping;
 	
 	public String nextGameScreenDestination;
 	private float nextGameScreenX;
@@ -83,8 +83,8 @@ public class WiseGuys extends Game
 		initPlayer();
 		
 		this.eventProcessing = false;
+		this.playerEventMovementAllowed = false;
 		this.isRunning = true;
-		this.wasSleeping = false;
 		
 		this.currentWorld = "world1-1";
 		
@@ -231,7 +231,6 @@ public class WiseGuys extends Game
 		PlayerComponent playerComponent = Mappers.player.get(player);
 		
 		playerComponent.playerState = PlayerComponent.PlayerState.SUPER;
-		
 		setPlayerAnimations(playerComponent.playerState);
 	}
 	
@@ -241,8 +240,6 @@ public class WiseGuys extends Game
 		PlayerComponent playerComponent = Mappers.player.get(player);
 		
 		playerComponent.playerState = PlayerComponent.PlayerState.NORMAL;
-		playerComponent.damaged = true;
-		
 		setPlayerAnimations(playerComponent.playerState);
 	}
 }

@@ -4,6 +4,7 @@ import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.JsePlatform;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
 public class ScriptManager
@@ -42,6 +43,7 @@ public class ScriptManager
 	
 	public void executeScript(String moduleName, LuaValue[] args)
 	{
+		Gdx.app.log("[SCRIPTS]", "Executing script: " + moduleName);
 		globals.get(moduleName).get("execute").invoke(args);
 	}
 }

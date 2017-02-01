@@ -60,55 +60,22 @@ function Connolo.execute(connolo, game)
 	  local powerupSfx = game.assets.manager:get(assetFiles.sfxPowerup)
 	  
 	  local playerComponent = mappers.player:get(collidingEntity)
-    local playerAnimationComponent = mappers.animation:get(collidingEntity)
-    local playerStateComponent = mappers.state:get(collidingEntity)
-    local playerPowerupAnimation = playerAnimationComponent.animations:get("POWERUP")
 	  
-	  --------------------------
-    -- Player Already Super --
-    --------------------------
-    if playerComponent.playerState ~= playerStates.PlayerState.NORMAL then
-      powerupSfx:play()
-      playerComponent.score = playerComponent.score + 1000
-      connoloStateComponent.enabledState = states.EnabledState.DISABLED
-    
-    -------------------------
-    -- Start Powerup Event --
-    -------------------------
-    elseif not game.eventProcessing then
-      local connoloSpriteComponent = mappers.sprite:get(connolo)
-      local spriteSheet = game.assets.manager:get(assetFiles.spriteSheet)
-      
-      powerupSfx:play()
-      playerComponent.score = playerComponent.score + 1000
-      game.eventProcessing = true
-      
-      connoloSpriteComponent.sprite = luajava.newInstance("com.badlogic.gdx.graphics.g2d.Sprite", spriteSheet, 0, 0, 0, 0)
-      
-      playerStateComponent.time = 0
-    -------------------------------
-    -- Powerup Animation Playing --
-    -------------------------------
-    else
-      local playerSpriteComponent = mappers.sprite:get(collidingEntity)
-      
-      playerSpriteComponent.sprite = playerPowerupAnimation:getKeyFrame(playerStateComponent.time, false)
-      
-      if playerStateComponent.directionState == states.DirectionState.LEFT then
-        playerSpriteComponent.sprite:setFlip(true, false)
-      elseif playerStateComponent.directionState == states.DirectionState.LEFT then
-        playerSpriteComponent.sprite:setFlip(false, false)
-      end
-    end
-    
-    --------------------------------
-    -- Powerup Animation Finished --
-    --------------------------------
-    if playerPowerupAnimation:isAnimationFinished(playerStateComponent.time) then
-      game:powerupSuperJules()
-      game.eventProcessing = false
-      connoloStateComponent.enabledState = states.EnabledState.DISABLED
-    end
+	  powerupSfx:play()
+	  playerComponent.score = playerComponent.score + 1000
+    connoloStateComponent.enabledState = states.EnabledState.DISABLED
+	  
+	  if playerComponent.playerState == playerStates.PlayerState.NORMAL then
+  	  local arrayInstantiator = luajava.bindClass("io.whitegoldlabs.wiseguys.util.ArrayInstantiator")
+  	  
+  	  local scriptArgs = arrayInstantiator:getNewArray()
+  	  scriptArgs:add(game)
+  	  
+  	  local playerBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\jules_connolo_behavior.lua", scriptArgs)
+  	  playerBehaviorComponent.behaviorState = "TOUCHED"
+  	  game.scriptManager:loadScript("scripts\\jules_connolo_behavior.lua")
+  	  collidingEntity:add(playerBehaviorComponent)
+	  end
 	end
 	
 	-------------------------------

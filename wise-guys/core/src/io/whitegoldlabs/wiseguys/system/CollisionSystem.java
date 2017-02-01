@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -73,7 +74,7 @@ public class CollisionSystem extends EntitySystem
 	private boolean isColliding(Entity entity)
 	{	
 		// Test scripted entities against everything except the player.
-		if(entity != game.player)
+		if(entity != game.player && !game.eventProcessing)
 		{
 			for(int i = 0; i < hitboxEntities.size(); i++)
 			{
@@ -102,11 +103,6 @@ public class CollisionSystem extends EntitySystem
 		// Test the player against hitbox entities.
 		else
 		{
-			if(game.eventProcessing)
-			{
-				return false;
-			}
-			
 			for(int i = 0; i < hitboxEntities.size(); i++)
 			{
 				// Make sure player is not checking itself.
@@ -163,6 +159,8 @@ public class CollisionSystem extends EntitySystem
 			Mappers.hitbox.get(entity).hitbox.x += xAndYDistanceToResolve.x;
 			Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
 		}
+		
+		Gdx.app.log("[COLLISION]", "Resolved collision for " + entity);
 	}
 	
 	private float xDistanceToMoveToResolveCollisions(Entity entity)

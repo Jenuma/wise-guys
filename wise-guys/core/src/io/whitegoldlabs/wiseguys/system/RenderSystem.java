@@ -81,6 +81,9 @@ public class RenderSystem extends SortedIteratingSystem
 				case OBSTACLE:
 					valueA = 6;
 					break;
+				case PRIORITY:
+					valueA = 7;
+					break;
 			}
 			
 			switch(typeB.type)
@@ -105,6 +108,9 @@ public class RenderSystem extends SortedIteratingSystem
 					break;
 				case OBSTACLE:
 					valueB = 6;
+					break;
+				case PRIORITY:
+					valueB = 7;
 					break;
 			}
 			

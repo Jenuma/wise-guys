@@ -41,14 +41,8 @@ public class GameOverScreen implements Screen
 		Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
-        // Resetting the delta here prevents the engine from updating based on longer deltas that resulted from a thread pause.
- 		if(game.wasSleeping)
- 		{
- 			delta = 0;
- 			game.wasSleeping = false;
- 		}
-        
         time += delta;
+        
         if(time >= 4)
         {
         	MainMenuScreen mainMenuScreen = new MainMenuScreen(game);

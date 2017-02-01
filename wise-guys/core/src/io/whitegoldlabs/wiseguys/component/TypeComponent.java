@@ -12,7 +12,8 @@ public class TypeComponent implements Component
 		EVENT,
 		ENEMY,
 		PLAYER_PROJECTILE,
-		ENEMY_PROJECTILE
+		ENEMY_PROJECTILE,
+		PRIORITY
 	}
 	
 	public Type type;

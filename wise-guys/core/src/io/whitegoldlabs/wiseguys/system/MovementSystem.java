@@ -44,75 +44,78 @@ public class MovementSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
-		if(game.isRunning && !game.eventProcessing)
+		if(game.isRunning)
 		{
 			for(Entity entity : entities)
 			{
-				PositionComponent position = Mappers.position.get(entity);
-				VelocityComponent velocity = Mappers.velocity.get(entity);
-				AccelerationComponent acceleration = Mappers.acceleration.get(entity);
-				HitboxComponent hitbox = Mappers.hitbox.get(entity);
-				StateComponent state = Mappers.state.get(entity);
-				
-				// Apply deceleration if slowing.
-				if(state.motionState == StateComponent.MotionState.SLOWING &&
-					state.directionState == StateComponent.DirectionState.LEFT)
+				if(!game.eventProcessing || (entity == game.player && game.playerEventMovementAllowed))
 				{
-					if(acceleration.x < 0)
+					PositionComponent position = Mappers.position.get(entity);
+					VelocityComponent velocity = Mappers.velocity.get(entity);
+					AccelerationComponent acceleration = Mappers.acceleration.get(entity);
+					HitboxComponent hitbox = Mappers.hitbox.get(entity);
+					StateComponent state = Mappers.state.get(entity);
+					
+					// Apply deceleration if slowing.
+					if(state.motionState == StateComponent.MotionState.SLOWING &&
+						state.directionState == StateComponent.DirectionState.LEFT)
 					{
-						acceleration.x = 0 - acceleration.x;
+						if(acceleration.x < 0)
+						{
+							acceleration.x = 0 - acceleration.x;
+						}
+						
+						if(velocity.x + (acceleration.x * deltaTime * 60) >= 0)
+						{
+							velocity.x = 0;
+							acceleration.x = 0;
+							state.motionState = StateComponent.MotionState.STILL;
+						}
+					}
+					else if(state.motionState == StateComponent.MotionState.SLOWING &&
+							state.directionState == StateComponent.DirectionState.RIGHT)
+					{
+						if(acceleration.x > 0)
+						{
+							acceleration.x = 0 - acceleration.x;
+						}
+						
+						if(velocity.x + (acceleration.x * deltaTime * 60) <= 0)
+						{
+							velocity.x = 0;
+							acceleration.x = 0;
+							state.motionState = StateComponent.MotionState.STILL;
+						}
 					}
 					
-					if(velocity.x + (acceleration.x * deltaTime * 60) >= 0)
+					velocity.x += acceleration.x * deltaTime * 60;
+					velocity.y += acceleration.y * deltaTime * 60;
+					
+					// Keep velocities under max.
+					if(velocity.x > 0)
 					{
-						velocity.x = 0;
-						acceleration.x = 0;
-						state.motionState = StateComponent.MotionState.STILL;
+						velocity.x = Math.min(velocity.x, 200);
 					}
-				}
-				else if(state.motionState == StateComponent.MotionState.SLOWING &&
-						state.directionState == StateComponent.DirectionState.RIGHT)
-				{
-					if(acceleration.x > 0)
+					else
 					{
-						acceleration.x = 0 - acceleration.x;
+						velocity.x = Math.max(velocity.x, -200);
 					}
 					
-					if(velocity.x + (acceleration.x * deltaTime * 60) <= 0)
+					if(velocity.y > 0)
 					{
-						velocity.x = 0;
-						acceleration.x = 0;
-						state.motionState = StateComponent.MotionState.STILL;
+						velocity.y = Math.min(velocity.y, 430);
 					}
+					else
+					{
+						velocity.y = Math.max(velocity.y, -430);
+					}
+					
+					position.x += velocity.x * deltaTime;
+					position.y += velocity.y * deltaTime;
+					
+					hitbox.hitbox.x = position.x;
+					hitbox.hitbox.y = position.y;
 				}
-				
-				velocity.x += acceleration.x * deltaTime * 60;
-				velocity.y += acceleration.y * deltaTime * 60;
-				
-				// Keep velocities under max.
-				if(velocity.x > 0)
-				{
-					velocity.x = Math.min(velocity.x, 200);
-				}
-				else
-				{
-					velocity.x = Math.max(velocity.x, -200);
-				}
-				
-				if(velocity.y > 0)
-				{
-					velocity.y = Math.min(velocity.y, 430);
-				}
-				else
-				{
-					velocity.y = Math.max(velocity.y, -430);
-				}
-				
-				position.x += velocity.x * deltaTime;
-				position.y += velocity.y * deltaTime;
-				
-				hitbox.hitbox.x = position.x;
-				hitbox.hitbox.y = position.y;
 			}
 		}
 	}

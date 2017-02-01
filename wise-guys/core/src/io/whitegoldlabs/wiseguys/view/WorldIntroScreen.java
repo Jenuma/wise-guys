@@ -88,13 +88,6 @@ public class WorldIntroScreen implements Screen
 	    stage.act(Gdx.graphics.getDeltaTime());
 	    stage.draw();
 	    
-	    // Resetting the delta here prevents the engine from updating based on longer deltas that resulted from a thread pause.
- 		if(game.wasSleeping)
- 		{
- 			delta = 0;
- 			game.wasSleeping = false;
- 		}
-	    
 	    time += delta;
 	    
 	    if(time >= 2)

@@ -1,6 +1,6 @@
 Box = {}
 
-function Box.execute(box, game, emptyBoxSprite, contentsSprite, scriptArgs)
+function Box.execute(box, game, emptyBoxSprite, contentsSprite)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	
@@ -28,6 +28,7 @@ function Box.execute(box, game, emptyBoxSprite, contentsSprite, scriptArgs)
   			local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
   			local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
   			local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+  			local arrayInstantiator = luajava.bindClass("io.whitegoldlabs.wiseguys.util.ArrayInstantiator")
   			
   			local boxSpriteComponent = mappers.sprite:get(box)
   			
@@ -48,8 +49,10 @@ function Box.execute(box, game, emptyBoxSprite, contentsSprite, scriptArgs)
   			local contentsCollisionComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.CollisionComponent", box)
   			local contentsPhaseComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.PhaseComponent")
   			
+  			local scriptArgs = arrayInstantiator:getNewArray()
   			scriptArgs:add(contents)
   			scriptArgs:add(game)
+  			
   			local contentsScriptComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.ScriptComponent", "scripts\\connolo.lua", scriptArgs)
   			game.scriptManager:loadScript("scripts\\connolo.lua")
   			

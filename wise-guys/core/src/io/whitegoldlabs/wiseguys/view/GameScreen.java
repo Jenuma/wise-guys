@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
+import io.whitegoldlabs.wiseguys.component.BehaviorComponent;
 import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
@@ -51,7 +52,7 @@ public class GameScreen implements Screen
 	VelocityComponent playerVelocity;
     PlayerComponent playerInventory;
     
-    ScriptComponent julesTimeOutScript;
+    BehaviorComponent julesTimeOutBehavior;
     
     GlyphLayout pausedText;
 	
@@ -92,7 +93,8 @@ public class GameScreen implements Screen
 		Array<Object> args = new Array<>();
 		args.add(game);
 		args.add(game.assets.manager.get(Assets.sfxJulesDeath));
-		this.julesTimeOutScript = new ScriptComponent("scripts\\jules_death.lua", args);
+		this.julesTimeOutBehavior = new BehaviorComponent("scripts\\jules_death_behavior.lua", args);
+		this.julesTimeOutBehavior.behaviorState = "DYING";
 		
 		pausedText = new GlyphLayout(game.bigFont, "PAUSED");
 	}
@@ -180,7 +182,8 @@ public class GameScreen implements Screen
         // Player dies if time falls below 0.
         if(playerInventory.time < 0)
         {
-        	game.scriptManager.executeScript(julesTimeOutScript.moduleName, julesTimeOutScript.args);
+        	game.player.add(julesTimeOutBehavior);
+        	//game.scriptManager.executeScript(julesTimeOutBehavior.moduleName, julesTimeOutBehavior.args);
         }
         
         // Debug Mode
@@ -278,6 +281,6 @@ public class GameScreen implements Screen
 			game.scriptManager.loadScript(Mappers.script.get(scriptedEntity).scriptName);
 		}
 		
-		game.scriptManager.loadScript("scripts\\jules_death.lua");
+		game.scriptManager.loadScript("scripts\\jules_death_behavior.lua");
 	}
 }

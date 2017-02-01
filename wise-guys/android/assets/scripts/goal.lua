@@ -16,7 +16,6 @@ function Goal.execute(goalObject, game)
 		local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
 		
 		local stageClearSfx = game.assets.manager:get(assetFiles.sfxStageClear)
-		
 		stageClearSfx:play()
 		
 		local newMainMenuScreen = luajava.newInstance("io.whitegoldlabs.wiseguys.view.MainMenuScreen", game)

@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Rectangle;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
@@ -82,7 +83,7 @@ public class GravitySystem extends EntitySystem
 					for(Entity obstacle : obstacleEntities)
 					{
 						Rectangle obstacleHitbox = Mappers.hitbox.get(obstacle).hitbox;
-						if(fallbox.overlaps(obstacleHitbox))
+						if(fallbox.overlaps(obstacleHitbox) && !Mappers.phase.has(obstacle))
 						{
 							grounded = true;
 							break;
@@ -91,6 +92,7 @@ public class GravitySystem extends EntitySystem
 					
 					if(!grounded)
 					{
+						Gdx.app.log("[GRAVITY]", "Entity " + dynamicEntity + " determined to be falling");
 						state.airborneState = StateComponent.AirborneState.FALLING;
 					}
 				}

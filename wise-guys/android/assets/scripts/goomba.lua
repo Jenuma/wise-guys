@@ -1,6 +1,6 @@
 Goomba = {}
 
-function Goomba.execute(goomba, game, deadSprite, scriptArgs)
+function Goomba.execute(goomba, game)
 	local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
 	local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
 	local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
@@ -15,115 +15,100 @@ function Goomba.execute(goomba, game, deadSprite, scriptArgs)
 	-- Collision with Player --
 	---------------------------
 	if collidingEntityTypeComponent.type == types.Type.PLAYER then
+	  local arrayInstantiator = luajava.bindClass("io.whitegoldlabs.wiseguys.util.ArrayInstantiator")
+		local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
+		local playerStates = luajava.bindClass("io.whitegoldlabs.wiseguys.component.PlayerComponent")
+		
+		local stompSfx = game.assets.manager:get(assetFiles.sfxStomp)
+		local powerdownSfx = game.assets.manager:get(assetFiles.sfxPipe)
+		
 		local playerComponent = mappers.player:get(collidingEntity)
+		local playerHitboxComponent = mappers.hitbox:get(collidingEntity)
+		local goombaHitboxComponent = mappers.hitbox:get(goomba)
+	
+		--------------------------------
+		-- Get Intersection Rectangle --
+		--------------------------------
+		local intersectX = math.max(playerHitboxComponent.hitbox.x, goombaHitboxComponent.hitbox.x)
+		local intersectY = math.max(playerHitboxComponent.hitbox.y, goombaHitboxComponent.hitbox.y)
+		local intersectWidth = math.min(playerHitboxComponent.hitbox.x + playerHitboxComponent.hitbox.width, goombaHitboxComponent.hitbox.x + goombaHitboxComponent.hitbox.width) - intersectX
+		local intersectHeight = math.min(playerHitboxComponent.hitbox.y + playerHitboxComponent.hitbox.height, goombaHitboxComponent.hitbox.y + goombaHitboxComponent.hitbox.height) - intersectY
 		
-		if not playerComponent.damaged then
-			local assetFiles = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Assets")
-			local playerStates = luajava.bindClass("io.whitegoldlabs.wiseguys.component.PlayerComponent")
-			
-			local stompSfx = game.assets.manager:get(assetFiles.sfxStomp)
-			local julesDeathSfx = game.assets.manager:get(assetFiles.sfxJulesDeath)
-			local powerdownSfx = game.assets.manager:get(assetFiles.sfxPipe)
-			
-			local playerHitboxComponent = mappers.hitbox:get(collidingEntity)
-			local goombaHitboxComponent = mappers.hitbox:get(goomba)
-		
-			--------------------------------
-			-- Get Intersection Rectangle --
-			--------------------------------
-			local intersectX = math.max(playerHitboxComponent.hitbox.x, goombaHitboxComponent.hitbox.x)
-			local intersectY = math.max(playerHitboxComponent.hitbox.y, goombaHitboxComponent.hitbox.y)
-			local intersectWidth = math.min(playerHitboxComponent.hitbox.x + playerHitboxComponent.hitbox.width, goombaHitboxComponent.hitbox.x + goombaHitboxComponent.hitbox.width) - intersectX
-			local intersectHeight = math.min(playerHitboxComponent.hitbox.y + playerHitboxComponent.hitbox.height, goombaHitboxComponent.hitbox.y + goombaHitboxComponent.hitbox.height) - intersectY
-			
-			-----------------------
-      -- Goomba Stomped On --
-      -----------------------
-			if intersectWidth > intersectHeight then
-				if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
-				  local velocities = luajava.bindClass("io.whitegoldlabs.wiseguys.component.VelocityComponent")
-				  local accelerations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AccelerationComponent")
-				  
-				  local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
-				  local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
-					local playerVelocityComponent = mappers.velocity:get(collidingEntity)
-					local playerPositionComponent = mappers.position:get(collidingEntity)
-					local goombaPositionComponent = mappers.position:get(goomba)
-					local goombaSpriteComponent = mappers.sprite:get(goomba)
-					
-					stompSfx:play()
-					playerPositionComponent.y = goombaPositionComponent.y + goombaSpriteComponent.sprite:getHeight()
-					playerHitboxComponent.hitbox.y = playerPositionComponent.y
-					playerVelocityComponent.y = 430
-					
-  				scriptArgs:add(goomba)
-          local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\goomba_death_behavior.lua", scriptArgs)
-          boxBehaviorComponent.behaviorState = "DEAD"
-          game.scriptManager:loadScript("scripts\\goomba_death_behavior.lua")
-          
-          goomba:add(boxBehaviorComponent)
-          
-          goombaSpriteComponent.sprite = deadSprite
-          goomba:remove(velocities)
-          goomba:remove(accelerations)
-          goomba:remove(animations)
-          goomba:remove(scripts)
-				end
+		-----------------------
+    -- Goomba Stomped On --
+    -----------------------
+		if intersectWidth > intersectHeight then
+			if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
+			  local velocities = luajava.bindClass("io.whitegoldlabs.wiseguys.component.VelocityComponent")
+			  local accelerations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AccelerationComponent")
+			  
+			  local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
+			  local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
+				local playerVelocityComponent = mappers.velocity:get(collidingEntity)
+				local playerPositionComponent = mappers.position:get(collidingEntity)
+				local goombaPositionComponent = mappers.position:get(goomba)
+				local goombaSpriteComponent = mappers.sprite:get(goomba)
 				
-			---------------------------
-      -- Goomba Touched Player --
-      ---------------------------
-			else
-			
-			  -----------------
-        -- Player Dies --
-        -----------------
-				if playerComponent.playerState == playerStates.PlayerState.NORMAL then
-					Jules_death.execute(game, julesDeathSfx)
-					
-				--------------------
-        -- Player Damaged --
-        --------------------
-				elseif playerComponent.playerState == playerStates.PlayerState.SUPER then
-				  local playerAnimationComponent = mappers.animation:get(collidingEntity)
-          local playerStateComponent = mappers.state:get(collidingEntity)
-          local playerPowerupAnimation = playerAnimationComponent.animations:get("POWERUP")
-    
-          ---------------------------
-          -- Start Powerdown Event --
-          ---------------------------
-				  if not game.eventProcessing then
-            powerdownSfx:play()
-            game.eventProcessing = true
-            
-            playerStateComponent.time = 0
-            
-          ---------------------------------
-          -- Powerdown Animation Playing --
-          ---------------------------------
-          else
-            local animations = luajava.bindClass("com.badlogic.gdx.graphics.g2d.Animation")
-            local playerSpriteComponent = mappers.sprite:get(collidingEntity)
-            
-            playerPowerupAnimation:setPlayMode(animations.PlayMode.REVERSED)
-            playerSpriteComponent.sprite = playerPowerupAnimation:getKeyFrame(playerStateComponent.time, false)
-            
-            if playerStateComponent.directionState == states.DirectionState.LEFT then
-              playerSpriteComponent.sprite:setFlip(true, false)
-            elseif playerStateComponent.directionState == states.DirectionState.LEFT then
-              playerSpriteComponent.sprite:setFlip(false, false)
-            end
-          end
+				local spriteSheet = game.assets.manager:get(assetFiles.spriteSheet)
 				
-				  ----------------------------------
-          -- Powerdown Animation Finished --
-          ----------------------------------
-				  if playerPowerupAnimation:isAnimationFinished(playerStateComponent.time) then
-				    game:powerdownNormalJules()
-				    game.eventProcessing = false
-				  end
-				end
+				stompSfx:play()
+				playerPositionComponent.y = goombaPositionComponent.y + goombaSpriteComponent.sprite:getHeight()
+				playerHitboxComponent.hitbox.y = playerPositionComponent.y
+				playerVelocityComponent.y = 430
+				
+				local scriptArgs = arrayInstantiator:getNewArray()
+				scriptArgs:add(goomba)
+				
+        local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\goomba_death_behavior.lua", scriptArgs)
+        boxBehaviorComponent.behaviorState = "DEAD"
+        game.scriptManager:loadScript("scripts\\goomba_death_behavior.lua")
+        
+        goomba:add(boxBehaviorComponent)
+        
+        goombaSpriteComponent.sprite = luajava.newInstance("com.badlogic.gdx.graphics.g2d.Sprite", spriteSheet, 32, 48, 16, 16)
+        goomba:remove(velocities)
+        goomba:remove(accelerations)
+        goomba:remove(animations)
+        goomba:remove(scripts)
 			end
+			
+		---------------------------
+    -- Goomba Touched Player --
+    ---------------------------
+		else
+		
+		  -----------------
+      -- Player Dies --
+      -----------------
+			if playerComponent.playerState == playerStates.PlayerState.NORMAL then
+			  if not playerComponent.damaged then
+          local playerPositionComponent = mappers.position:get(collidingEntity)
+          
+          local scriptArgs = arrayInstantiator:getNewArray()
+          scriptArgs:add(game)
+          scriptArgs:add(playerPositionComponent.y)
+        
+          local playerBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\jules_death_behavior.lua", scriptArgs)
+          playerBehaviorComponent.behaviorState = "DYING"
+          game.scriptManager:loadScript("scripts\\jules_death_behavior.lua")
+    
+          game.player:add(playerBehaviorComponent)
+			  end
+				
+			--------------------
+      -- Player Damaged --
+      --------------------
+			elseif playerComponent.playerState == playerStates.PlayerState.SUPER then
+        powerdownSfx:play()
+      
+        local scriptArgs = arrayInstantiator:getNewArray()
+        scriptArgs:add(game)
+        
+        local playerBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\jules_powerdown_normal_behavior.lua", scriptArgs)
+        playerBehaviorComponent.behaviorState = "TOUCHED"
+        game.scriptManager:loadScript("scripts\\jules_powerdown_normal_behavior.lua")
+        collidingEntity:add(playerBehaviorComponent)  
+      end
 		end
 		
 	--------------------------------------

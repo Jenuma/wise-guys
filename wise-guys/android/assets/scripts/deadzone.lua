@@ -28,8 +28,6 @@ function Deadzone.execute(deadzone, game)
     game.player:add(playerBehaviorComponent)
 	
 	  deadzone:remove(scripts)
-	
-		--Jules_death.execute(game)
 	end
 end
 
