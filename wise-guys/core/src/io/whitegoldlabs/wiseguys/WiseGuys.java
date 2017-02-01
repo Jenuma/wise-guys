@@ -29,8 +29,8 @@ import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.ConsoleCommandExecutor;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 import io.whitegoldlabs.wiseguys.util.ScriptManager;
-import io.whitegoldlabs.wiseguys.view.GameScreen;
 import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
+import io.whitegoldlabs.wiseguys.view.TransitionScreen;
 
 public class WiseGuys extends Game
 {
@@ -121,7 +121,7 @@ public class WiseGuys extends Game
 	
 	public void setNextGameScreen()
 	{
-		GameScreen nextGameScreen = new GameScreen(this, nextGameScreenDestination, nextGameScreenX, nextGameScreenY);
+		TransitionScreen nextGameScreen = new TransitionScreen(this, nextGameScreenDestination, nextGameScreenX, nextGameScreenY);
 		
 		currentScreen.dispose();
 		currentScreen = nextGameScreen;
