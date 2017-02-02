@@ -21,7 +21,7 @@ public class GravitySystem extends EntitySystem
 	private ImmutableArray<Entity> obstacleEntities;
 	
 	private final WiseGuys game;
-	private final float G = -25;
+	private final float G = -0.6f;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -68,7 +68,7 @@ public class GravitySystem extends EntitySystem
 				if(state.airborneState == StateComponent.AirborneState.FALLING ||
 					state.airborneState == StateComponent.AirborneState.JUMPING)
 				{
-					acceleration.y = G * deltaTime * 60;
+					acceleration.y = G;
 				}
 				// If the entity isn't falling, check to see if it should be.
 				else

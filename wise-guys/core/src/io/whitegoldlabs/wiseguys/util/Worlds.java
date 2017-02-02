@@ -154,7 +154,7 @@ public class Worlds
 					entity.add(new TypeComponent(TypeComponent.Type.ENEMY));
 					entity.add(new HitboxComponent(tileX*16, (mapHeight-1-tileY)*16, 16, 16));
 					
-					entity.add(new VelocityComponent(15, 0));
+					entity.add(new VelocityComponent(0.8f, 0));
 					entity.add(new AccelerationComponent(0, 0));
 					entity.add(new PhaseComponent());
 					

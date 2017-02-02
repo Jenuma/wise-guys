@@ -6,6 +6,7 @@ import com.badlogic.gdx.Input.Keys;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
+import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Assets;
@@ -51,14 +52,14 @@ public class PlayerInputSystem extends EntitySystem
 	        else if(leftPressed)
 			{
 	        	playerState.directionState = StateComponent.DirectionState.LEFT;
-	        	playerAcceleration.x = -15;
+	        	playerAcceleration.x = -0.2f;
 	        	playerState.motionState = StateComponent.MotionState.MOVING;
 			}
 	        //Move right.
 	        else if(rightPressed)
 	        {
 	        	playerState.directionState = StateComponent.DirectionState.RIGHT;
-	        	playerAcceleration.x = 15;
+	        	playerAcceleration.x = 0.2f;
 	        	playerState.motionState = StateComponent.MotionState.MOVING;
 	        }
 	        
@@ -67,7 +68,21 @@ public class PlayerInputSystem extends EntitySystem
 	        {
 	        	game.assets.manager.get(Assets.sfxJump).play();
 	        	playerState.airborneState = StateComponent.AirborneState.JUMPING;
-	        	playerVelocity.y += 430;
+	        	
+	        	if(Mappers.player.get(game.player).playerState != PlayerComponent.PlayerState.NORMAL)
+	        	{
+	        		playerVelocity.y += 5.5;
+	        	}
+	        	else
+	        	{
+	        		playerVelocity.y += 4.9;
+	        	}
+	        }
+	        
+	        // Ascent Control
+	        if(Gdx.input.isKeyPressed(Keys.Z) && playerState.airborneState == StateComponent.AirborneState.JUMPING && playerVelocity.y > 0)
+	        {
+	        	playerAcceleration.y += 0.4;
 	        }
 		}
         

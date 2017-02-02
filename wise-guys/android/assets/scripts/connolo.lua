@@ -82,7 +82,7 @@ function Connolo.execute(connolo, game)
 	-- Connolo Finished Spawning --
 	-------------------------------
 	if not collidingEntityHitboxComponent.hitbox:overlaps(connoloHitboxComponent.hitbox) then
-		local connoloVelocityComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.VelocityComponent", 25, 0)
+		local connoloVelocityComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.VelocityComponent", 0.8, 0)
 		local connoloAccelerationComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.AccelerationComponent", 0, 0)
 		
 		connolo:add(connoloVelocityComponent)

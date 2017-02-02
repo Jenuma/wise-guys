@@ -65,7 +65,7 @@ public class MovementSystem extends EntitySystem
 							acceleration.x = 0 - acceleration.x;
 						}
 						
-						if(velocity.x + (acceleration.x * deltaTime * 60) >= 0)
+						if(velocity.x + acceleration.x >= 0)
 						{
 							velocity.x = 0;
 							acceleration.x = 0;
@@ -80,7 +80,7 @@ public class MovementSystem extends EntitySystem
 							acceleration.x = 0 - acceleration.x;
 						}
 						
-						if(velocity.x + (acceleration.x * deltaTime * 60) <= 0)
+						if(velocity.x + acceleration.x <= 0)
 						{
 							velocity.x = 0;
 							acceleration.x = 0;
@@ -88,30 +88,30 @@ public class MovementSystem extends EntitySystem
 						}
 					}
 					
-					velocity.x += acceleration.x * deltaTime * 60;
-					velocity.y += acceleration.y * deltaTime * 60;
+					velocity.x += acceleration.x;
+					velocity.y += acceleration.y;
 					
 					// Keep velocities under max.
 					if(velocity.x > 0)
 					{
-						velocity.x = Math.min(velocity.x, 200);
+						velocity.x = Math.min(velocity.x, 3);
 					}
 					else
 					{
-						velocity.x = Math.max(velocity.x, -200);
+						velocity.x = Math.max(velocity.x, -3);
 					}
 					
 					if(velocity.y > 0)
 					{
-						velocity.y = Math.min(velocity.y, 430);
+						velocity.y = Math.min(velocity.y, 8);
 					}
 					else
 					{
-						velocity.y = Math.max(velocity.y, -430);
+						velocity.y = Math.max(velocity.y, -8);
 					}
 					
-					position.x += velocity.x * deltaTime;
-					position.y += velocity.y * deltaTime;
+					position.x += velocity.x;
+					position.y += velocity.y;
 					
 					hitbox.hitbox.x = position.x;
 					hitbox.hitbox.y = position.y;
