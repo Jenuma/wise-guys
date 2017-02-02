@@ -43,7 +43,7 @@ public class ScriptManager
 	
 	public void executeScript(String moduleName, LuaValue[] args)
 	{
-		Gdx.app.log("[SCRIPTS]", "Executing script: " + moduleName);
+		Gdx.app.debug("[SCRIPTS]", "Executing script: " + moduleName);
 		globals.get(moduleName).get("execute").invoke(args);
 	}
 }

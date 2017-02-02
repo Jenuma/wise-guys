@@ -11,10 +11,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.BehaviorComponent;
+import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.PlayerComponent;
 import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
@@ -183,7 +186,6 @@ public class GameScreen implements Screen
         if(playerInventory.time < 0)
         {
         	game.player.add(julesTimeOutBehavior);
-        	//game.scriptManager.executeScript(julesTimeOutBehavior.moduleName, julesTimeOutBehavior.args);
         }
         
         // Debug Mode
@@ -191,6 +193,69 @@ public class GameScreen implements Screen
         {
         	debugMode = !debugMode;
         	debugRenderSystem.setProcessing(debugMode);
+        }
+        
+        if(Gdx.input.justTouched())
+        {
+        	Vector3 mousePos = game.camera.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
+        	
+        	Rectangle mouseHitbox = new Rectangle(mousePos.x, mousePos.y, 1, 1);
+        	
+        	ImmutableArray<Entity> hitboxEntities = game.engine.getEntitiesFor(Family.all(HitboxComponent.class).get());
+        	
+        	for(Entity entity : hitboxEntities)
+        	{
+        		if(mouseHitbox.overlaps(Mappers.hitbox.get(entity).hitbox))
+        		{
+        			System.out.println("------------------------------------------------------------------------------------------");
+        			
+        			System.out.println("ID: " + entity);
+        			
+        			if(Mappers.type.has(entity))
+        			{
+        				System.out.println("Type: " + Mappers.type.get(entity).type);
+        			}
+        			
+        			if(Mappers.position.has(entity))
+        			{
+        				System.out.println("Position: " + Mappers.position.get(entity).x + ", " + Mappers.position.get(entity).y);
+        			}
+        			
+        			System.out.println("Hitbox: " + Mappers.hitbox.get(entity).hitbox.x + ", " + Mappers.hitbox.get(entity).hitbox.y + ", " + Mappers.hitbox.get(entity).hitbox.width + "x" + Mappers.hitbox.get(entity).hitbox.height);
+        			
+        			if(Mappers.velocity.has(entity))
+        			{
+        				System.out.println("Velocity: " + Mappers.velocity.get(entity).x + ", " + Mappers.velocity.get(entity).y);
+        			}
+        			
+        			if(Mappers.acceleration.has(entity))
+        			{
+        				System.out.println("Acceleration: " + Mappers.acceleration.get(entity).x + ", " + Mappers.acceleration.get(entity).y);
+        			}
+        			
+        			if(Mappers.player.has(entity))
+        			{
+        				System.out.println("Player State: " + Mappers.player.get(entity).playerState + ", " + Mappers.player.get(entity).anonState + ", " + (Mappers.player.get(entity).damaged ? "Damaged" : "Not Damaged"));
+        			}
+        			
+        			if(Mappers.state.has(entity))
+        			{
+        				System.out.println("State: " + Mappers.state.get(entity).motionState + ", " + Mappers.state.get(entity).airborneState + ", " + Mappers.state.get(entity).directionState + " for " + Mappers.state.get(entity).time + "s");
+        			}
+        			
+        			if(Mappers.script.has(entity))
+        			{
+        				System.out.println("Script: " + Mappers.script.get(entity).moduleName);
+        			}
+        			
+        			if(Mappers.behavior.has(entity))
+        			{
+        				System.out.println("Behavior: " + Mappers.behavior.get(entity).moduleName + ", currently " + Mappers.behavior.get(entity).behaviorState + " for " + Mappers.behavior.get(entity).behaviorTime + "s");
+        			}
+        			
+        			System.out.println("------------------------------------------------------------------------------------------");
+        		}
+        	}
         }
         
     	game.console.draw();

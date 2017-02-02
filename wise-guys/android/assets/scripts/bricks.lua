@@ -1,6 +1,6 @@
 Bricks = {}
 
-function Bricks.execute(bricks, game, scriptArgs)
+function Bricks.execute(bricks, game)
   local mappers = luajava.bindClass("io.whitegoldlabs.wiseguys.util.Mappers")
   local types = luajava.bindClass("io.whitegoldlabs.wiseguys.component.TypeComponent")
   local states = luajava.bindClass("io.whitegoldlabs.wiseguys.component.StateComponent")
@@ -35,14 +35,17 @@ function Bricks.execute(bricks, game, scriptArgs)
         -----------------
         if playerComponent.playerState == playerStates.PlayerState.NORMAL then
           if not mappers.behavior:has(bricks) then
+            local arrayInstantiator = luajava.bindClass("io.whitegoldlabs.wiseguys.util.ArrayInstantiator")
             local bumpSfx = game.assets.manager:get(assetFiles.sfxBump)
           
             local bricksPosition = mappers.position:get(bricks)
             
             bumpSfx:play()
             
+            local scriptArgs = arrayInstantiator:getNewArray()
             scriptArgs:add(bricks)
             scriptArgs:add(bricksPosition.y)
+            
             local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\bounce_behavior.lua", scriptArgs)
             boxBehaviorComponent.behaviorState = "BOUNCING_UP"
             game.scriptManager:loadScript("scripts\\bounce_behavior.lua")

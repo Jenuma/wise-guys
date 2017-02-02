@@ -9,7 +9,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -31,9 +30,6 @@ import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 
 public class Worlds
 {
-	// ---------------------------------------------------------------------------------|
-	// Fields                                                                           |
-	// ---------------------------------------------------------------------------------|
 	private static ArrayMap<String, Array<Entity>> worldEntities = new ArrayMap<String, Array<Entity>>();
 	
 	// ---------------------------------------------------------------------------------|
@@ -43,12 +39,15 @@ public class Worlds
 	{
 		if(!worldEntities.containsKey(worldName))
 		{
-			worldEntities.put(worldName, loadWorldEntitiesFromFile(game, worldName));
+			worldEntities.put(worldName, loadWorldFromFile(game, worldName));
 		}
 		
 		return worldEntities.get(worldName);
 	}
 	
+	// ---------------------------------------------------------------------------------|
+	// getLoadedWorlds                                                                  |
+	// ---------------------------------------------------------------------------------|
 	public static Array<String> getLoadedWorlds()
 	{
 		Array<String> worldNames = new Array<>();
@@ -72,208 +71,189 @@ public class Worlds
 	// ---------------------------------------------------------------------------------|
 	// loadWorldEntitiesFromFile                                                        |
 	// ---------------------------------------------------------------------------------|
-	private static Array<Entity> loadWorldEntitiesFromFile(WiseGuys game, String worldName)
+	private static Array<Entity> loadWorldFromFile(WiseGuys game, String worldName)
 	{
-		game.assets.manager.load(Assets.spriteSheet);
-		game.assets.manager.load(Assets.sfxStomp);
-		game.assets.manager.load(Assets.sfxBump);
-		game.assets.manager.load(Assets.sfxBrickSmash);
-		game.assets.manager.load(Assets.sfxCoin);
-		game.assets.manager.load(Assets.sfxPipe);
-		game.assets.manager.load(Assets.sfxPowerupAppears);
-		game.assets.manager.load(Assets.sfxPowerup);
-		game.assets.manager.load(Assets.sfxJulesDeath);
-		game.assets.manager.load(Assets.sfxStageClear);
+		game.assets.load();
 		game.assets.manager.finishLoading();
 		
-		Texture spriteSheet = game.assets.manager.get(Assets.spriteSheet);
-		
 		Array<Entity> entities = new Array<>();
-		Entity entity;
+	    Entity entity;
+	    Entity object;
 		
-		StateComponent state;
-		
-		boolean hasSprite = true;
-		boolean hasHitbox = true;
-		
-		int spriteX = -1;
-		int spriteY = -1;
-		
-		String[] csvLines = Gdx.files.internal(worldName + ".csv").readString().split("\r\n");
-		
-		for(int y = csvLines.length - 1; y >= 0; y--)
-		{
-			String[] cells = csvLines[y].split(",");
-			for(int x = 0; x < cells.length; x++)
-			{
-				if(!cells[x].equals("-1"))
-				{
-					entity = new Entity();
-					entity.add(new PositionComponent(x*16, (csvLines.length-1-y)*16));
-					state = new StateComponent();
-					entity.add(state);
-				
-					// Calculate the position of the entity's sprite on the sprite sheet
-					if(cells[x].length() == 2)
-					{
-						spriteX = 16 * Integer.parseInt(cells[x].substring(1));
-						spriteY = 16 * Integer.parseInt(cells[x].substring(0, 1));
-					}
-					else
-					{
-						spriteX = 16 * Integer.parseInt(cells[x]);
-						spriteY = 0;
-					}
-					
-					// Goomba
-					if(cells[x].equals("30"))
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.ENEMY));
-						
-						entity.add(new VelocityComponent(15, 0));
-						entity.add(new AccelerationComponent(0, 0));
-						entity.add(new PhaseComponent());
-						
-						state.motionState = StateComponent.MotionState.MOVING;
-						state.airborneState = StateComponent.AirborneState.GROUNDED;
-						state.directionState = StateComponent.DirectionState.RIGHT;
-						
-						Array<Sprite> movingSprites = new Array<>();
-						movingSprites.add(new Sprite(spriteSheet, 0, 48, 16, 16));
-						movingSprites.add(new Sprite(spriteSheet, 16, 48, 16, 16));
-						
-						AnimationComponent ac = new AnimationComponent();
-						ac.animations.put("MOVING", new Animation<Sprite>(1f/4f, movingSprites, Animation.PlayMode.LOOP));
-						entity.add(ac);
-						
-						Array<Object> args = new Array<>();
-						args.add(entity);
-						args.add(game);
-						
-						ScriptComponent script = new ScriptComponent("scripts\\goomba.lua", args);
-						entity.add(script);
-					}
-					// COIN
-					else if(cells[x].equals("7"))
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.PICKUP));
-						entity.add(new HitboxComponent(x*16+3, (csvLines.length-1-y)*16, 10, 16));
-						entity.add(new PhaseComponent());
-						
-						Array<Object> args = new Array<>();
-						args.add(entity);
-						args.add(game);
-						
-						entity.add(new ScriptComponent("scripts\\coin.lua", args));
-					}
-					// BOX
-					else if(cells[x].equals("50"))
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
-						
-						Array<Sprite> boxStillSprites = new Array<>();
-						boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
-						boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
-						boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
-						
-						AnimationComponent animationComponent = new AnimationComponent();
-						animationComponent.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
-						entity.add(animationComponent);
-					
-						Array<Object> args = new Array<>();
-						args.add(entity);
-						args.add(game);
-						args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
-						args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
-						
-						entity.add(new ScriptComponent("scripts\\box.lua", args));
-					}
-					// GOAL TOP
-					else if(cells[x].equals("59"))
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
-						hasHitbox = false;
-					}
-					// GOAL
-					else if(cells[x].equals("69"))
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.EVENT));
-						hasHitbox = false;
-					}
-					// BRICKS
-					else if(cells[x].equals("83"))
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
-						
-						Array<Object> args = new Array<>();
-						args.add(entity);
-						args.add(game);
-						args.add(new Array<Object>());
-						
-						entity.add(new ScriptComponent("scripts\\bricks.lua", args));
-					}
-					else
-					{
-						entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
-						
-						hasSprite = true;
-						hasHitbox = true;
-					}
-					
-					// Get sprite from spriteSheet
-					if(hasSprite && !Mappers.sprite.has(entity))
-					{
-						entity.add(new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16)));
-					}
-					
-					// Obstacle default hitbox
-					if(hasHitbox)
-					{
-						entity.add(new HitboxComponent(x*16, (csvLines.length-1-y)*16, 16, 16));
-					}
-					
-					entities.add(entity);
-				}
-			}
-		}
-		
-		Array<Entity> objects = loadWorldObjects(game, worldName);
-		
-		for(Entity object : objects)
-		{
-			entities.add(object);
-		}
-		
-		return entities;
-	}
-	
-	private static Array<Entity> loadWorldObjects(WiseGuys game, String worldName)
-	{
 		ArrayMap<String, Integer> keyMap = new ArrayMap<>();;
 		
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 	    DocumentBuilder dBuilder = null;
 	    Document doc = null;
-	     
-		try
-		{
-			dBuilder = dbFactory.newDocumentBuilder();
-		}
-		catch(Exception ex) {}
 		
 		try
 		{
+			dBuilder = dbFactory.newDocumentBuilder();
 			doc = dBuilder.parse(worldName + ".tmx");
 		}
 		catch (Exception ex) {}
 		
 	    doc.getDocumentElement().normalize();
 
-	    Array<Entity> objectEntities = new Array<>();
-	    Entity object;
+	    float mapWidth = Float.parseFloat(doc.getDocumentElement().getAttribute("width"));
+	    float mapHeight = Float.parseFloat(doc.getDocumentElement().getAttribute("height"));
+	    float mapPixelHeight = mapHeight * 16;
 	    
-	    float mapHeight = Float.parseFloat(doc.getDocumentElement().getAttribute("height")) * 16;
+	    Element tileElement = (Element)doc.getElementsByTagName("layer").item(0);
+	    String[] tiles = tileElement.getTextContent().trim().split(",");
+    	
+	    // -------------------------------------------------------------------|
+	    // Tiles                                                              |
+	    // -------------------------------------------------------------------|
+	    int tileX = -1;
+	    int tileY = -1;
 	    
+	    for(int i = 0; i < tiles.length; i++)
+	    {
+	    	int tile = Integer.parseInt(tiles[i].trim()) - 1;
+	    	String tileStr = String.valueOf(tile);
+	    	
+	    	tileX = i % (int)mapWidth;
+	    	
+	    	if(tileX % mapWidth == 0)
+	    	{
+	    		tileY++;
+	    	}
+	    	
+	    	Texture spriteSheet = game.assets.manager.get(Assets.spriteSheet);
+			
+			StateComponent state;
+			
+			boolean hasSprite = true;
+			
+			int spriteX = -1;
+			int spriteY = -1;
+	    	
+	    	if(tile != -1)
+			{
+				entity = new Entity();
+				entity.add(new PositionComponent(tileX*16, (mapHeight-1-tileY)*16));
+				state = new StateComponent();
+				entity.add(state);
+			
+				// Calculate the position of the entity's sprite on the sprite sheet
+				if(tileStr.length() == 2)
+				{
+					spriteX = 16 * Integer.parseInt(tileStr.substring(1));
+					spriteY = 16 * Integer.parseInt(tileStr.substring(0, 1));
+				}
+				else
+				{
+					spriteX = 16 * Integer.parseInt(tileStr);
+					spriteY = 0;
+				}
+				
+				// Goomba
+				if(tile == 30)
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.ENEMY));
+					entity.add(new HitboxComponent(tileX*16, (mapHeight-1-tileY)*16, 16, 16));
+					
+					entity.add(new VelocityComponent(15, 0));
+					entity.add(new AccelerationComponent(0, 0));
+					entity.add(new PhaseComponent());
+					
+					state.motionState = StateComponent.MotionState.MOVING;
+					state.airborneState = StateComponent.AirborneState.GROUNDED;
+					state.directionState = StateComponent.DirectionState.RIGHT;
+					
+					Array<Sprite> movingSprites = new Array<>();
+					movingSprites.add(new Sprite(spriteSheet, 0, 48, 16, 16));
+					movingSprites.add(new Sprite(spriteSheet, 16, 48, 16, 16));
+					
+					AnimationComponent ac = new AnimationComponent();
+					ac.animations.put("MOVING", new Animation<Sprite>(1f/4f, movingSprites, Animation.PlayMode.LOOP));
+					entity.add(ac);
+					
+					Array<Object> args = new Array<>();
+					args.add(entity);
+					args.add(game);
+					
+					ScriptComponent script = new ScriptComponent("scripts\\goomba.lua", args);
+					entity.add(script);
+				}
+				// COIN
+				else if(tile == 7)
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.PICKUP));
+					entity.add(new HitboxComponent(tileX*16+3, (mapHeight-1-tileY)*16, 10, 16));
+					entity.add(new PhaseComponent());
+					
+					Array<Object> args = new Array<>();
+					args.add(entity);
+					args.add(game);
+					
+					entity.add(new ScriptComponent("scripts\\coin.lua", args));
+				}
+				// BOX
+				else if(tile == 50)
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+					entity.add(new HitboxComponent(tileX*16, (mapHeight-1-tileY)*16, 16, 16));
+					
+					Array<Sprite> boxStillSprites = new Array<>();
+					boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
+					boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+					boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
+					
+					AnimationComponent animationComponent = new AnimationComponent();
+					animationComponent.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
+					entity.add(animationComponent);
+				
+					Array<Object> args = new Array<>();
+					args.add(entity);
+					args.add(game);
+					args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
+					args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
+					
+					entity.add(new ScriptComponent("scripts\\box.lua", args));
+				}
+				// GOAL TOP
+				else if(tile == 59)
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.EVENT));
+				}
+				// GOAL
+				else if(tile == 69)
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.EVENT));
+				}
+				// BRICKS
+				else if(tile == 83)
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+					entity.add(new HitboxComponent(tileX*16, (mapHeight-1-tileY)*16, 16, 16));
+					
+					Array<Object> args = new Array<>();
+					args.add(entity);
+					args.add(game);
+					
+					entity.add(new ScriptComponent("scripts\\bricks.lua", args));
+				}
+				else
+				{
+					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+					hasSprite = true;
+				}
+				
+				// Get sprite from spriteSheet
+				if(hasSprite && !Mappers.sprite.has(entity))
+				{
+					entity.add(new SpriteComponent(new Sprite(spriteSheet, spriteX, spriteY, 16, 16)));
+				}
+				
+				entities.add(entity);
+			}
+	    }
+	    
+	    // -------------------------------------------------------------------|
+	    // Objects                                                            |
+	    // -------------------------------------------------------------------|
 	    NodeList objectList = doc.getElementsByTagName("object");
         for(int i = 0; i < objectList.getLength(); i++)
         {
@@ -283,11 +263,11 @@ public class Worlds
             	object = new Entity();
                 Element objectElement = (Element)objectNode;
                 
-                float x = Float.parseFloat(objectElement.getAttribute("x"));
-        		float y = Float.parseFloat(objectElement.getAttribute("y"));
-        		float width = Float.parseFloat(objectElement.getAttribute("width"));
-        		float height = Float.parseFloat(objectElement.getAttribute("height"));
-        		y = mapHeight - y - height;
+                float objectX = Float.parseFloat(objectElement.getAttribute("x"));
+        		float objectY = Float.parseFloat(objectElement.getAttribute("y"));
+        		float objectWidth = Float.parseFloat(objectElement.getAttribute("width"));
+        		float objectHeight = Float.parseFloat(objectElement.getAttribute("height"));
+        		objectY = mapPixelHeight - objectY - objectHeight;
                 
                 if(objectElement.getAttribute("type").equals("Warp"))
                 {
@@ -351,8 +331,8 @@ public class Worlds
                 	}
                 	
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
-                	object.add(new PositionComponent(x, y));
-            		object.add(new HitboxComponent(x + hitboxXOffset, y + hitboxYOffset, hitboxWidth, hitboxHeight));
+                	object.add(new PositionComponent(objectX, objectY));
+            		object.add(new HitboxComponent(objectX + hitboxXOffset, objectY + hitboxYOffset, hitboxWidth, hitboxHeight));
             		object.add(new PhaseComponent());
             		
             		Array<Object> args = new Array<>();
@@ -368,8 +348,8 @@ public class Worlds
                 else if(objectElement.getAttribute("type").equals("Deadzone"))
                 {
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
-                	object.add(new PositionComponent(x, y));
-            		object.add(new HitboxComponent(x, y, width, 1));
+                	object.add(new PositionComponent(objectX, objectY));
+            		object.add(new HitboxComponent(objectX, objectY, objectWidth, 1));
             		object.add(new PhaseComponent());
             		
             		Array<Object> args = new Array<>();
@@ -381,8 +361,8 @@ public class Worlds
                 else if(objectElement.getAttribute("type").equals("Goal"))
                 {
                 	object.add(new TypeComponent(TypeComponent.Type.EVENT));
-                	object.add(new PositionComponent(x, y));
-            		object.add(new HitboxComponent(x+7, y, 2, height));
+                	object.add(new PositionComponent(objectX, objectY));
+            		object.add(new HitboxComponent(objectX+7, objectY, 2, objectHeight));
             		object.add(new PhaseComponent());
             		
             		Array<Object> args = new Array<>();
@@ -391,26 +371,16 @@ public class Worlds
 					
 					object.add(new ScriptComponent("scripts\\goal.lua", args));
                 }
+                else if(objectElement.getAttribute("type").equals("Collision"))
+                {
+                	object.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+                    object.add(new HitboxComponent(objectX, objectY, objectWidth, objectHeight));
+                }
         		
-                objectEntities.add(object);
-                
-                // Obstacle Hitboxes
-//                float x = Float.parseFloat(eElement.getAttribute("x"));
-//                float y = Float.parseFloat(eElement.getAttribute("y"));
-//                float width = Float.parseFloat(eElement.getAttribute("width"));
-//                float height = Float.parseFloat(eElement.getAttribute("height"));
-//                
-//                object.add(new HitboxComponent
-//				(
-//					x,
-//					512 - y - height,
-//					width,
-//					height,
-//					new Sprite(Assets.spriteSheet, 128, 144, 16, 16)
-//				));
+                entities.add(object);
             }
         }
         
-        return objectEntities;
+        return entities;
 	}
 }

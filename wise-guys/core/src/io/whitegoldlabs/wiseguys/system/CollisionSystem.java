@@ -160,7 +160,7 @@ public class CollisionSystem extends EntitySystem
 			Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
 		}
 		
-		Gdx.app.log("[COLLISION]", "Resolved collision for " + entity);
+		Gdx.app.debug("[COLLISION]", "Resolved collision for " + entity);
 	}
 	
 	private float xDistanceToMoveToResolveCollisions(Entity entity)
