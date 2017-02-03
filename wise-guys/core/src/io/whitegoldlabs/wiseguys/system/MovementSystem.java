@@ -94,11 +94,11 @@ public class MovementSystem extends EntitySystem
 					// Keep velocities under max.
 					if(velocity.x > 0)
 					{
-						velocity.x = Math.min(velocity.x, 3);
+						velocity.x = Math.min(velocity.x, 3.2f);
 					}
 					else
 					{
-						velocity.x = Math.max(velocity.x, -3);
+						velocity.x = Math.max(velocity.x, -3.2f);
 					}
 					
 					if(velocity.y > 0)

@@ -49,7 +49,7 @@ public class CollisionSystem extends EntitySystem
 	@Override
 	public void update(float deltaTime)
 	{
-		if(game.isRunning)
+		if(game.isRunning && !game.eventProcessing)
 		{
 			// Handle all non-player collisions.
 			for(int i = 0; i < scriptedEntities.size(); i++)
@@ -74,7 +74,7 @@ public class CollisionSystem extends EntitySystem
 	private boolean isColliding(Entity entity)
 	{	
 		// Test scripted entities against everything except the player.
-		if(entity != game.player && !game.eventProcessing)
+		if(entity != game.player)
 		{
 			for(int i = 0; i < hitboxEntities.size(); i++)
 			{
@@ -90,7 +90,7 @@ public class CollisionSystem extends EntitySystem
 						
 						// Don't bother trying to resolve collision if entity doesn't move!
 						if(Mappers.velocity.has(entity))
-						{
+						{					
 							if(!Mappers.phase.has(entity) && !Mappers.phase.has(hitboxEntities.get(i)))
 							{
 								return true;

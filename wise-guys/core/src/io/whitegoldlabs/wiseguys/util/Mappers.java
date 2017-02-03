@@ -13,6 +13,7 @@ import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TagComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 
@@ -29,6 +30,7 @@ public class Mappers
 	public static final ComponentMapper<ScriptComponent> script = ComponentMapper.getFor(ScriptComponent.class);
 	public static final ComponentMapper<SpriteComponent> sprite = ComponentMapper.getFor(SpriteComponent.class);
 	public static final ComponentMapper<StateComponent> state = ComponentMapper.getFor(StateComponent.class);
+	public static final ComponentMapper<TagComponent> tag = ComponentMapper.getFor(TagComponent.class);
 	public static final ComponentMapper<TypeComponent> type = ComponentMapper.getFor(TypeComponent.class);
 	public static final ComponentMapper<VelocityComponent> velocity = ComponentMapper.getFor(VelocityComponent.class);
 }

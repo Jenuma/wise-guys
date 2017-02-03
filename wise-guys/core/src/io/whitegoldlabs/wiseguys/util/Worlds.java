@@ -25,6 +25,7 @@ import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TagComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 
@@ -224,7 +225,7 @@ public class Worlds
 					entity.add(new TypeComponent(TypeComponent.Type.EVENT));
 				}
 				// BRICKS
-				else if(tile == 83)
+				else if(tile == 83 || tile == 84)
 				{
 					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
 					entity.add(new HitboxComponent(tileX*16, (mapHeight-1-tileY)*16, 16, 16));
