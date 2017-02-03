@@ -76,6 +76,8 @@ public class Worlds
 		game.assets.load();
 		game.assets.manager.finishLoading();
 		
+		Texture spriteSheet = game.assets.manager.get(Assets.spriteSheet);
+		
 		Array<Entity> entities = new Array<>();
 	    Entity entity;
 	    Entity object;
@@ -120,8 +122,6 @@ public class Worlds
 	    		tileY++;
 	    	}
 	    	
-	    	Texture spriteSheet = game.assets.manager.get(Assets.spriteSheet);
-			
 			StateComponent state;
 			
 			boolean hasSprite = true;
@@ -189,29 +189,6 @@ public class Worlds
 					args.add(game);
 					
 					entity.add(new ScriptComponent("scripts\\coin.lua", args));
-				}
-				// BOX
-				else if(tile == 50)
-				{
-					entity.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
-					entity.add(new HitboxComponent(tileX*16, (mapHeight-1-tileY)*16, 16, 16));
-					
-					Array<Sprite> boxStillSprites = new Array<>();
-					boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
-					boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
-					boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
-					
-					AnimationComponent animationComponent = new AnimationComponent();
-					animationComponent.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
-					entity.add(animationComponent);
-				
-					Array<Object> args = new Array<>();
-					args.add(entity);
-					args.add(game);
-					args.add(new Sprite(spriteSheet, 48, 80, 16, 16));
-					args.add(new Sprite(spriteSheet, 128, 0, 16, 16));
-					
-					entity.add(new ScriptComponent("scripts\\box.lua", args));
 				}
 				// GOAL TOP
 				else if(tile == 59)
@@ -375,6 +352,67 @@ public class Worlds
                 {
                 	object.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
                     object.add(new HitboxComponent(objectX, objectY, objectWidth, objectHeight));
+                }
+                else if(objectElement.getAttribute("type").equals("Box"))
+                {
+                	String sprite = "BOX";
+                	String contents = "COIN";
+                	
+                	NodeList propertyList = objectElement.getElementsByTagName("property");
+                	
+                	for(int j = 0; j < propertyList.getLength(); j++)
+                	{
+                		Node propertyNode = propertyList.item(j);
+                		if(objectNode.getNodeType() == Node.ELEMENT_NODE)
+                		{
+                 			Element propertyElement = (Element)propertyNode;
+                    		String attribute = propertyElement.getAttribute("name");
+                    		
+                    		if(attribute.equals("Sprite"))
+                    		{
+                    			sprite = propertyElement.getAttribute("value");
+                    		}
+                    		else if(attribute.equals("Contents"))
+                    		{
+                    			contents = propertyElement.getAttribute("value");
+                    		}
+                		}
+                	}
+                	
+                	if(sprite.equals("BOX"))
+                	{
+                		object.add(new SpriteComponent(new Sprite(spriteSheet, 0, 80, 16, 16)));
+                		
+                		Array<Sprite> boxStillSprites = new Array<>();
+    					boxStillSprites.add(new Sprite(spriteSheet, 0, 80, 16, 16));
+    					boxStillSprites.add(new Sprite(spriteSheet, 16, 80, 16, 16));
+    					boxStillSprites.add(new Sprite(spriteSheet, 32, 80, 16, 16));
+    					
+    					AnimationComponent animationComponent = new AnimationComponent();
+    					animationComponent.animations.put("STILL", new Animation<Sprite>(1f/4f, boxStillSprites, Animation.PlayMode.LOOP_PINGPONG));
+    					object.add(animationComponent);
+                	}
+                	else if(sprite.equals("BRICKS"))
+                	{
+                		object.add(new SpriteComponent(new Sprite(spriteSheet, 48, 128, 16, 16)));
+                	}
+                	else if(sprite.equals("INVISIBLE"))
+                	{
+                		object.add(new SpriteComponent(new Sprite(spriteSheet, 0, 0, 0, 0)));
+                		object.add(new PhaseComponent());
+                	}
+                	
+                	object.add(new StateComponent());
+                	object.add(new TypeComponent(TypeComponent.Type.OBSTACLE));
+                	object.add(new PositionComponent(objectX, objectY));
+                	object.add(new HitboxComponent(objectX, objectY, 16, 16));
+				
+					Array<Object> args = new Array<>();
+					args.add(object);
+					args.add(game);
+					args.add(contents);
+					
+					object.add(new ScriptComponent("scripts\\box.lua", args));
                 }
         		
                 entities.add(object);
