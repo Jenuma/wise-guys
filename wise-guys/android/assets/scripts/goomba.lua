@@ -54,7 +54,7 @@ function Goomba.execute(goomba, game)
 				stompSfx:play()
 				playerPositionComponent.y = goombaPositionComponent.y + goombaSpriteComponent.sprite:getHeight()
 				playerHitboxComponent.hitbox.y = playerPositionComponent.y
-				playerVelocityComponent.y = 430
+				playerVelocityComponent.y = 4
 				
 				local scriptArgs = arrayInstantiator:getNewArray()
 				scriptArgs:add(goomba)

@@ -41,9 +41,12 @@ public class ReaperSystem extends EntitySystem
 		{
 			for(Entity entity : entities)
 			{
-				if(Mappers.state.get(entity).enabledState == EnabledState.DISABLED || Mappers.position.get(entity).y < -100)
+				if(entity != game.player)
 				{
-					game.engine.removeEntity(entity);
+					if(Mappers.state.get(entity).enabledState == EnabledState.DISABLED || Mappers.position.get(entity).y < -100)
+					{
+						game.engine.removeEntity(entity);
+					}
 				}
 			}
 		}
