@@ -12,7 +12,7 @@ public class DesktopLauncher {
 		config.height = Constants.WINDOW_HEIGHT;
 		//config.fullscreen = true;
 		//config.vSyncEnabled = true;
-		
+		//config.foregroundFPS = 30;
 		
 		new LwjglApplication(new WiseGuys(), config);
 	}

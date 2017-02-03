@@ -25,7 +25,6 @@ import io.whitegoldlabs.wiseguys.component.PositionComponent;
 import io.whitegoldlabs.wiseguys.component.ScriptComponent;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
-import io.whitegoldlabs.wiseguys.component.TagComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 

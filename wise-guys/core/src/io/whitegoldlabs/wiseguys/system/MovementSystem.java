@@ -92,22 +92,25 @@ public class MovementSystem extends EntitySystem
 					velocity.y += acceleration.y;
 					
 					// Keep velocities under max.
-					if(velocity.x > 0)
+					if(entity == game.player)
 					{
-						velocity.x = Math.min(velocity.x, 3.2f);
-					}
-					else
-					{
-						velocity.x = Math.max(velocity.x, -3.2f);
-					}
-					
-					if(velocity.y > 0)
-					{
-						velocity.y = Math.min(velocity.y, 8);
-					}
-					else
-					{
-						velocity.y = Math.max(velocity.y, -8);
+						if(velocity.x > 0)
+						{
+							velocity.x = Math.min(velocity.x, 3.2f);
+						}
+						else
+						{
+							velocity.x = Math.max(velocity.x, -3.2f);
+						}
+						
+						if(velocity.y > 0)
+						{
+							velocity.y = Math.min(velocity.y, 8);
+						}
+						else
+						{
+							velocity.y = Math.max(velocity.y, -8);
+						}
 					}
 					
 					position.x += velocity.x;
