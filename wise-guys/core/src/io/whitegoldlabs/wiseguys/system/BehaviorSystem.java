@@ -37,6 +37,12 @@ public class BehaviorSystem extends EntitySystem
 			BehaviorComponent behavior = Mappers.behavior.get(entity);
 			
 			game.scriptManager.executeScript(behavior.moduleName, behavior.args);
+			
+			if(game.batch.isDrawing())
+			{
+				game.batch.end();
+			}
+			
 			behavior.behaviorTime += deltaTime;
 		}
 	}

@@ -108,6 +108,7 @@ function Box.execute(box, game, contents)
             
             local scriptArgs = arrayInstantiator:getNewArray()
             scriptArgs:add(contentsEntity)
+            scriptArgs:add(game)
             scriptArgs:add(contentsPositionComponent.y)
             
             local contentsBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\box_coin_behavior.lua", scriptArgs)

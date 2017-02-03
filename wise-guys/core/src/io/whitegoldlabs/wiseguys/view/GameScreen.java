@@ -157,7 +157,6 @@ public class GameScreen implements Screen
     			(Gdx.graphics.getWidth() - pausedText.width) / 2,
     			(Gdx.graphics.getHeight() - pausedText.height) / 2);
         }
-        
         hudBatch.end();
         
         if(game.isRunning && !game.eventProcessing)
