@@ -141,6 +141,11 @@ public class CollisionSystem extends EntitySystem
 			if(yDistanceToResolve > 0)
 			{
 				Mappers.state.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
+				
+				if(entity == game.player)
+				{
+					Mappers.player.get(game.player).stompChain = 0;
+				}
 			}
 			
 			Mappers.position.get(entity).y += yDistanceToResolve;
@@ -152,6 +157,11 @@ public class CollisionSystem extends EntitySystem
 			if(xAndYDistanceToResolve.y > 0)
 			{
 				Mappers.state.get(entity).airborneState = StateComponent.AirborneState.GROUNDED;
+				
+				if(entity == game.player)
+				{
+					Mappers.player.get(game.player).stompChain = 0;
+				}
 			}
 			
 			Mappers.position.get(entity).x += xAndYDistanceToResolve.x;

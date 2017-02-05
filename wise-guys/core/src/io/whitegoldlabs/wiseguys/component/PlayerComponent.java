@@ -23,6 +23,8 @@ public class PlayerComponent implements Component
 	public boolean damaged;
 	public float damagedTime;
 	
+	public int stompChain;
+	
 	public int score;
 	public int coins;
 	public int lives;
@@ -38,6 +40,8 @@ public class PlayerComponent implements Component
 		
 		this.damaged = false;
 		this.damagedTime = 0;
+		
+		this.stompChain = 0;
 		
 		this.score = score;
 		this.coins = coins;

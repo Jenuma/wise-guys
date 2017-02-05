@@ -23,6 +23,7 @@ function Goomba.execute(goomba, game)
 		local powerdownSfx = game.assets.manager:get(assetFiles.sfxPipe)
 		
 		local playerComponent = mappers.player:get(collidingEntity)
+		local playerVelocityComponent = mappers.velocity:get(collidingEntity)
 		local playerHitboxComponent = mappers.hitbox:get(collidingEntity)
 		local goombaHitboxComponent = mappers.hitbox:get(goomba)
 	
@@ -37,39 +38,104 @@ function Goomba.execute(goomba, game)
 		-----------------------
     -- Goomba Stomped On --
     -----------------------
-		if intersectWidth > intersectHeight then
-			if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
-			  local velocities = luajava.bindClass("io.whitegoldlabs.wiseguys.component.VelocityComponent")
-			  local accelerations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AccelerationComponent")
-			  
-			  local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
-			  local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
-				local playerVelocityComponent = mappers.velocity:get(collidingEntity)
-				local playerPositionComponent = mappers.position:get(collidingEntity)
-				local goombaPositionComponent = mappers.position:get(goomba)
-				local goombaSpriteComponent = mappers.sprite:get(goomba)
-				
-				local spriteSheet = game.assets.manager:get(assetFiles.spriteSheet)
-				
-				stompSfx:play()
-				playerPositionComponent.y = goombaPositionComponent.y + goombaSpriteComponent.sprite:getHeight()
-				playerHitboxComponent.hitbox.y = playerPositionComponent.y
-				playerVelocityComponent.y = 4
-				
-				local scriptArgs = arrayInstantiator:getNewArray()
-				scriptArgs:add(goomba)
-				
-        local boxBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\goomba_death_behavior.lua", scriptArgs)
-        boxBehaviorComponent.behaviorState = "DEAD"
-        game.scriptManager:loadScript("scripts\\goomba_death_behavior.lua")
-        
-        goomba:add(boxBehaviorComponent)
-        
-        goombaSpriteComponent.sprite = luajava.newInstance("com.badlogic.gdx.graphics.g2d.Sprite", spriteSheet, 32, 48, 16, 16)
-        goomba:remove(velocities)
-        goomba:remove(accelerations)
-        goomba:remove(animations)
-        goomba:remove(scripts)
+    if playerVelocityComponent.y < 0 then
+  		if intersectWidth > intersectHeight then
+  			if playerHitboxComponent.hitbox.y > goombaHitboxComponent.hitbox.y then
+  			  local gdx = luajava.bindClass("com.badlogic.gdx.Gdx")
+  			  local input = luajava.bindClass("com.badlogic.gdx.Input")
+  			  local velocities = luajava.bindClass("io.whitegoldlabs.wiseguys.component.VelocityComponent")
+  			  local accelerations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AccelerationComponent")
+  			  
+  			  local animations = luajava.bindClass("io.whitegoldlabs.wiseguys.component.AnimationComponent")
+  			  local scripts = luajava.bindClass("io.whitegoldlabs.wiseguys.component.ScriptComponent")
+  				local playerPositionComponent = mappers.position:get(collidingEntity)
+  				local playerAccelerationComponent = mappers.acceleration:get(collidingEntity)
+  				local goombaPositionComponent = mappers.position:get(goomba)
+  				local goombaSpriteComponent = mappers.sprite:get(goomba)
+  				
+  				local spriteSheet = game.assets.manager:get(assetFiles.spriteSheet)
+  				
+  				stompSfx:play()
+  				playerPositionComponent.y = goombaPositionComponent.y + goombaSpriteComponent.sprite:getHeight()
+  				playerHitboxComponent.hitbox.y = playerPositionComponent.y
+  				
+  				playerAccelerationComponent.y = 0
+  				
+  				if gdx.input:isKeyPressed(input.Keys.Z) then
+  				  playerVelocityComponent.y = 6
+				  else
+				    playerVelocityComponent.y = 4
+  				end
+  				
+  				------------
+          -- Points --
+          ------------
+          local score = math.min(1000, 200 * playerComponent.stompChain + 200)
+          
+          playerComponent.stompChain = playerComponent.stompChain + 1
+          
+          if playerComponent.stompChain == 1 then
+            score = 200
+          elseif playerComponent.stompChain == 2 then
+            score = 400
+          elseif playerComponent.stompChain == 3 then
+            score = 500
+          elseif playerComponent.stompChain == 4 then
+            score = 800
+          else
+            local lupSfx = game.assets.manager:get(assetFiles.sfx1up)
+            
+            lupSfx:play()
+            playerComponent.lives = playerComponent.lives + 1
+          
+            score = 1000
+          end
+          
+          playerComponent.score = playerComponent.score + score
+          
+  				local digit1Entity = luajava.newInstance("com.badlogic.ashley.core.Entity")
+          local digit2Entity = luajava.newInstance("com.badlogic.ashley.core.Entity")
+          local digit3Entity = luajava.newInstance("com.badlogic.ashley.core.Entity")
+          
+          local scriptArgs = arrayInstantiator:getNewArray()
+          scriptArgs:add(game)
+          scriptArgs:add(score)
+          scriptArgs:add(digit1Entity)
+          scriptArgs:add(digit2Entity)
+          scriptArgs:add(digit3Entity)
+          scriptArgs:add(goombaPositionComponent.x)
+          scriptArgs:add(goombaPositionComponent.y)
+          
+          local pointsBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\points_behavior.lua", scriptArgs)
+          pointsBehaviorComponent.behaviorState = "NOT_INITIALIZED"
+          game.scriptManager:loadScript("scripts\\points_behavior.lua")
+          
+          digit1Entity:add(pointsBehaviorComponent)
+          digit2Entity:add(pointsBehaviorComponent)
+          digit3Entity:add(pointsBehaviorComponent)
+          
+          game.engine:addEntity(digit1Entity)
+          game.engine:addEntity(digit2Entity)
+          game.engine:addEntity(digit3Entity)
+  				
+  				------------------
+          -- Goomba Death --
+          ------------------
+  				scriptArgs:clear()
+  				scriptArgs:add(goomba)
+  				
+          local goombaBehaviorComponent = luajava.newInstance("io.whitegoldlabs.wiseguys.component.BehaviorComponent", "scripts\\goomba_death_behavior.lua", scriptArgs)
+          goombaBehaviorComponent.behaviorState = "DEAD"
+          game.scriptManager:loadScript("scripts\\goomba_death_behavior.lua")
+          
+          goomba:add(goombaBehaviorComponent)
+          
+          goombaSpriteComponent.sprite = luajava.newInstance("com.badlogic.gdx.graphics.g2d.Sprite", spriteSheet, 32, 48, 16, 16)
+          goomba:remove(velocities)
+          goomba:remove(accelerations)
+          goomba:remove(animations)
+          goomba:remove(scripts)
+  			end
 			end
 			
 		---------------------------

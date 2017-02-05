@@ -36,10 +36,10 @@ public class GravitySystem extends EntitySystem
 	{
 		dynamicEntities = engine.getEntitiesFor(Family.all
 		(
-				StateComponent.class,
-				VelocityComponent.class,
-				AccelerationComponent.class,
-				HitboxComponent.class
+			StateComponent.class,
+			VelocityComponent.class,
+			AccelerationComponent.class,
+			HitboxComponent.class
 		).get());
 		
 		obstacleEntities = engine.getEntitiesFor(Family.all
