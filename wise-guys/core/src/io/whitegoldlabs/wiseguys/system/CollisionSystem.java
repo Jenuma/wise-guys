@@ -130,11 +130,19 @@ public class CollisionSystem extends EntitySystem
 		Vector2 xAndYDistanceToResolve = xAndYDistanceToMoveToResolveCollisions(entity);
 		float xAndYTotalDistanceToResolve = Math.abs(xAndYDistanceToResolve.x) + Math.abs(xAndYDistanceToResolve.y);
 		
+		System.out.println("-----------------------------------------------------");
+		System.out.println("Pos: " + Mappers.position.get(entity).x + ", " + Mappers.position.get(entity).y);
+		System.out.println("xDistanceToResolve: " + xDistanceToResolve);
+		System.out.println("yDistanceToResolve: " + yDistanceToResolve);
+		System.out.println("xAndYDistanceToResolve: " + xAndYDistanceToResolve);
+		System.out.println("-----------------------------------------------------");
+		
 		if(Math.abs(xDistanceToResolve) < Math.abs(yDistanceToResolve) && Math.abs(xDistanceToResolve) < xAndYTotalDistanceToResolve)
 		{
 			Mappers.position.get(entity).x += xDistanceToResolve;
 			Mappers.hitbox.get(entity).hitbox.x += xDistanceToResolve;
 			Mappers.velocity.get(entity).x = 0;
+			Mappers.acceleration.get(entity).x = 0;
 		}
 		else if(Math.abs(yDistanceToResolve) < Math.abs(xDistanceToResolve) && Math.abs(yDistanceToResolve) < xAndYTotalDistanceToResolve)
 		{
@@ -151,6 +159,7 @@ public class CollisionSystem extends EntitySystem
 			Mappers.position.get(entity).y += yDistanceToResolve;
 			Mappers.hitbox.get(entity).hitbox.y += yDistanceToResolve;
 			Mappers.velocity.get(entity).y = 0;
+			Mappers.acceleration.get(entity).y = 0;
 		}
 		else
 		{
@@ -166,6 +175,10 @@ public class CollisionSystem extends EntitySystem
 			
 			Mappers.position.get(entity).x += xAndYDistanceToResolve.x;
 			Mappers.position.get(entity).y += xAndYDistanceToResolve.y;
+			Mappers.velocity.get(entity).x = 0;
+			Mappers.velocity.get(entity).y = 0;
+			Mappers.acceleration.get(entity).x = 0;
+			Mappers.acceleration.get(entity).y = 0;
 			Mappers.hitbox.get(entity).hitbox.x += xAndYDistanceToResolve.x;
 			Mappers.hitbox.get(entity).hitbox.y += xAndYDistanceToResolve.y;
 		}
@@ -230,6 +243,13 @@ public class CollisionSystem extends EntitySystem
 	private Vector2 findDistanceToEmptySpaceAlongXAndY(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float xDistanceToSnap = 16 - (testHitbox.x % 16);
+		testHitbox.x = testHitbox.x + xDistanceToSnap;
+		
+		float yDistanceToSnap = 16 - (testHitbox.y % 16);
+		testHitbox.y = testHitbox.y + yDistanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -244,10 +264,8 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-//					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
-//					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + testHitbox.width;
-					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					testHitbox.x += 16;
+					testHitbox.y += 16;
 					colliding = true;
 					break;
 				}
@@ -260,6 +278,12 @@ public class CollisionSystem extends EntitySystem
 	private Vector2 findDistanceToEmptySpaceAlongXAndNegativeY(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		float xDistanceToSnap = 16 - (testHitbox.x % 16);
+		testHitbox.x = testHitbox.x + xDistanceToSnap;
+		
+		float yDistanceToSnap = testHitbox.y % 16;
+		testHitbox.y = testHitbox.y - yDistanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -274,8 +298,8 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
-					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
+					testHitbox.x += 16;
+					testHitbox.y -= 16;
 					colliding = true;
 					break;
 				}
@@ -288,6 +312,13 @@ public class CollisionSystem extends EntitySystem
 	private Vector2 findDistanceToEmptySpaceAlongNegativeXAndY(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float xDistanceToSnap = testHitbox.x % 16;
+		testHitbox.x = testHitbox.x - xDistanceToSnap;
+		
+		float yDistanceToSnap = 16 - (testHitbox.y % 16);
+		testHitbox.y = testHitbox.y + yDistanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -302,8 +333,8 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
-					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					testHitbox.x -= 16;
+					testHitbox.y += 16;
 					
 					colliding = true;
 					break;
@@ -317,6 +348,12 @@ public class CollisionSystem extends EntitySystem
 	private Vector2 findDistanceToEmptySpaceAlongNegativeXAndNegativeY(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float xDistanceToSnap = testHitbox.x % 16;
+		testHitbox.x = testHitbox.x - xDistanceToSnap;
+		
+		float yDistanceToSnap = testHitbox.y % 16;
+		testHitbox.y = testHitbox.y - yDistanceToSnap;
 		boolean colliding = true;
 		
 		while(colliding)
@@ -331,8 +368,8 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x;
-					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
+					testHitbox.x -= 16;
+					testHitbox.y -= 16;
 					colliding = true;
 					break;
 				}
@@ -345,6 +382,10 @@ public class CollisionSystem extends EntitySystem
 	private float findDistanceToEmptySpaceAlongX(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float distanceToSnap = 16 - (testHitbox.x % 16);
+		testHitbox.x = testHitbox.x + distanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -359,7 +400,7 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x + Mappers.hitbox.get(obstacle).hitbox.width;
+					testHitbox.x += 16;
 					colliding = true;
 					break;
 				}
@@ -372,6 +413,10 @@ public class CollisionSystem extends EntitySystem
 	private float findDistanceToEmptySpaceAlongNegativeX(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float distanceToSnap = testHitbox.x % 16;
+		testHitbox.x = testHitbox.x - distanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -386,7 +431,7 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.x = Mappers.hitbox.get(obstacle).hitbox.x - Mappers.hitbox.get(entity).hitbox.width;
+					testHitbox.x -= 16;
 					colliding = true;
 					break;
 				}
@@ -399,6 +444,10 @@ public class CollisionSystem extends EntitySystem
 	private float findDistanceToEmptySpaceAlongY(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float distanceToSnap = 16 - (testHitbox.y % 16);
+		testHitbox.y = testHitbox.y + distanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -413,7 +462,7 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y + Mappers.hitbox.get(obstacle).hitbox.height;
+					testHitbox.y += 16;
 					colliding = true;
 					break;
 				}
@@ -426,6 +475,10 @@ public class CollisionSystem extends EntitySystem
 	private float findDistanceToEmptySpaceAlongNegativeY(Entity entity)
 	{
 		Rectangle testHitbox = new Rectangle(Mappers.hitbox.get(entity).hitbox);
+		
+		float distanceToSnap = testHitbox.y % 16;
+		testHitbox.y = testHitbox.y - distanceToSnap;
+		
 		boolean colliding = true;
 		
 		while(colliding)
@@ -440,7 +493,7 @@ public class CollisionSystem extends EntitySystem
 				
 				if(entity != obstacle && testHitbox.overlaps(Mappers.hitbox.get(obstacle).hitbox))
 				{
-					testHitbox.y = Mappers.hitbox.get(obstacle).hitbox.y - Mappers.hitbox.get(entity).hitbox.height;
+					testHitbox.y -= 16;
 					colliding = true;
 					break;
 				}
