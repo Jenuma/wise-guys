@@ -130,13 +130,6 @@ public class CollisionSystem extends EntitySystem
 		Vector2 xAndYDistanceToResolve = xAndYDistanceToMoveToResolveCollisions(entity);
 		float xAndYTotalDistanceToResolve = Math.abs(xAndYDistanceToResolve.x) + Math.abs(xAndYDistanceToResolve.y);
 		
-		System.out.println("-----------------------------------------------------");
-		System.out.println("Pos: " + Mappers.position.get(entity).x + ", " + Mappers.position.get(entity).y);
-		System.out.println("xDistanceToResolve: " + xDistanceToResolve);
-		System.out.println("yDistanceToResolve: " + yDistanceToResolve);
-		System.out.println("xAndYDistanceToResolve: " + xAndYDistanceToResolve);
-		System.out.println("-----------------------------------------------------");
-		
 		if(Math.abs(xDistanceToResolve) < Math.abs(yDistanceToResolve) && Math.abs(xDistanceToResolve) < xAndYTotalDistanceToResolve)
 		{
 			Mappers.position.get(entity).x += xDistanceToResolve;

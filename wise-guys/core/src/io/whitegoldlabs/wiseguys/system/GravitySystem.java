@@ -12,6 +12,7 @@ import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.AccelerationComponent;
 import io.whitegoldlabs.wiseguys.component.HitboxComponent;
 import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.component.VelocityComponent;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
@@ -60,40 +61,43 @@ public class GravitySystem extends EntitySystem
 		{
 			for(Entity dynamicEntity : dynamicEntities)
 			{
-				VelocityComponent velocity = Mappers.velocity.get(dynamicEntity);
-				AccelerationComponent acceleration = Mappers.acceleration.get(dynamicEntity);
-				StateComponent state = Mappers.state.get(dynamicEntity);
-				
-				// If the entity is falling, apply gravity.
-				if(state.airborneState == StateComponent.AirborneState.FALLING ||
-					state.airborneState == StateComponent.AirborneState.JUMPING)
+				if(Mappers.type.get(dynamicEntity).type != TypeComponent.Type.PLAYER_PROJECTILE)
 				{
-					acceleration.y = G;
-				}
-				// If the entity isn't falling, check to see if it should be.
-				else
-				{
-					velocity.y = 0;
-					acceleration.y = 0;
+					VelocityComponent velocity = Mappers.velocity.get(dynamicEntity);
+					AccelerationComponent acceleration = Mappers.acceleration.get(dynamicEntity);
+					StateComponent state = Mappers.state.get(dynamicEntity);
 					
-					Rectangle fallbox = new Rectangle(Mappers.hitbox.get(dynamicEntity).hitbox);
-					fallbox.y--;
-					
-					boolean grounded = false;
-					for(Entity obstacle : obstacleEntities)
+					// If the entity is falling, apply gravity.
+					if(state.airborneState == StateComponent.AirborneState.FALLING ||
+						state.airborneState == StateComponent.AirborneState.JUMPING)
 					{
-						Rectangle obstacleHitbox = Mappers.hitbox.get(obstacle).hitbox;
-						if(fallbox.overlaps(obstacleHitbox) && !Mappers.phase.has(obstacle))
-						{
-							grounded = true;
-							break;
-						}
+						acceleration.y = G;
 					}
-					
-					if(!grounded)
+					// If the entity isn't falling, check to see if it should be.
+					else
 					{
-						Gdx.app.log("[GRAVITY]", "Entity " + dynamicEntity + " determined to be falling");
-						state.airborneState = StateComponent.AirborneState.FALLING;
+						velocity.y = 0;
+						acceleration.y = 0;
+						
+						Rectangle fallbox = new Rectangle(Mappers.hitbox.get(dynamicEntity).hitbox);
+						fallbox.y--;
+						
+						boolean grounded = false;
+						for(Entity obstacle : obstacleEntities)
+						{
+							Rectangle obstacleHitbox = Mappers.hitbox.get(obstacle).hitbox;
+							if(fallbox.overlaps(obstacleHitbox) && !Mappers.phase.has(obstacle))
+							{
+								grounded = true;
+								break;
+							}
+						}
+						
+						if(!grounded)
+						{
+							Gdx.app.log("[GRAVITY]", "Entity " + dynamicEntity + " determined to be falling");
+							state.airborneState = StateComponent.AirborneState.FALLING;
+						}
 					}
 				}
 			}

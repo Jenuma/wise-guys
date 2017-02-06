@@ -1,8 +1,13 @@
 package io.whitegoldlabs.wiseguys.util;
 
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.strongjoshua.console.CommandExecutor;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
+import io.whitegoldlabs.wiseguys.component.StateComponent;
+import io.whitegoldlabs.wiseguys.component.TypeComponent;
 import io.whitegoldlabs.wiseguys.view.MainMenuScreen;
 
 public class ConsoleCommandExecutor extends CommandExecutor
@@ -49,6 +54,19 @@ public class ConsoleCommandExecutor extends CommandExecutor
 		for(String scriptName : game.scriptManager.getLoadedScripts())
 		{
 			console.log(scriptName);
+		}
+	}
+	
+	public void killBullets()
+	{
+		ImmutableArray<Entity> bullets = game.engine.getEntitiesFor(Family.all(TypeComponent.class).get());
+		
+		for(Entity bullet : bullets)
+		{
+			if(Mappers.type.get(bullet).type == TypeComponent.Type.PLAYER_PROJECTILE)
+			{
+				Mappers.state.get(bullet).enabledState = StateComponent.EnabledState.DISABLED;
+			}
 		}
 	}
 	
