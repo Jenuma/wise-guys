@@ -5,15 +5,20 @@ import java.util.Comparator;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.SortedIteratingSystem;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 
 import io.whitegoldlabs.wiseguys.WiseGuys;
 import io.whitegoldlabs.wiseguys.component.SpriteComponent;
 import io.whitegoldlabs.wiseguys.component.TypeComponent;
+import io.whitegoldlabs.wiseguys.util.Assets;
 import io.whitegoldlabs.wiseguys.util.Mappers;
 
 public class RenderSystem extends SortedIteratingSystem
 {
 	private final WiseGuys game;
+	
+	private ShaderProgram shader;
 	
 	// ---------------------------------------------------------------------------------|
 	// Constructor                                                                      |
@@ -23,6 +28,12 @@ public class RenderSystem extends SortedIteratingSystem
 		super(Family.all(TypeComponent.class, SpriteComponent.class).get(), new TypeComparator());
 		
 		this.game = game;
+		
+		ShaderProgram.pedantic = false;
+		shader = new ShaderProgram(Gdx.files.internal("shaders\\default.vert"), Gdx.files.internal("shaders\\default.frag"));
+		//game.assets.manager.get(Assets.swapSewer).bind(1);
+		//shader.setUniformi("u_texture1", 1);
+		//shader.setUniformi("u_texture", 0);
 	}
 
 	@Override
@@ -30,16 +41,24 @@ public class RenderSystem extends SortedIteratingSystem
 	{
 		game.camera.update();
 		game.batch.setProjectionMatrix(game.camera.combined);
+		game.batch.setShader(shader);
 		game.batch.begin();
 		
 		float x = Mappers.position.get(entity).x;
 		float y = Mappers.position.get(entity).y;
 		SpriteComponent sprite = Mappers.sprite.get(entity);
 		
+		//sprite.sprite.getTexture().bind(0);
+		
 		sprite.sprite.setPosition(x, y);
 		sprite.sprite.draw(game.batch);
 		
 		game.batch.end();
+		
+		if(shader.getLog().length() > 0)
+		{
+			System.out.println(shader.getLog());
+		}
 	}
 	
 	private static class TypeComparator implements Comparator<Entity>

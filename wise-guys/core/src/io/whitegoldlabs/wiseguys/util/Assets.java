@@ -19,6 +19,9 @@ public class Assets
 	public static final AssetDescriptor<Texture> spriteSheet =
 			new AssetDescriptor<Texture>(Gdx.files.internal("sprites.png"), Texture.class);
 	
+	public static final AssetDescriptor<Texture> swapSewer =
+			new AssetDescriptor<Texture>(Gdx.files.internal("swap_sewer.png"), Texture.class);
+	
 	// ---------------------------------------------------------------------------------|
 	// Sound Effects                                                                    |
 	// ---------------------------------------------------------------------------------|
@@ -74,6 +77,7 @@ public class Assets
 	{
 		manager.load(title);
 		manager.load(spriteSheet);
+		manager.load(swapSewer);
 		manager.load(sfxCoin);
 		manager.load(sfxFireball);
 		manager.load(sfxGameOver);
