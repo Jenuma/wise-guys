@@ -3,6 +3,7 @@ package io.whitegoldlabs.wiseguys.util;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 
@@ -21,6 +22,12 @@ public class Assets
 	
 	public static final AssetDescriptor<Texture> swapSewer =
 			new AssetDescriptor<Texture>(Gdx.files.internal("swap_sewer.png"), Texture.class);
+	
+	// ---------------------------------------------------------------------------------|
+	// Music                                                                            |
+	// ---------------------------------------------------------------------------------|
+	public static final AssetDescriptor<Music> bgmTrueSurvivor =
+			new AssetDescriptor<Music>(Gdx.files.internal("bgm\\true_survivor.wav"), Music.class);
 	
 	// ---------------------------------------------------------------------------------|
 	// Sound Effects                                                                    |
@@ -78,6 +85,7 @@ public class Assets
 		manager.load(title);
 		manager.load(spriteSheet);
 		manager.load(swapSewer);
+		manager.load(bgmTrueSurvivor);
 		manager.load(sfxCoin);
 		manager.load(sfxFireball);
 		manager.load(sfxGameOver);

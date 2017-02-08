@@ -3,6 +3,7 @@ package io.whitegoldlabs.wiseguys.view;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -29,6 +30,7 @@ public class MainMenuScreen implements Screen
 	VerticalGroup modeGroup;
 	
 	Image selector;
+	Music bgmTrueSurvivor;
 	Sound sfxPop;
 	
 	boolean arcadeSelected;
@@ -41,6 +43,7 @@ public class MainMenuScreen implements Screen
 		this.game = game;
 		
 		game.assets.manager.load(Assets.title);
+		game.assets.manager.load(Assets.bgmTrueSurvivor);
 		game.assets.manager.load(Assets.sfxPop);
 		game.assets.manager.finishLoading();
 		
@@ -77,6 +80,7 @@ public class MainMenuScreen implements Screen
 	    selector.setPosition(modeGroup.getX() - 100, 168);
 	    stage.addActor(selector);
 	    
+	    bgmTrueSurvivor = game.assets.manager.get(Assets.bgmTrueSurvivor);
 	    sfxPop = game.assets.manager.get(Assets.sfxPop);
 	    
 	    arcadeSelected = true;
@@ -88,7 +92,7 @@ public class MainMenuScreen implements Screen
 	@Override
 	public void show()
 	{
-		
+		bgmTrueSurvivor.play();
 	}
 
 	@Override
