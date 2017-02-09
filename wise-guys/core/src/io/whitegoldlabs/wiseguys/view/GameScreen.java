@@ -207,51 +207,16 @@ public class GameScreen implements Screen
         		if(mouseHitbox.overlaps(Mappers.hitbox.get(entity).hitbox))
         		{
         			System.out.println("------------------------------------------------------------------------------------------");
-        			
         			System.out.println("ID: " + entity);
-        			
-        			if(Mappers.type.has(entity))
-        			{
-        				System.out.println("Type: " + Mappers.type.get(entity).type);
-        			}
-        			
-        			if(Mappers.position.has(entity))
-        			{
-        				System.out.println("Position: " + Mappers.position.get(entity).x + ", " + Mappers.position.get(entity).y);
-        			}
-        			
+        			if(Mappers.type.has(entity)) {System.out.println("Type: " + Mappers.type.get(entity).type);}
+        			if(Mappers.position.has(entity)) {System.out.println("Position: " + Mappers.position.get(entity).x + ", " + Mappers.position.get(entity).y);}
         			System.out.println("Hitbox: " + Mappers.hitbox.get(entity).hitbox.x + ", " + Mappers.hitbox.get(entity).hitbox.y + ", " + Mappers.hitbox.get(entity).hitbox.width + "x" + Mappers.hitbox.get(entity).hitbox.height);
-        			
-        			if(Mappers.velocity.has(entity))
-        			{
-        				System.out.println("Velocity: " + Mappers.velocity.get(entity).x + ", " + Mappers.velocity.get(entity).y);
-        			}
-        			
-        			if(Mappers.acceleration.has(entity))
-        			{
-        				System.out.println("Acceleration: " + Mappers.acceleration.get(entity).x + ", " + Mappers.acceleration.get(entity).y);
-        			}
-        			
-        			if(Mappers.player.has(entity))
-        			{
-        				System.out.println("Player State: " + Mappers.player.get(entity).playerState + ", " + Mappers.player.get(entity).anonState + ", " + (Mappers.player.get(entity).damaged ? "Damaged" : "Not Damaged"));
-        			}
-        			
-        			if(Mappers.state.has(entity))
-        			{
-        				System.out.println("State: " + Mappers.state.get(entity).motionState + ", " + Mappers.state.get(entity).airborneState + ", " + Mappers.state.get(entity).directionState + " for " + Mappers.state.get(entity).time + "s");
-        			}
-        			
-        			if(Mappers.script.has(entity))
-        			{
-        				System.out.println("Script: " + Mappers.script.get(entity).moduleName);
-        			}
-        			
-        			if(Mappers.behavior.has(entity))
-        			{
-        				System.out.println("Behavior: " + Mappers.behavior.get(entity).moduleName + ", currently " + Mappers.behavior.get(entity).behaviorState + " for " + Mappers.behavior.get(entity).behaviorTime + "s");
-        			}
-        			
+        			if(Mappers.velocity.has(entity)) {System.out.println("Velocity: " + Mappers.velocity.get(entity).x + ", " + Mappers.velocity.get(entity).y);}
+        			if(Mappers.acceleration.has(entity)) {System.out.println("Acceleration: " + Mappers.acceleration.get(entity).x + ", " + Mappers.acceleration.get(entity).y);}
+        			if(Mappers.player.has(entity)) {System.out.println("Player State: " + Mappers.player.get(entity).playerState + ", " + Mappers.player.get(entity).anonState + ", " + (Mappers.player.get(entity).damaged ? "Damaged" : "Not Damaged"));}
+        			if(Mappers.state.has(entity)) {System.out.println("State: " + Mappers.state.get(entity).motionState + ", " + Mappers.state.get(entity).airborneState + ", " + Mappers.state.get(entity).directionState + " for " + Mappers.state.get(entity).time + "s");}
+        			if(Mappers.script.has(entity)) {System.out.println("Script: " + Mappers.script.get(entity).moduleName);}
+        			if(Mappers.behavior.has(entity)) {System.out.println("Behavior: " + Mappers.behavior.get(entity).moduleName + ", currently " + Mappers.behavior.get(entity).behaviorState + " for " + Mappers.behavior.get(entity).behaviorTime + "s");}
         			System.out.println("------------------------------------------------------------------------------------------");
         		}
         	}
